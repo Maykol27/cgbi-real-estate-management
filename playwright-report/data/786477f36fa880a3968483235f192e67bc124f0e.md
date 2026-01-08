@@ -1,0 +1,130 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img "CGBI Logo" [ref=e8]
+      - button "chevron_left" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: chevron_left
+    - navigation [ref=e11]:
+      - link "dashboard Panel General" [ref=e12] [cursor=pointer]:
+        - /url: "#/admin/dashboard"
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Panel General
+      - link "apartment Inmuebles" [ref=e15] [cursor=pointer]:
+        - /url: "#/admin/properties"
+        - generic [ref=e16]: apartment
+        - generic [ref=e17]: Inmuebles
+      - link "group Inquilinos" [ref=e18] [cursor=pointer]:
+        - /url: "#/admin/tenants"
+        - generic [ref=e19]: group
+        - generic [ref=e20]: Inquilinos
+      - link "confirmation_number Tickets" [ref=e21] [cursor=pointer]:
+        - /url: "#/admin/tickets"
+        - generic [ref=e22]: confirmation_number
+        - generic [ref=e23]: Tickets
+      - link "folder_shared Documentos" [ref=e24] [cursor=pointer]:
+        - /url: "#/admin/documents"
+        - generic [ref=e25]: folder_shared
+        - generic [ref=e26]: Documentos
+      - link "event Calendario" [active] [ref=e27] [cursor=pointer]:
+        - /url: "#/admin/calendar"
+        - generic [ref=e28]: event
+        - generic [ref=e29]: Calendario
+      - link "settings Configuración" [ref=e30] [cursor=pointer]:
+        - /url: "#/admin/settings"
+        - generic [ref=e31]: settings
+        - generic [ref=e32]: Configuración
+    - generic [ref=e33]:
+      - button "logout Salir" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: logout
+        - generic [ref=e36]: Salir
+      - generic [ref=e37]:
+        - link "Facebook" [ref=e38] [cursor=pointer]:
+          - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
+          - img [ref=e39]
+        - link "Instagram" [ref=e41] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
+          - img [ref=e42]
+        - link "TikTok" [ref=e44] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e45]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e48] [cursor=pointer]:
+        - /url: https://sikaiconsulting.com
+        - generic [ref=e49]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e50]
+  - main [ref=e51]:
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - heading "Calendario de Visitas" [level=1] [ref=e55]
+          - paragraph [ref=e56]: Programación de visitas y eventos
+        - generic [ref=e57]:
+          - button "add Agendar Visita" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: add
+            - text: Agendar Visita
+          - button "notifications" [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]: notifications
+          - button "dark_mode" [ref=e62] [cursor=pointer]:
+            - generic [ref=e63]: dark_mode
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - heading "enero de 2026" [level=3] [ref=e68]
+            - generic [ref=e69]:
+              - button "chevron_left" [ref=e70] [cursor=pointer]:
+                - generic [ref=e71]: chevron_left
+              - button "Hoy" [ref=e72] [cursor=pointer]
+              - button "chevron_right" [ref=e73] [cursor=pointer]:
+                - generic [ref=e74]: chevron_right
+          - generic [ref=e75]:
+            - button "Mes" [ref=e76] [cursor=pointer]
+            - button "Semana" [ref=e77] [cursor=pointer]
+            - button "Día" [ref=e78] [cursor=pointer]
+        - generic [ref=e79]:
+          - generic [ref=e80]:
+            - generic [ref=e81]: Dom
+            - generic [ref=e82]: Lun
+            - generic [ref=e83]: Mar
+            - generic [ref=e84]: Mié
+            - generic [ref=e85]: Jue
+            - generic [ref=e86]: Vie
+            - generic [ref=e87]: Sáb
+          - generic [ref=e88]:
+            - generic [ref=e93] [cursor=pointer]: "1"
+            - generic [ref=e94] [cursor=pointer]: "2"
+            - generic [ref=e95] [cursor=pointer]: "3"
+            - generic [ref=e96] [cursor=pointer]: "4"
+            - generic [ref=e97] [cursor=pointer]: "5"
+            - generic [ref=e98] [cursor=pointer]: "6"
+            - generic [ref=e99] [cursor=pointer]:
+              - text: "7"
+              - generic "Unknown... - fgbgfgfg" [ref=e101]
+            - generic [ref=e103] [cursor=pointer]: "8"
+            - generic [ref=e104] [cursor=pointer]:
+              - text: "9"
+              - generic "Unknown... - Juan Perez Visitor" [ref=e106]
+            - generic [ref=e107] [cursor=pointer]: "10"
+            - generic [ref=e108] [cursor=pointer]: "11"
+            - generic [ref=e109] [cursor=pointer]: "12"
+            - generic [ref=e110] [cursor=pointer]: "13"
+            - generic [ref=e111] [cursor=pointer]: "14"
+            - generic [ref=e112] [cursor=pointer]: "15"
+            - generic [ref=e113] [cursor=pointer]: "16"
+            - generic [ref=e114] [cursor=pointer]: "17"
+            - generic [ref=e115] [cursor=pointer]: "18"
+            - generic [ref=e116] [cursor=pointer]: "19"
+            - generic [ref=e117] [cursor=pointer]: "20"
+            - generic [ref=e118] [cursor=pointer]: "21"
+            - generic [ref=e119] [cursor=pointer]: "22"
+            - generic [ref=e120] [cursor=pointer]: "23"
+            - generic [ref=e121] [cursor=pointer]: "24"
+            - generic [ref=e122] [cursor=pointer]: "25"
+            - generic [ref=e123] [cursor=pointer]: "26"
+            - generic [ref=e124] [cursor=pointer]: "27"
+            - generic [ref=e125] [cursor=pointer]: "28"
+            - generic [ref=e126] [cursor=pointer]: "29"
+            - generic [ref=e127] [cursor=pointer]: "30"
+            - generic [ref=e128] [cursor=pointer]: "31"
+```

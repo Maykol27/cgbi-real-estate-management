@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img "CGBI Logo" [ref=e8]
+      - button "chevron_left" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: chevron_left
+    - navigation [ref=e11]:
+      - link "dashboard Panel General" [ref=e12] [cursor=pointer]:
+        - /url: "#/admin/dashboard"
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Panel General
+      - link "apartment Inmuebles" [ref=e15] [cursor=pointer]:
+        - /url: "#/admin/properties"
+        - generic [ref=e16]: apartment
+        - generic [ref=e17]: Inmuebles
+      - link "group Inquilinos" [active] [ref=e18] [cursor=pointer]:
+        - /url: "#/admin/tenants"
+        - generic [ref=e19]: group
+        - generic [ref=e20]: Inquilinos
+      - link "confirmation_number Tickets" [ref=e21] [cursor=pointer]:
+        - /url: "#/admin/tickets"
+        - generic [ref=e22]: confirmation_number
+        - generic [ref=e23]: Tickets
+      - link "folder_shared Documentos" [ref=e24] [cursor=pointer]:
+        - /url: "#/admin/documents"
+        - generic [ref=e25]: folder_shared
+        - generic [ref=e26]: Documentos
+      - link "event Calendario" [ref=e27] [cursor=pointer]:
+        - /url: "#/admin/calendar"
+        - generic [ref=e28]: event
+        - generic [ref=e29]: Calendario
+      - link "settings Configuración" [ref=e30] [cursor=pointer]:
+        - /url: "#/admin/settings"
+        - generic [ref=e31]: settings
+        - generic [ref=e32]: Configuración
+    - generic [ref=e33]:
+      - button "logout Salir" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: logout
+        - generic [ref=e36]: Salir
+      - generic [ref=e37]:
+        - link "Facebook" [ref=e38] [cursor=pointer]:
+          - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
+          - img [ref=e39]
+        - link "Instagram" [ref=e41] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
+          - img [ref=e42]
+        - link "TikTok" [ref=e44] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e45]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e48] [cursor=pointer]:
+        - /url: https://sikaiconsulting.com
+        - generic [ref=e49]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e50]
+  - main [ref=e51]:
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - heading "Gestión de Inquilinos" [level=1] [ref=e55]
+          - paragraph [ref=e56]: Directorio y control de acceso de arrendatarios
+        - generic [ref=e57]:
+          - button "person_add Registrar Inquilino" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: person_add
+            - text: Registrar Inquilino
+          - button "notifications" [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]: notifications
+          - button "dark_mode" [ref=e62] [cursor=pointer]:
+            - generic [ref=e63]: dark_mode
+      - generic [ref=e66]:
+        - img "Tenant" [ref=e68]
+        - heading "Juan Pérez" [level=3] [ref=e69]
+        - paragraph [ref=e70]: juan.perez@cgbi.com
+        - generic [ref=e71]:
+          - button "person Perfil" [ref=e72] [cursor=pointer]:
+            - generic [ref=e73]: person
+            - text: Perfil
+          - button "receipt_long Historial" [ref=e74] [cursor=pointer]:
+            - generic [ref=e75]: receipt_long
+            - text: Historial
+```

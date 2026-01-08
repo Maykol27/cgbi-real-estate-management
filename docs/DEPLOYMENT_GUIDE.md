@@ -46,18 +46,23 @@ Este paso conecta las dos plataformas. Ejecuta en la terminal:
 
 ```bash
 npx firebase login
+```
+⚠️ **IMPORTANTE:** Aquí debes iniciar sesión con el **GMAIL DEL CLIENTE** (quien pagará el hosting).
+
+```bash
 npx firebase init hosting
 ```
 
 El asistente te hará las siguientes preguntas:
-1. **Project Setup**: Selecciona "Use an existing project" y elige tu proyecto `cgbi-real-estate`.
-2. **Public directory**: Escribe `dist` (Esto es muy importante, es donde Vite crea la app).
+1. **Project Setup**: Selecciona "Use an existing project" y elige el proyecto del cliente.
+2. **Public directory**: Escribe `dist` (Esto es muy importante).
 3. **Configure as a single-page app?**: Escribe `Yes` (o `y`).
 4. **Set up automatic builds and deploys with GitHub?**: Escribe `Yes` (o `y`).
 5. **File to overwrite? (index.html)**: Escribe `No` (o `n`).
 
-Luego te pedirá iniciar sesión en GitHub desde la terminal para autorizar a Firebase.
-- **For which GitHub repository would you like to set up a GitHub workflow?**: Escribe `TU_USUARIO/NOMBRE_REPO`.
+Luego te pedirá iniciar sesión en GitHub.
+⚠️ **AQUÍ INICIA CON TU CUENTA DE GITHUB** (Tú eres el dueño del código).
+- **For which GitHub repository...?**: Escribe `Maykol27/cgbi-real-estate-management`.
 
 Firebase creará automáticamente un archivo en `.github/workflows` y guardará los secretos necesarios en GitHub.
 
