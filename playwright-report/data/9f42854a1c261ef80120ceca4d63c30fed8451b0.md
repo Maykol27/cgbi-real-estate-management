@@ -1,0 +1,127 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img "CGBI Logo" [ref=e8]
+      - button "chevron_left" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: chevron_left
+    - navigation [ref=e11]:
+      - link "dashboard Panel General" [ref=e12] [cursor=pointer]:
+        - /url: "#/admin/dashboard"
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Panel General
+      - link "apartment Inmuebles" [ref=e15] [cursor=pointer]:
+        - /url: "#/admin/properties"
+        - generic [ref=e16]: apartment
+        - generic [ref=e17]: Inmuebles
+      - link "group Inquilinos" [ref=e18] [cursor=pointer]:
+        - /url: "#/admin/tenants"
+        - generic [ref=e19]: group
+        - generic [ref=e20]: Inquilinos
+      - link "confirmation_number Tickets" [ref=e21] [cursor=pointer]:
+        - /url: "#/admin/tickets"
+        - generic [ref=e22]: confirmation_number
+        - generic [ref=e23]: Tickets
+      - link "folder_shared Documentos" [active] [ref=e24] [cursor=pointer]:
+        - /url: "#/admin/documents"
+        - generic [ref=e25]: folder_shared
+        - generic [ref=e26]: Documentos
+      - link "event Calendario" [ref=e27] [cursor=pointer]:
+        - /url: "#/admin/calendar"
+        - generic [ref=e28]: event
+        - generic [ref=e29]: Calendario
+      - link "settings Configuración" [ref=e30] [cursor=pointer]:
+        - /url: "#/admin/settings"
+        - generic [ref=e31]: settings
+        - generic [ref=e32]: Configuración
+    - generic [ref=e33]:
+      - button "logout Salir" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: logout
+        - generic [ref=e36]: Salir
+      - generic [ref=e37]:
+        - link "Facebook" [ref=e38] [cursor=pointer]:
+          - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
+          - img [ref=e39]
+        - link "Instagram" [ref=e41] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
+          - img [ref=e42]
+        - link "TikTok" [ref=e44] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e45]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e48] [cursor=pointer]:
+        - /url: https://sikaiconsulting.com
+        - generic [ref=e49]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e50]
+  - main [ref=e51]:
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - heading "Gestión de Documentos" [level=1] [ref=e55]
+          - paragraph [ref=e56]: Subir y gestionar archivos para Propietarios e Inquilinos
+        - generic [ref=e57]:
+          - button "notifications" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: notifications
+          - button "dark_mode" [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]: dark_mode
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64] [cursor=pointer]:
+            - generic [ref=e66]: cloud_upload
+            - heading "Arrastra archivos aquí o haz clic para subir" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Soporta PDF, DOCX, JPG (Max 10MB)
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: Tipo de Documento
+              - combobox [ref=e72]:
+                - option "Seleccionar Tipo..." [selected]
+                - option "Factura / Recibo"
+                - option "Contrato"
+                - option "Comunicación"
+                - option "Solicitud"
+                - option "Documento Personal"
+            - generic [ref=e73]:
+              - generic [ref=e74]: Destinatario
+              - combobox [ref=e75]:
+                - option "General (Todos)" [selected]
+                - option "Inquilinos"
+                - option "Propietarios"
+                - option "Cliente Específico"
+          - generic:
+            - generic [ref=e76]: Cliente Específico
+            - textbox "Buscar por nombre..." [ref=e78]
+          - button "upload_file Subir Documento" [ref=e80] [cursor=pointer]:
+            - generic [ref=e81]: upload_file
+            - text: Subir Documento
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - heading "Documentos Recientes" [level=3] [ref=e84]
+            - generic [ref=e85]:
+              - generic [ref=e86]: search
+              - textbox "Buscar documento..." [ref=e87]
+          - table [ref=e89]:
+            - rowgroup [ref=e90]:
+              - row "Nombre Archivo Dirigido A Fecha Acciones" [ref=e91]:
+                - columnheader "Nombre Archivo" [ref=e92]
+                - columnheader "Dirigido A" [ref=e93]
+                - columnheader "Fecha" [ref=e94]
+                - columnheader "Acciones" [ref=e95]
+            - rowgroup [ref=e96]:
+              - row "description Contrato Modelo 2.5 MB Todos 1/8/2026 delete download" [ref=e97]:
+                - cell "description Contrato Modelo 2.5 MB" [ref=e98]:
+                  - generic [ref=e99]:
+                    - generic [ref=e101]: description
+                    - generic [ref=e102]:
+                      - paragraph [ref=e103]: Contrato Modelo
+                      - paragraph [ref=e104]: 2.5 MB
+                - cell "Todos" [ref=e105]:
+                  - generic [ref=e106]: Todos
+                - cell "1/8/2026" [ref=e107]
+                - cell "delete download" [ref=e108]:
+                  - generic [ref=e109]:
+                    - button "delete" [ref=e110] [cursor=pointer]:
+                      - generic [ref=e111]: delete
+                    - button "download" [ref=e112] [cursor=pointer]:
+                      - generic [ref=e113]: download
+```

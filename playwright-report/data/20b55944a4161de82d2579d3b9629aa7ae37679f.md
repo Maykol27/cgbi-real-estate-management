@@ -1,0 +1,69 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img "CGBI Logo" [ref=e8]
+      - button "chevron_left" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: chevron_left
+    - navigation [ref=e11]:
+      - link "dashboard Inicio" [ref=e12] [cursor=pointer]:
+        - /url: "#/tenant/dashboard"
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Inicio
+      - link "receipt_long Pagos y Facturas" [active] [ref=e15] [cursor=pointer]:
+        - /url: "#/tenant/payments"
+        - generic [ref=e16]: receipt_long
+        - generic [ref=e17]: Pagos y Facturas
+      - link "description Mis Contratos" [ref=e18] [cursor=pointer]:
+        - /url: "#/tenant/contracts"
+        - generic [ref=e19]: description
+        - generic [ref=e20]: Mis Contratos
+      - link "home_repair_service Solicitudes" [ref=e21] [cursor=pointer]:
+        - /url: "#/tenant/requests"
+        - generic [ref=e22]: home_repair_service
+        - generic [ref=e23]: Solicitudes
+      - link "person Perfil" [ref=e24] [cursor=pointer]:
+        - /url: "#/tenant/profile"
+        - generic [ref=e25]: person
+        - generic [ref=e26]: Perfil
+    - generic [ref=e27]:
+      - button "logout Salir" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: logout
+        - generic [ref=e30]: Salir
+      - generic [ref=e31]:
+        - link "Facebook" [ref=e32] [cursor=pointer]:
+          - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
+          - img [ref=e33]
+        - link "Instagram" [ref=e35] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
+          - img [ref=e36]
+        - link "TikTok" [ref=e38] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e39]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e42] [cursor=pointer]:
+        - /url: https://sikaiconsulting.com
+        - generic [ref=e43]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e44]
+  - main [ref=e45]:
+    - generic [ref=e46]:
+      - heading "Pagos y Facturas" [level=1] [ref=e47]
+      - generic [ref=e48]:
+        - button "notifications" [ref=e49] [cursor=pointer]:
+          - generic [ref=e50]: notifications
+        - button "dark_mode" [ref=e51] [cursor=pointer]:
+          - generic [ref=e52]: dark_mode
+    - table [ref=e56]:
+      - rowgroup [ref=e57]:
+        - row "Periodo Estado Monto" [ref=e58]:
+          - columnheader "Periodo" [ref=e59]
+          - columnheader "Estado" [ref=e60]
+          - columnheader "Monto" [ref=e61]
+          - columnheader [ref=e62]
+      - rowgroup [ref=e63]:
+        - row "No hay historial de pagos registrado. [Simular Pago de Mes Actual]" [ref=e64]:
+          - cell "No hay historial de pagos registrado. [Simular Pago de Mes Actual]" [ref=e65]:
+            - text: No hay historial de pagos registrado.
+            - button "[Simular Pago de Mes Actual]" [ref=e66] [cursor=pointer]
+```
