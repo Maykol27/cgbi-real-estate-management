@@ -15,4 +15,4 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseToken: '${{ secrets.FIREBASE_TOKEN }}'
           channelId: live
-          projectId: your-project-id
+          projectId: cgbi-portal-gestion
