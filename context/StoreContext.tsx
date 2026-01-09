@@ -401,14 +401,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
             // Priority: Real Supabase Auth to satisfy RLS
             if (password) {
-                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LOGIN TIMEOUT - Network too slow")), 8000));
-                const authRequest = supabase.auth.signInWithPassword({
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                     email,
                     password
                 });
-
-                const result = await Promise.race([authRequest, timeout]);
-                const { data: authData, error: authError } = result as any;
 
                 if (authError) {
                     console.error("Supabase Auth Error:", authError);

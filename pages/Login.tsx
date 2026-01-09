@@ -14,27 +14,7 @@ const Login: React.FC = () => {
 
   // Debug mount
   React.useEffect(() => {
-    console.log("Login Component MOUNTED");
-
-    // SIKAI DEBUG: Test Connectivity with TIMEOUT
-    const test = async () => {
-      console.log("TESTING SUPABASE CONNECTIVITY...");
-      try {
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT - Supabase not responding in 5s")), 5000));
-        const request = supabase.from('users').select('*', { count: 'exact', head: true });
-
-        const result = await Promise.race([request, timeout]);
-        const { count, error } = result as any;
-
-        if (error) console.error("SUPABASE ERROR:", error);
-        else console.log("SUPABASE CONNECTED. User count:", count);
-      } catch (err) {
-        console.error("SUPABASE CONNECTIVITY FAILED:", err);
-        alert("ERROR DE CONEXIÓN: Supabase no responde. Verifique su red o bloqueo de anuncios.");
-      }
-    };
-    test();
-    alert("SIKAI MONITOR: Código actualizado. Revisa la consola por 'SUPABASE CONNECTED'.");
+    // console.log("Login Component MOUNTED");
   }, []);
 
   const handleLogin = async (e: React.FormEvent | React.MouseEvent) => {
