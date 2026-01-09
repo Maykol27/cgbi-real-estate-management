@@ -126,11 +126,10 @@ const Login: React.FC = () => {
           </div>
 
           <button
-            type="button"
-            onClick={handleLogin}
+            type="submit"
             className="w-full py-3.5 px-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <span>Ingresar (Debug)</span>
+            <span>Ingresar</span>
             <span className="material-icons-round text-sm">login</span>
           </button>
 
