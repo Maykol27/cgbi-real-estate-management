@@ -8,34 +8,66 @@ export const DebugConnection: React.FC = () => {
 
     const runTests = async () => {
         setLogs([]);
-        addLog("Iniciando pruebas de diagnóstico...");
+        addLog("Iniciando pruebas de diagnóstico V2...");
+
+        const url = 'https://eqfsekdvzdklhhcqifuk.supabase.co';
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZnNla2R2emRrbGhoY3FpZnVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2Mzk1ODIsImV4cCI6MjA4MzIxNTU4Mn0.QWoxJOtjhJcKC7QBkjAof0D7kXFmiGlMjoHD-ZQD0PI';
 
         // 1. Check Internet (Fetch to a public CDN usually allow-listed or similar)
-        // Note: Generic fetch might fail CORS, so we test Supabase Health endpoint
         try {
-            addLog("Test 1: Ping Supabase URL (Raw Fetch)...");
-            const url = 'https://eqfsekdvzdklhhcqifuk.supabase.co'; // Base URL
+            addLog("Test 1: Ping Supabase URL (Raw Fetch no-cors)...");
             const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-            // no-cors means we won't see status, but if it doesn't throw, we reached it.
             addLog(`Test 1 OK: Request sent (Opaque response).`);
         } catch (e: any) {
             addLog(`Test 1 FALLÓ: ${e.message}`);
         }
 
-        // 2. Check Supabase Client Select
+        // 1.5 Manual REST Fetch
         try {
-            addLog("Test 2: Supabase Client Select ('users' table)...");
-            const start = Date.now();
-            const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
-            const time = Date.now() - start;
+            addLog("Test 1.5: Manual REST Fetch (con Headers)...");
+            const restUrl = `${url}/rest/v1/users?select=count`;
 
-            if (error) {
-                addLog(`Test 2 ERROR Supabase: ${error.message} (Code: ${error.code})`);
+            // Timeout wrapper for fetch
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            const res = await fetch(restUrl, {
+                method: 'GET',
+                headers: {
+                    'apikey': anonKey,
+                    'Authorization': `Bearer ${anonKey}`
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+                addLog(`Test 1.5 OK : Status ${res.status}`);
             } else {
-                addLog(`Test 2 ÉXITO: Conectado en ${time}ms. Users count: ${count}`);
+                addLog(`Test 1.5 ERROR HTTP: ${res.status} ${res.statusText}`);
             }
         } catch (e: any) {
-            addLog(`Test 2 EXCEPCIÓN: ${e.message}`);
+            if (e.name === 'AbortError') addLog("Test 1.5 TIMEOUT: La petición con Headers se quedó colgada.");
+            else addLog(`Test 1.5 EXCEPCIÓN: ${e.message}`);
+        }
+
+        // 2. Check Supabase Client Select
+        try {
+            addLog("Test 2: Supabase Client Select...");
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT 5s")), 5000));
+            const request = supabase.from('users').select('*', { count: 'exact', head: true });
+
+            // @ts-ignore
+            const result = await Promise.race([request, timeout]);
+            const { count, error } = result as any;
+
+            if (error) {
+                addLog(`Test 2 ERROR Supabase: ${error.message}`);
+            } else {
+                addLog(`Test 2 ÉXITO: Connected. Count: ${count}`);
+            }
+        } catch (e: any) {
+            addLog(`Test 2 FALLÓ: ${e.message}`);
         }
 
         // 3. Check Auth Config
@@ -47,7 +79,7 @@ export const DebugConnection: React.FC = () => {
             addLog(`Test 3 ERROR: ${e.message}`);
         }
 
-        addLog("Diagnóstico finalizado.");
+        addLog("Diagnóstico finalizado. Si Test 1 pasa pero 1.5 falla, es un bloqueo de Headers/CORS.");
     };
 
     useEffect(() => {
