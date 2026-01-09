@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserRole } from '../types';
 import { useStore } from '../context/StoreContext';
 import { LOGO_BASE64 } from '../constants/logo';
@@ -231,7 +231,39 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
 export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = ({ children, role }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false); // Desktop Collapsed State
+  const { user } = useStore();
+  const navigate = useNavigate();
   const location = useLocation();
+
+  // --- SECURITY: Route Guard ---
+  useEffect(() => {
+    // If not logged in, wait or redirect (Login page should handle this, but double check)
+    if (!user) {
+      // Ideally we redirect to login, but let's assume Login check happens in App or Login page.
+      // If user is null, we can't check role.
+      return;
+    }
+
+    const currentUserRole = user.role;
+    let isAuthorized = false;
+
+    if (role === UserRole.ADMIN) {
+      if (currentUserRole === 'Admin' || currentUserRole === 'Colaborador') isAuthorized = true;
+    } else if (role === UserRole.TENANT) {
+      if (currentUserRole === 'Inquilino') isAuthorized = true;
+    } else if (role === UserRole.OWNER) {
+      if (currentUserRole === 'Propietario') isAuthorized = true;
+    }
+
+    if (!isAuthorized) {
+      // Redirect unauthorized users to their dashboard
+      if (currentUserRole === 'Admin' || currentUserRole === 'Colaborador') navigate('/admin/dashboard');
+      else if (currentUserRole === 'Inquilino') navigate('/tenant/dashboard');
+      else if (currentUserRole === 'Propietario') navigate('/owner/dashboard');
+      else navigate('/');
+    }
+  }, [user, role, navigate]);
+  // -----------------------------
 
   // Close sidebar automatically when route changes (mobile UX)
   useEffect(() => {

@@ -423,27 +423,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
 
             // Fallback / Backdoor for testing
-            if (password === 'pruebas2026cgbi') {
-                let role = 'Inquilino';
-                // Explicit mapping for known test users
-                if (email === 'maykol.sicard27@gmail.com') role = 'Admin';
-                else if (email === 'carlos.ruiz@cgbi.com') role = 'Propietario';
-                else if (email === 'pedro.colab@cgbi.com') role = 'Colaborador';
-                else if (email === 'juan.perez@cgbi.com') role = 'Inquilino';
-                // Fallback heuristics
-                else if (email.includes('admin')) role = 'Admin';
-                else if (email.includes('owner')) role = 'Propietario';
-                else if (email.includes('collab')) role = 'Colaborador';
-
-                setUser({
-                    id: 999999,
-                    name: "Test User " + role,
-                    role: role as any,
-                    email: email,
-                    permissions: []
-                });
-                return true;
-            }
+            // Backdoor removed for security.
+            // if (password === 'pruebas2026cgbi') { ... }
         } catch (error) {
             console.error("Login Error:", error);
         }

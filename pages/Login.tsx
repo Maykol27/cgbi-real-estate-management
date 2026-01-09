@@ -22,19 +22,8 @@ const Login: React.FC = () => {
       let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
       // --- TEST FIX: Handle case where user is not in 'users' list yet (e.g. mock login) ---
-      if (!user && (password === 'pruebas2026cgbi' || email.includes('test'))) {
-        let role: any = 'Inquilino';
-        if (email === 'maykol.sicard27@gmail.com') role = 'Admin';
-        else if (email === 'carlos.ruiz@cgbi.com') role = 'Propietario';
-        else if (email === 'pedro.colab@cgbi.com') role = 'Colaborador';
-        else if (email === 'juan.perez@cgbi.com') role = 'Inquilino';
-        // Fallbacks
-        else if (email.includes('admin')) role = 'Admin';
-        else if (email.includes('owner')) role = 'Propietario';
-        else if (email.includes('collab')) role = 'Colaborador';
-
-        user = { id: 999, name: 'Test User', email, role };
-      }
+      // Test logic removed.
+      // if (!user && ... ) { ... }
       // ------------------------------------------------------------------------------------
 
       if (user) {
