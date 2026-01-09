@@ -1,6 +1,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
+import { DebugConnection } from './pages/DebugConnection';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { AdminProperties, AdminTenants, AdminTickets, AdminDocuments, AdminSettings, AdminCalendar } from './pages/admin/AdminPages';
 import { TenantDashboard, TenantPayments, TenantContracts, TenantRequests, TenantProfile } from './pages/tenant/TenantPages';
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <HashRouter>
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/debug" element={<DebugConnection />} />
 
             {/* Admin Routes */}
             <Route path="/admin/*" element={
