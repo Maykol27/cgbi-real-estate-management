@@ -407,9 +407,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     password
                 });
 
-                // @ts-ignore
                 const result = await Promise.race([authRequest, timeout]);
-                const { data: authData, error: authError } = result;
+                const { data: authData, error: authError } = result as any;
 
                 if (authError) {
                     console.error("Supabase Auth Error:", authError);
