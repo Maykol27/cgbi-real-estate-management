@@ -231,16 +231,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
 export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = ({ children, role }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false); // Desktop Collapsed State
-  const { user } = useStore();
+  const { user, loading } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   // --- SECURITY: Route Guard ---
+  // --- SECURITY: Route Guard ---
   useEffect(() => {
-    // If not logged in, wait or redirect (Login page should handle this, but double check)
+    // 1. Wait for loading to finish
+    if (loading) return;
+
+    // 2. If not logged in after loading, redirect to Login
     if (!user) {
-      // Ideally we redirect to login, but let's assume Login check happens in App or Login page.
-      // If user is null, we can't check role.
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
       return;
     }
 
@@ -262,7 +267,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
       else if (currentUserRole === 'Propietario') navigate('/owner/dashboard');
       else navigate('/');
     }
-  }, [user, role, navigate]);
+  }, [user, loading, role, navigate, location.pathname]);
   // -----------------------------
 
   // Close sidebar automatically when route changes (mobile UX)

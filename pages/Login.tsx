@@ -15,28 +15,20 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    const success = await login(email, password);
+    const loggedInUser = await login(email, password);
 
-    if (success) {
-      // Find the user to redirect correctly
-      let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-      // --- TEST FIX: Handle case where user is not in 'users' list yet (e.g. mock login) ---
-      // Test logic removed.
-      // if (!user && ... ) { ... }
-      // ------------------------------------------------------------------------------------
-
-      if (user) {
-        if (user.role === 'Admin' || user.role === 'Colaborador') {
-          navigate('/admin/dashboard');
-        } else if (user.role === 'Propietario') {
-          navigate('/owner/dashboard');
-        } else if (user.role === 'Inquilino') {
-          navigate('/tenant/dashboard');
-        }
+    if (loggedInUser) {
+      if (loggedInUser.role === 'Admin' || loggedInUser.role === 'Colaborador') {
+        navigate('/admin/dashboard');
+      } else if (loggedInUser.role === 'Propietario') {
+        navigate('/owner/dashboard');
+      } else if (loggedInUser.role === 'Inquilino') {
+        navigate('/tenant/dashboard');
       }
     } else {
-      setError('Credenciales inválidas. Por favor verifique su correo.');
+      // Error is likely already handled by notify in StoreContext, 
+      // but strictly speaking we can show a generic message if no error state was set.
+      setError('No se pudo iniciar sesión. Verifique sus credenciales.');
     }
   };
 

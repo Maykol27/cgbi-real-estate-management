@@ -103,7 +103,8 @@ export interface Payment {
 
 interface StoreContextType {
     user: User | null;
-    login: (email: string, password?: string) => Promise<boolean>;
+    loading: boolean;
+    login: (email: string, password?: string) => Promise<User | null>;
     logout: () => void;
     users: User[]; // List of all users
 
@@ -147,6 +148,7 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // --- State (initialized empty) ---
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<User[]>([]);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [documents, setDocuments] = useState<Document[]>([]);
@@ -335,22 +337,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         // Check active session
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) {
-                fetchProfile(session.user.id);
+                fetchProfile(session.user.id).finally(() => setLoading(false));
+            } else {
+                setLoading(false);
             }
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             if (session?.user) {
-                fetchProfile(session.user.id);
+                // fetchProfile(session.user.id); // Already fetching in getSession or login? 
+                // Careful with double fetch for getSession vs onAuthStateChange
+                fetchProfile(session.user.id).finally(() => setLoading(false));
             } else {
                 setUser(null);
+                setLoading(false);
             }
         });
 
         return () => subscription.unsubscribe();
     }, []);
 
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string): Promise<User | undefined> => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
@@ -359,35 +366,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 .single();
 
             if (data) {
-                // Adapt Supabase profile to local User type
-                // Note: ID in types is number, Supabase is UUID.
-                // For this refactor we might need to cast or update types. 
-                // For now, let's keep ID as number in types (as requested to keep logic working) 
-                // but we need to map UUID to number or change types.
-                // Given the constraint "all db needed", we should probably update types.
-                // However, to avoid huge refactor, we can hash the UUID to a number temporarily OR better, update the User type.
-                // Updating User type to string ID is safer but touches many files.
-                // Let's TRY to keep types as string for ID where possible, or use a temp mapping.
-                // Actually, let's update the User type ID to string/number union or string.
-                // Checking types.ts first would be wise.
-
-                // Correction: types.ts defines ID as number.
-                // Let's assume for this step we Mock the ID mapping or just restart with string IDs.
-                // User ID is number. Supabase is UUID.
-                // Strategy: Update User type in StoreContext to allow string ID? 
-                // Wait, I can't easily change all call sites. 
-                // I will generate a number ID based on the user or just keep the mock USERS list 
-                // BUT the goal is "integrate login".
-
-                // Let's try to fetch all data from Supabase.
-
-                setUser({
-                    id: data.id, // Use real ID from profile if available, else data.id which is likely UUID
+                const loadedUser: User = {
+                    id: data.id,
                     name: data.full_name,
                     role: data.role as any,
                     email: data.email,
                     permissions: data.permissions
-                });
+                };
+
+                setUser(loadedUser);
 
                 // Fetch User Payments
                 const { data: paymentsData } = await supabase.from('payments').select('*').eq('tenant_id', data.id);
@@ -401,13 +388,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         tenant_id: p.tenant_id
                     })));
                 }
+                return loadedUser;
             }
         } catch (error) {
             console.error(error);
         }
+        return undefined;
     };
 
-    const login = async (email: string, password?: string) => {
+    const login = async (email: string, password?: string): Promise<User | null> => {
         try {
             // Priority: Real Supabase Auth to satisfy RLS
             if (password) {
@@ -416,19 +405,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     password
                 });
 
+                if (authError) {
+                    console.error("Supabase Auth Error:", authError);
+                    notify("Error de Autenticación", authError.message);
+                    return null;
+                }
+
                 if (authData.user) {
-                    await fetchProfile(authData.user.id);
-                    return true;
+                    const profile = await fetchProfile(authData.user.id);
+                    return profile || null;
                 }
             }
-
-            // Fallback / Backdoor for testing
-            // Backdoor removed for security.
-            // if (password === 'pruebas2026cgbi') { ... }
         } catch (error) {
             console.error("Login Error:", error);
         }
-        return false;
+        return null;
     };
 
     const logout = async () => {
@@ -881,7 +872,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     return (
         <StoreContext.Provider value={{
-            user, login, logout, users, addUser,
+            user, loading, login, logout, users, addUser,
             tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
             documents, addDocument, deleteDocument,
             properties, addProperty, updatePropertyStatus,
