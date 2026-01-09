@@ -126,13 +126,13 @@ export const OwnerDashboard: React.FC = () => {
 
 // --- Properties ---
 export const OwnerProperties: React.FC = () => {
-    const [selectedProp, setSelectedProp] = useState<boolean>(false);
+    const [selectedProp, setSelectedProp] = useState<any | null>(null);
     const [showHistory, setShowHistory] = useState(false);
     const { showToast } = useToast();
     const { properties } = useStore(); // Get properties from store
 
     const handleClose = () => {
-        setSelectedProp(false);
+        setSelectedProp(null);
         setShowHistory(false);
     };
 
@@ -141,18 +141,18 @@ export const OwnerProperties: React.FC = () => {
             <OwnerHeader title="Mis Propiedades" />
 
             {selectedProp && (
-                <Modal title={showHistory ? "Historial de Pagos - Residencial Altamira #402" : "Detalles de Propiedad"} onClose={handleClose}>
+                <Modal title={showHistory ? `Historial de Pagos - ${selectedProp.name}` : "Detalles de Propiedad"} onClose={handleClose}>
                     {!showHistory ? (
                         <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD10TQxMfGFcHP_zLh8YYGneAhnQxfNLDU_67tmxPPtMUpVKruLldIk-MDb5izJyBA01GSCEUErPs9SIFLVodOErEZyGNThMIL6z4T0RgG43PbHwx0yClvFZcfDXRDfBKQYw0Ao4WNCwwiNikDZ45s3obHR9DQM-LgnvSksTe3yZuyZROcl8gzn5F0-zvE_8oFnCmy5rSIJBqLxX1SXG_By2thGjCyBG_WWtW9ZJx4d8MQ7_g5bPNA3qPO8VhEIOt2aFih0KPhbDwG9" className="w-full h-40 object-cover rounded-lg mb-2" alt="Propiedad" />
+                            <img src={selectedProp.image || "https://lh3.googleusercontent.com/aida-public/AB6AXuD10TQxMfGFcHP_zLh8YYGneAhnQxfNLDU_67tmxPPtMUpVKruLldIk-MDb5izJyBA01GSCEUErPs9SIFLVodOErEZyGNThMIL6z4T0RgG43PbHwx0yClvFZcfDXRDfBKQYw0Ao4WNCwwiNikDZ45s3obHR9DQM-LgnvSksTe3yZuyZROcl8gzn5F0-zvE_8oFnCmy5rSIJBqLxX1SXG_By2thGjCyBG_WWtW9ZJx4d8MQ7_g5bPNA3qPO8VhEIOt2aFih0KPhbDwG9"} className="w-full h-40 object-cover rounded-lg mb-2" alt="Propiedad" />
                             <div>
-                                <h4 className="font-bold text-lg dark:text-white">Residencial Altamira #402</h4>
-                                <p className="text-sm text-gray-500">Av. Libertador 1234, Centro</p>
+                                <h4 className="font-bold text-lg dark:text-white">{selectedProp.name}</h4>
+                                <p className="text-sm text-gray-500">{selectedProp.address}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                     <span className="block text-gray-400 text-xs uppercase">Inquilino Actual</span>
-                                    <span className="font-semibold dark:text-white">Juan Pérez</span>
+                                    <span className="font-semibold dark:text-white">{selectedProp.status === 'Ocupado' ? 'Ocupado' : 'Sin Asignar'}</span>
                                 </div>
                                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                     <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
@@ -179,17 +179,7 @@ export const OwnerProperties: React.FC = () => {
                                         <tr>
                                             <td className="p-3 dark:text-gray-300">01 Oct 2026</td>
                                             <td className="p-3 dark:text-gray-300">Renta Octubre</td>
-                                            <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(5000000)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="p-3 dark:text-gray-300">01 Sep 2026</td>
-                                            <td className="p-3 dark:text-gray-300">Renta Septiembre</td>
-                                            <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(5000000)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="p-3 dark:text-gray-300">01 Ago 2026</td>
-                                            <td className="p-3 dark:text-gray-300">Renta Agosto</td>
-                                            <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(5000000)}</td>
+                                            <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(Number(selectedProp.rent))}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -206,7 +196,7 @@ export const OwnerProperties: React.FC = () => {
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Filter properties for this owner (mocked as Carlos Ruiz or just all for demo) */}
                     {properties.map(p => (
-                        <div key={p.id} onClick={() => setSelectedProp(true)} className="bg-card-light dark:bg-card-dark rounded-xl overflow-hidden shadow-card border border-gray-100 dark:border-gray-700 flex flex-col hover:shadow-hover transition-all group cursor-pointer">
+                        <div key={p.id} onClick={() => setSelectedProp(p)} className="bg-card-light dark:bg-card-dark rounded-xl overflow-hidden shadow-card border border-gray-100 dark:border-gray-700 flex flex-col hover:shadow-hover transition-all group cursor-pointer">
                             <div className="h-48 bg-gray-200 dark:bg-slate-700 relative overflow-hidden">
                                 <img
                                     alt="Property"

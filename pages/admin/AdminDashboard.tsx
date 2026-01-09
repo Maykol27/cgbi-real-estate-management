@@ -5,7 +5,7 @@ import { useStore } from '../../context/StoreContext';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { properties, tickets } = useStore();
+  const { properties, tickets, user } = useStore();
 
   // --- KPI Calculations ---
   const totalProperties = properties.length;
@@ -41,10 +41,12 @@ const AdminDashboard: React.FC = () => {
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
           <div className="flex items-center gap-3 pl-2 cursor-pointer group">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold leading-tight">Camila Gutiérrez</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Administrador</p>
+              <p className="text-sm font-semibold leading-tight">{user?.name || 'Usuario'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role || 'Rol Desconocido'}</p>
             </div>
-            <div className="size-9 rounded-full bg-slate-200 bg-cover bg-center border-2 border-white dark:border-slate-700 shadow-sm" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAYaJuwspujSLJmq9oSdB2rrGmJGJQ-oAeVvCtlF7RZRMb8NXWD7VPT6Q_5kn41wXjdGhXZsYeb1_3iz26Op8YRWD0PPlymHFGG7oXjhN6PTJi_lLSy3pCXnsjz0Rvf5q9jV14-MnhCE3GGUylV5_nGNZyOGByep5h_vg0-ABXrAOrNzEhi607ewmyYMUIZEu9vS9WQOEynC1AdlY26aUxI0XHLWKKEIbd8g1lCw3d0zZi-JvUuQ1WPmSviDQj1wTlvNW8Yv7FTdQw0")' }}></div>
+            <div className="size-9 rounded-full bg-primary/10 text-primary border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center font-bold text-sm">
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'US'}
+            </div>
           </div>
         </div>
       </header>
@@ -161,7 +163,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="flex flex-col flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">Contrato Prov.: Jardinería Verde</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Subido por Camila G. • hace 2h</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Subido por {user?.name || 'Admin'} • hace 2h</p>
                   </div>
                 </div>
               </div>

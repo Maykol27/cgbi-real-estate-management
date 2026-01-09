@@ -211,7 +211,7 @@ export const TenantRequests: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
 
     // Filter tickets for this tenant
-    const myTickets = tickets.filter(t => t.requesterRole === 'Inquilino' && (t.requester === user?.name || t.requester === 'Juan Pérez')); // Fallback to 'Juan Perez' just in case old data exists
+    const myTickets = tickets.filter(t => t.requesterRole === 'Inquilino' && t.requester === user?.name);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -386,7 +386,7 @@ export const TenantProfile: React.FC = () => {
                             <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept="image/*" />
                         </div>
                         <h2 className="mt-4 text-xl font-bold dark:text-white">{user?.name || "Cargando..."}</h2>
-                        <p className="text-gray-500">{user?.role} • {user?.policyNumber ? 'Póliza: ' + user.policyNumber : 'Apto 402 (Demo)'}</p>
+                        <p className="text-gray-500">{user?.role} • {user?.policyNumber ? 'Póliza: ' + user.policyNumber : 'Sin Asignar'}</p>
                     </div>
 
                     <div className="space-y-6">
@@ -397,7 +397,7 @@ export const TenantProfile: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono</label>
-                                <input type="tel" defaultValue="+57 300 000 0000" className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800" />
+                                <input type="tel" className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800" placeholder="+57 ..." />
                             </div>
                         </div>
                         <div>

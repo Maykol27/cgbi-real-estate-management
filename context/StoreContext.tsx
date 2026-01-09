@@ -397,6 +397,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const login = async (email: string, password?: string): Promise<User | null> => {
+        console.log("STORE CONTEXT LOGIN CALLED - Email:", email); // DEBUG
         try {
             // Priority: Real Supabase Auth to satisfy RLS
             if (password) {
