@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../components/Layout';
 import { useStore } from '../context/StoreContext';
+import { supabase } from '../lib/supabaseClient';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,16 @@ const Login: React.FC = () => {
   // Debug mount
   React.useEffect(() => {
     console.log("Login Component MOUNTED");
+
+    // SIKAI DEBUG: Test Connectivity
+    const test = async () => {
+      console.log("TESTING SUPABASE CONNECTIVITY...");
+      const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
+      if (error) console.error("SUPABASE ERROR:", error);
+      else console.log("SUPABASE CONNECTED. User count:", count);
+    };
+    test();
+    alert("SIKAI MONITOR: Código actualizado. Revisa la consola por 'SUPABASE CONNECTED'.");
   }, []);
 
   const handleLogin = async (e: React.FormEvent | React.MouseEvent) => {
