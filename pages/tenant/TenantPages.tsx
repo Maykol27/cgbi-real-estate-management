@@ -17,11 +17,22 @@ const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
 
 // --- Dashboard ---
 export const TenantDashboard: React.FC = () => {
-    const { user } = useStore();
+    const { user, payments } = useStore();
     const { showToast } = useToast();
 
     // Get first name for greeting
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
+
+    // Derived Payment State
+    // Find earliest pending payment
+    const nextPayment = payments
+        .filter(p => p.status === 0 || p.status === 2) // Pending or Late
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+
+    const amountToShow = nextPayment ? nextPayment.amount : 0;
+    const dateToShow = nextPayment
+        ? new Date(nextPayment.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+        : '---';
 
     return (
         <>
@@ -55,15 +66,27 @@ export const TenantDashboard: React.FC = () => {
                             <div>
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-icons-round text-primary text-xl">account_balance_wallet</span>
-                                    <span className="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wide">Próximo Pago</span>
+                                    <span className="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wide">
+                                        {nextPayment ? 'Próximo Pago' : 'Estado de Cuenta'}
+                                    </span>
                                 </div>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl sm:text-5xl font-bold dark:text-white">{formatCurrency(5000000)}</span>
+                                    <span className="text-4xl sm:text-5xl font-bold dark:text-white">
+                                        {nextPayment ? formatCurrency(amountToShow) : "Al día"}
+                                    </span>
                                 </div>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2 font-medium">Vence el 01 Nov, 2026</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2 font-medium">
+                                    {nextPayment ? `Vence el ${dateToShow}` : 'No tienes pagos pendientes'}
+                                </p>
                             </div>
-                            <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider self-start sm:self-center">
-                                Pendiente
+                            <div className={`
+                                px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider self-start sm:self-center
+                                ${nextPayment
+                                    ? (nextPayment.status === 2 ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400')
+                                    : 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                                }
+                            `}>
+                                {nextPayment ? (nextPayment.status === 2 ? 'En Mora' : 'Pendiente') : 'Paz y Salvo'}
                             </div>
                         </div>
                         <button onClick={() => window.open('https://checkout.wompi.co/l/VPOS_jEk4cb', '_blank')} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
@@ -121,19 +144,6 @@ export const TenantPayments: React.FC = () => {
                                     <tr>
                                         <td colSpan={4} className="px-6 py-8 text-center text-gray-500 text-sm">
                                             No hay historial de pagos registrado.
-                                            <br />
-                                            <button
-                                                onClick={async () => {
-                                                    await addPayment({
-                                                        amount: 5000000,
-                                                        period: new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' }),
-                                                        date: new Date().toISOString()
-                                                    });
-                                                }}
-                                                className="mt-2 text-primary text-xs font-bold hover:underline"
-                                            >
-                                                [Simular Pago de Mes Actual]
-                                            </button>
                                         </td>
                                     </tr>
                                 )}

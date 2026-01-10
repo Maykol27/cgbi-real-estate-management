@@ -71,10 +71,6 @@ const SidebarLink = ({ to, icon, label, isCollapsed }: { to: string; icon: strin
   );
 };
 
-
-
-// ... (other imports)
-
 interface SidebarProps {
   role: UserRole;
   isOpen: boolean;
@@ -85,6 +81,13 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, toggleCollapse }) => {
   const { requestNotificationPermission, user, logout } = useStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+    window.location.reload();
+  };
 
   const onRequestNotifications = () => {
     requestNotificationPermission();
@@ -187,8 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
       </nav>
 
       <div className="p-4 border-t border-white/10 space-y-2">
-        {/* Notifications button removed via previous request */}
-        <button onClick={() => logout()} className={`flex items-center w-full ${effectiveCollapsed ? 'justify-center' : 'px-4'} py-2 rounded-xl transition-colors text-red-200 hover:text-white hover:bg-white/10 group`}>
+        <button onClick={handleLogout} className={`flex items-center w-full ${effectiveCollapsed ? 'justify-center' : 'px-4'} py-2 rounded-xl transition-colors text-red-200 hover:text-white hover:bg-white/10 group`}>
           <span className={`material-icons-round text-xl ${!effectiveCollapsed && 'mr-3'} group-hover:scale-110 transition-transform`}>logout</span>
           {!effectiveCollapsed && <span className="font-medium text-sm">Salir</span>}
         </button>
@@ -236,7 +238,6 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
   const location = useLocation();
 
   // --- SECURITY: Route Guard ---
-  // --- SECURITY: Route Guard ---
   useEffect(() => {
     // 1. Wait for loading to finish
     if (loading) return;
@@ -249,22 +250,33 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
       return;
     }
 
-    const currentUserRole = user.role;
+    // RBAC Normalization Helper
+    const normalizeRole = (r: string) => {
+      const lower = (r || '').toLowerCase();
+      if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
+      if (lower === 'owner' || lower === 'propietario') return 'OWNER';
+      if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
+      if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
+      return 'UNKNOWN';
+    };
+
+    const currentUserRole = normalizeRole(user.role);
     let isAuthorized = false;
 
     if (role === UserRole.ADMIN) {
-      if (currentUserRole === 'Admin' || currentUserRole === 'Colaborador') isAuthorized = true;
+      if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') isAuthorized = true;
     } else if (role === UserRole.TENANT) {
-      if (currentUserRole === 'Inquilino') isAuthorized = true;
+      if (currentUserRole === 'TENANT') isAuthorized = true;
     } else if (role === UserRole.OWNER) {
-      if (currentUserRole === 'Propietario') isAuthorized = true;
+      if (currentUserRole === 'OWNER') isAuthorized = true;
     }
 
     if (!isAuthorized) {
       // Redirect unauthorized users to their dashboard
-      if (currentUserRole === 'Admin' || currentUserRole === 'Colaborador') navigate('/admin/dashboard');
-      else if (currentUserRole === 'Inquilino') navigate('/tenant/dashboard');
-      else if (currentUserRole === 'Propietario') navigate('/owner/dashboard');
+      console.warn(`Unauthorized access attempt. Role: ${user.role} (Norm: ${currentUserRole}) -> Target: ${role}`);
+      if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') navigate('/admin/dashboard');
+      else if (currentUserRole === 'TENANT') navigate('/tenant/dashboard');
+      else if (currentUserRole === 'OWNER') navigate('/owner/dashboard');
       else navigate('/');
     }
   }, [user, loading, role, navigate, location.pathname]);

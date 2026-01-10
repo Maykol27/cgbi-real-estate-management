@@ -2,49 +2,54 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../components/Layout';
 import { useStore } from '../context/StoreContext';
-import { supabase } from '../lib/supabaseClient';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login, users } = useStore();
+  const { login } = useStore();
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); // Just for UI, not real validation yet
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
-  // Debug mount
-  React.useEffect(() => {
-    // console.log("Login Component MOUNTED");
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
-    console.log("LOGIN BUTTON CLICKED - Handler Starting"); // DEBUG
+    if (isLoading) return;
+
     if (!email || !password) {
-      console.warn("Missing fields");
       setError("Por favor complete todos los campos");
       return;
     }
     setError('');
+    setIsLoading(true);
 
-    const loggedInUser = await login(email, password);
-    console.log("Login result:", loggedInUser); // DEBUG
+    try {
+      const loggedInUser = await login(email, password);
 
-    if (loggedInUser) {
-      console.log("User role:", loggedInUser.role); // DEBUG
-      if (loggedInUser.role === 'Admin' || loggedInUser.role === 'Colaborador') {
-        navigate('/admin/dashboard');
-      } else if (loggedInUser.role === 'Propietario') {
-        navigate('/owner/dashboard');
-      } else if (loggedInUser.role === 'Inquilino') {
-        navigate('/tenant/dashboard');
+      if (loggedInUser) {
+        // Normalize role for routing
+        const roleLower = (loggedInUser.role || '').toLowerCase();
+
+        if (roleLower === 'admin' || roleLower === 'colaborador' || roleLower === 'administrador') {
+          navigate('/admin/dashboard');
+        } else if (roleLower === 'propietario' || roleLower === 'owner') {
+          navigate('/owner/dashboard');
+        } else if (roleLower === 'inquilino' || roleLower === 'tenant') {
+          navigate('/tenant/dashboard');
+        } else {
+          console.warn("Role not matched for routing:", loggedInUser.role);
+          setError(`Error: Rol de usuario no reconocido (${loggedInUser.role})`);
+          setIsLoading(false);
+        }
       } else {
-        console.warn("Role not matched:", loggedInUser.role); // DEBUG
+        // Login failed (StoreContext notifies, but we must stop loading)
+        setError('No se pudo iniciar sesión. Verifique sus credenciales o conexión.');
+        setIsLoading(false);
       }
-    } else {
-      // Error is likely already handled by notify in StoreContext, 
-      // but strictly speaking we can show a generic message if no error state was set.
-      setError('No se pudo iniciar sesión. Verifique sus credenciales.');
+    } catch (err) {
+      console.error(err);
+      setError('Error inesperado. Intente de nuevo.');
+      setIsLoading(false);
     }
   };
 
@@ -63,7 +68,7 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="w-full max-w-md bg-white dark:bg-card-dark p-8 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700">
+        <form onSubmit={handleLogin} className="w-full max-w-md bg-white dark:bg-card-dark p-8 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700">
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-600 dark:text-red-400 text-sm animate-in fade-in slide-in-from-top-2">
@@ -81,8 +86,8 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@cgbi.com"
-                className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-              // required removed for manual handling
+                disabled={isLoading}
+                className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -96,8 +101,8 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-              // required removed for manual handling
+                disabled={isLoading}
+                className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <div className="mt-2 text-right">
@@ -107,10 +112,20 @@ const Login: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-3.5 px-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+            disabled={isLoading}
+            className={`w-full py-3.5 px-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed transform-none' : ''}`}
           >
-            <span>Ingresar</span>
-            <span className="material-icons-round text-sm">login</span>
+            {isLoading ? (
+              <>
+                <span className="animate-spin material-icons-round text-sm">refresh</span>
+                <span>Procesando...</span>
+              </>
+            ) : (
+              <>
+                <span>Ingresar</span>
+                <span className="material-icons-round text-sm">login</span>
+              </>
+            )}
           </button>
 
           <div className="mt-6 text-center">

@@ -703,7 +703,7 @@ export const AdminProperties: React.FC = () => {
 
 // --- Tenants Page (Admin) ---
 export const AdminTenants: React.FC = () => {
-    const { user, users, addUser } = useStore();
+    const { user, users, addUser, payments, addPayment } = useStore();
     const { showToast } = useToast();
 
     // Permission Check (Grouped with Properties)
@@ -718,16 +718,12 @@ export const AdminTenants: React.FC = () => {
     const tenants = users.filter(u => u.role === 'Inquilino');
 
     const [selectedTenantProfile, setSelectedTenantProfile] = useState<any>(null);
-    const [selectedTenantHistory, setSelectedTenantHistory] = useState<number | null>(null);
+    const [selectedTenantHistory, setSelectedTenantHistory] = useState<string | number | null>(null); // ID can be string (UUID) or number
 
-    // Mock Payment History State
-    const [paymentHistory, setPaymentHistory] = useState([
-        { id: 1, period: 'Octubre 2026', amount: 5000000, status: 1 },
-        { id: 2, period: 'Septiembre 2026', amount: 5000000, status: 1 },
-        { id: 3, period: 'Agosto 2026', amount: 5000000, status: 1 },
-        { id: 4, period: 'Julio 2026', amount: 5000000, status: 2 }, // En Mora
-        { id: 5, period: 'Junio 2026', amount: 5000000, status: 1 },
-    ]);
+    // Derived Payment History for Selected Tenant
+    const tenantPayments = selectedTenantHistory
+        ? payments.filter(p => p.tenant_id === selectedTenantHistory).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        : [];
 
     const isCollaborator = user?.role === 'Colaborador';
 
@@ -801,8 +797,8 @@ export const AdminTenants: React.FC = () => {
 
             {/* Payment History Modal */}
             {selectedTenantHistory && (
-                <Modal title={`Historial de Pagos - Juan Pérez`} onClose={() => setSelectedTenantHistory(null)} maxWidth="max-w-2xl">
-                    <div className="flex flex-col h-[500px]">
+                <Modal title={`Historial de Pagos`} onClose={() => setSelectedTenantHistory(null)} maxWidth="max-w-2xl">
+                    <div className="flex flex-col h-[600px]">
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg text-blue-600 dark:text-blue-300">
@@ -810,64 +806,88 @@ export const AdminTenants: React.FC = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-500 uppercase">Estado de Cuenta</p>
-                                    <p className="text-lg font-bold text-gray-800 dark:text-white">Al día</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-white">
+                                        {tenantPayments.some(p => p.status === 2 || p.status === 0) ? "Pendiente" : "Al día"}
+                                    </p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <p className="text-xs font-bold text-gray-500 uppercase">Próximo Vencimiento</p>
-                                <p className="text-sm font-bold text-primary dark:text-blue-400">05 Nov 2026</p>
-                            </div>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl mb-4 border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-2">
+                            <h4 className="font-bold text-sm text-gray-700 dark:text-gray-300 mb-2">Registrar Nuevo Pago (Manual)</h4>
+                            <form
+                                onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const form = e.target as HTMLFormElement;
+                                    const amount = (form.elements.namedItem('amount') as HTMLInputElement).value;
+                                    const period = (form.elements.namedItem('period') as HTMLInputElement).value;
+
+                                    if (amount && period && selectedTenantHistory) {
+                                        const res = await addPayment({
+                                            amount: Number(amount),
+                                            period,
+                                            date: new Date().toISOString(),
+                                            tenant_id: selectedTenantHistory
+                                        });
+                                        if (res.success) {
+                                            form.reset();
+                                        } else {
+                                            showToast(res.message, "error");
+                                        }
+                                    }
+                                }}
+                                className="flex flex-col sm:flex-row gap-2 items-end"
+                            >
+                                <div className="flex-1 w-full">
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">Periodo</label>
+                                    <input name="period" required placeholder="Ej: Octubre 2026" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white" />
+                                </div>
+                                <div className="flex-1 w-full">
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">Monto</label>
+                                    <input name="amount" type="number" required placeholder="0" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white" />
+                                </div>
+                                <button type="submit" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-1">
+                                    <span className="material-icons-round text-base">save</span> Registrar
+                                </button>
+                            </form>
                         </div>
 
                         <div className="flex-1 overflow-auto bg-white dark:bg-card-dark rounded-xl border border-gray-100 dark:border-gray-700">
                             <table className="w-full text-left border-collapse">
                                 <thead className="sticky top-0 bg-gray-50 dark:bg-slate-800 z-10">
                                     <tr>
-                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500">Fecha</th>
-                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500">Concepto</th>
-                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500">Método</th>
-                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500 text-right">Monto</th>
+                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500">Fecha / Periodo</th>
+                                        <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500">Monto</th>
                                         <th className="py-3 px-4 text-xs font-semibold uppercase text-gray-500 text-center">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                    {paymentHistory.map((item) => (
-                                        <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                                            <td className="py-3 px-4 text-sm dark:text-gray-300">{item.period}</td>
-                                            <td className="py-3 px-4 text-sm dark:text-gray-300">Canon de Arrendamiento</td>
-                                            <td className="py-3 px-4 text-xs text-gray-500">Transferencia</td>
-                                            <td className="py-3 px-4 text-sm font-bold text-right dark:text-white">{formatCurrency(item.amount)}</td>
-                                            <td className="py-3 px-4 text-center">
-                                                <select
-                                                    value={item.status}
-                                                    onChange={(e) => {
-                                                        const newStatus = Number(e.target.value);
-                                                        setPaymentHistory(prev => prev.map(p => p.id === item.id ? { ...p, status: newStatus } : p));
-                                                        // In a real app, call API update here
-                                                        // showToast("Estado Actualizado", "success");
-                                                    }}
-                                                    className={`
-                                                        text-xs font-bold py-1 px-2 rounded-full border-none focus:ring-2 cursor-pointer
-                                                        ${item.status === 1 ? 'bg-emerald-100 text-emerald-700 focus:ring-emerald-500' :
-                                                            item.status === 2 ? 'bg-red-100 text-red-700 focus:ring-red-500' :
-                                                                'bg-blue-100 text-blue-700 focus:ring-blue-500'}
-                                                    `}
-                                                >
-                                                    <option value={1}>Pagado</option>
-                                                    <option value={2}>En Mora</option>
-                                                    <option value={0}>Pendiente</option>
-                                                </select>
-                                            </td>
+                                    {tenantPayments.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={3} className="py-8 text-center text-gray-400 text-sm">No hay pagos registrados.</td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        tenantPayments.map((item) => (
+                                            <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                                                <td className="py-3 px-4 text-sm dark:text-gray-300">
+                                                    <p className="font-bold">{item.period}</p>
+                                                    <span className="text-xs text-gray-400">{new Date(item.date).toLocaleDateString()}</span>
+                                                </td>
+                                                <td className="py-3 px-4 text-sm font-bold dark:text-white">{formatCurrency(item.amount)}</td>
+                                                <td className="py-3 px-4 text-center">
+                                                    <span className={`
+                                                        text-xs font-bold py-1 px-2 rounded-full border-none 
+                                                        ${item.status === 1 ? 'bg-emerald-100 text-emerald-700' :
+                                                            item.status === 2 ? 'bg-red-100 text-red-700' :
+                                                                'bg-blue-100 text-blue-700'}
+                                                    `}>
+                                                        {item.status === 1 ? 'Pagado' : item.status === 2 ? 'Mora' : 'Pendiente'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
-                        </div>
-
-                        <div className="mt-4 flex justify-end">
-                            <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
-                                <span className="material-icons-round text-sm">download</span> Descargar Reporte
-                            </button>
                         </div>
                     </div>
                 </Modal>
@@ -900,7 +920,7 @@ export const AdminTenants: React.FC = () => {
 
                         <div className="w-full border-t border-gray-100 dark:border-gray-700 pt-4 flex justify-between gap-3">
                             <button
-                                onClick={() => { setSelectedTenantProfile(null); setSelectedTenantHistory(selectedTenantProfile.id); }}
+                                onClick={() => { setSelectedTenantHistory(selectedTenantProfile.id); setSelectedTenantProfile(null); }}
                                 className="w-full py-2.5 bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-300 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
                             >
                                 <span className="material-icons-round text-lg">history</span> Ver Historial de Pagos
@@ -1781,7 +1801,7 @@ export const AdminCalendar: React.FC = () => {
 
 // --- Settings Page (Admin) ---
 export const AdminSettings: React.FC = () => {
-    const { addUser, user } = useStore();
+    const { addUser, user, users } = useStore();
 
     // Permission Check (Strict Admin Only)
     if (user?.role === 'Colaborador') {
@@ -1923,7 +1943,7 @@ export const AdminSettings: React.FC = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Usuarios del Sistema</h3>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Usuarios del Sistema (ACTUALIZADO)</h3>
                                     <p className="text-sm text-gray-500">Administre el acceso de propietarios y arrendatarios.</p>
                                 </div>
                                 <button onClick={() => setShowUserModal(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-md">
@@ -1932,27 +1952,31 @@ export const AdminSettings: React.FC = () => {
                             </div>
 
                             {/* Mock User List */}
+                            {/* User List */}
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">CR</div>
-                                        <div>
-                                            <p className="text-sm font-bold dark:text-white">Carlos Ruiz</p>
-                                            <p className="text-xs text-gray-500">carlos.ruiz@email.com</p>
+                                {users.length === 0 ? (
+                                    <p className="text-center text-gray-500 py-4">No hay usuarios registrados</p>
+                                ) : (
+                                    users.map(u => (
+                                        <div key={u.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                                                    {u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold dark:text-white">{u.name}</p>
+                                                    <p className="text-xs text-gray-500">{u.email}</p>
+                                                </div>
+                                            </div>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'Propietario' ? 'bg-purple-100 text-purple-700' :
+                                                u.role === 'Inquilino' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-orange-100 text-orange-700'
+                                                }`}>
+                                                {u.role}
+                                            </span>
                                         </div>
-                                    </div>
-                                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">Propietario</span>
-                                </div>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">JP</div>
-                                        <div>
-                                            <p className="text-sm font-bold dark:text-white">Juan Pérez</p>
-                                            <p className="text-xs text-gray-500">juan.perez@email.com</p>
-                                        </div>
-                                    </div>
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">Arrendatario</span>
-                                </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}

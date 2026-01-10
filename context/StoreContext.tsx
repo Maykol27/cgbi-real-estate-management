@@ -93,7 +93,7 @@ export interface FinanceRequest {
 export interface Payment {
     id: string | number;
     amount: number;
-    status: 'Pendiente' | 'Pagado' | 'Vencido';
+    status: number; // 0=Pendiente, 1=Pagado, 2=Vencido
     date: string;
     period: string;
     tenant_id?: string | number;
@@ -333,8 +333,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     // --- Supabase Auth Integration ---
+    // --- Supabase Auth Integration & Global State Management ---
     useEffect(() => {
-        // Check active session
+        // 1. Initial Session Check
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) {
                 fetchProfile(session.user.id).finally(() => setLoading(false));
@@ -343,17 +344,24 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
         });
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (session?.user) {
-                // fetchProfile(session.user.id); // Already fetching in getSession or login? 
-                // Careful with double fetch for getSession vs onAuthStateChange
-                fetchProfile(session.user.id).finally(() => setLoading(false));
-            } else {
+        // 2. Global Auth State Listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user) {
+                console.log(`🟢 Usuario logueado: ${session.user.email}`);
+                await fetchProfile(session.user.id);
+            } else if (event === 'SIGNED_OUT') {
+                console.log('🔴 Sesión cerrada correctamente.');
+                // Cleanup Local State
                 setUser(null);
-                setLoading(false);
+                setTickets([]);
+                setDocuments([]);
+                setVisits([]);
+                setFinanceRequests([]);
+                setPayments([]);
             }
         });
 
+        // Unsubscribe on unmount
         return () => subscription.unsubscribe();
     }, []);
 
@@ -376,8 +384,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                 setUser(loadedUser);
 
-                // Fetch User Payments
-                const { data: paymentsData } = await supabase.from('payments').select('*').eq('tenant_id', data.id);
+                // Fetch User Payments - ENABLED
+                let paymentsQuery = supabase.from('payments').select('*');
+                if (data.role !== 'Administrador' && data.role !== 'Colaborador') {
+                    paymentsQuery = paymentsQuery.eq('tenant_id', data.id);
+                }
+                const { data: paymentsData } = await paymentsQuery;
                 if (paymentsData) {
                     setPayments(paymentsData.map(p => ({
                         id: p.id,
@@ -389,6 +401,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     })));
                 }
                 return loadedUser;
+            } else if (error) {
+                console.error("Error fetching profile:", error);
             }
         } catch (error) {
             console.error(error);
@@ -397,36 +411,72 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const login = async (email: string, password?: string): Promise<User | null> => {
-        console.log("STORE CONTEXT LOGIN CALLED - Email:", email); // DEBUG
         try {
-            // Priority: Real Supabase Auth to satisfy RLS
             if (password) {
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                });
+                // 2. Auth Call
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
                 if (authError) {
-                    console.error("Supabase Auth Error:", authError);
+                    // Capture and display Supabase error
+                    console.error("Supabase Auth Error:", authError.message);
                     notify("Error de Autenticación", authError.message);
                     return null;
                 }
 
-                if (authData.user) {
-                    const profile = await fetchProfile(authData.user.id);
-                    return profile || null;
+                if (authData?.user) {
+                    // Do NOT manually call fetchProfile here; onAuthStateChange will do it.
+                    // Returning partial user to satisfy type, or rely on state.
+                    // We can just return null and let the UI react to the 'user' state change.
+                    // Or return a stub.
+                    // Returning null might be confusing for the caller 'handleLogin'.
+                    // Let's return the basic auth user mapped to our type.
+                    return {
+                        id: authData.user.id,
+                        email: authData.user.email,
+                        name: "Cargando...", // Will be updated by fetchProfile
+                        role: "Propietario" as any, // Temporary
+                        permissions: []
+                    };
                 }
             }
-        } catch (error) {
-            console.error("Login Error:", error);
+        } catch (error: any) {
+            console.error("Login Exception:", error);
+
+            // EMERGENCY CHECK: Did we actually log in despite the timeout/error?
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                console.log("⚠️ Timeout captured, but Session IS VALID. Recovering...");
+                const profile = await fetchProfile(session.user.id);
+                return profile || null;
+            }
+
+            // Auto-Healing for Timeouts
+            if (error.message === "Request Timeout" || error.message?.includes("timeout")) {
+                console.warn("Real Login timeout - cleaning storage.");
+                localStorage.clear();
+                sessionStorage.clear();
+                notify("Conexión Lenta", "El sistema tardó demasiado. Por favor intente de nuevo.");
+            } else {
+                notify("Error del Sistema", error.message || "Ocurrió un error inesperado.");
+            }
         }
         return null;
     };
 
     const logout = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
-        notify("Sesión Cerrada", "Has salido del sistema.");
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error("Error signing out:", error.message);
+                // notify("Error al salir", error.message); // Optional to notify
+            }
+            // State cleanup handled by onAuthStateChange(SIGNED_OUT)
+            setUser(null);
+            notify("Sesión Cerrada", "Has salido del sistema.");
+        } catch (error: any) {
+            console.error("Logout Exception:", error);
+            setUser(null);
+        }
     };
 
     const addTicket = async (t: Omit<Ticket, 'id' | 'date' | 'status'>): Promise<{ success: boolean; message: string }> => {
@@ -770,8 +820,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 amount: p.amount,
                 period: p.period,
                 date: p.date,
-                status: 'Pagado', // Auto-approve for simulation or pending if gateway webhook
-                tenant_id: user?.id
+                status: 1, // 1=Pagado
+                tenant_id: p.tenant_id || user?.id
             }).select().single();
 
             if (error) {
@@ -783,7 +833,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 const newPayment: Payment = {
                     ...p,
                     id: data.id,
-                    status: 'Pagado',
+                    status: 1,
                     tenant_id: data.tenant_id
                 };
                 setPayments(prev => [newPayment, ...prev]);
@@ -799,56 +849,43 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addUser = async (u: Omit<User, 'id'>) => {
         try {
-            // 1. Create Auth User (This sends a confirmation email by default unless disabled in Supabase)
-            // Ideally we use a Supabase Admin client for this to not log out the current user, 
-            // but for this client-side demo we might just insert into 'profiles' and let them sign up later 
-            // OR we accept we can't create Auth users without an Edge Function or Admin Key.
-            // WORKAROUND: Just insert into 'profiles' for listing purposes if RLS allows it (Admin only).
-            // A trigger on 'auth.users' usually creates the profile. 
-            // If we manually insert into profiles, it won't be linked to an Auth user until they sign up with that email.
-            // Let's try to insert into 'profiles' directly assuming RLS allows Admin to do so.
-            // We will generate a UUID for the profile ID if not using Auth ID.
+            // Call Edge Function 'invite-user' to securely invite user and create profile
+            const { data, error } = await supabase.functions.invoke('invite-user', {
+                body: {
+                    email: u.email,
+                    role: u.role,
+                    full_name: u.name,
+                    policy_number: u.policyNumber,
+                    permissions: u.permissions
+                }
+            });
 
-            const { data, error } = await supabase.from('profiles').insert({
-                full_name: u.name,
-                role: u.role,
-                email: u.email,
-                permissions: u.permissions,
-                policy_number: u.policyNumber
-                // id: undefined // let Supabase generate if uuid, but wait, profiles usually linked to auth.id.
-                // If we insert without auth.id, it might fail foreign key constraint if profiles.id references auth.users.id
-                // Our schema: create table profiles (id uuid references auth.users not null ...)
-                // So we CANNOT insert into profiles without a valid auth user ID.
+            if (error) {
+                console.error("Error invoking invite-user:", error);
+                // Fallback: Show error toast but maybe keep local optimistic update if needed?
+                // No, better to show error.
+                notify("Error al crear usuario", "No se pudo enviar la invitación. Intente nuevamente.");
+                return;
+            }
 
-                // ALTERNATIVE: Use a "shadow" user creation or just mocking the "success" but only updating local state?
-                // The user asked for "Integration Supabase". 
-                // Creating users properly requires Admin API or signUp (which logs you in or requires email confirm).
-                // Let's just update local state and notify: "User creation requires Admin API / Verification".
-                // BUT user wants me to seed DB. 
-                // I will mock the persistent addition by logging it but updating local state for immediacy.
-                // UNLESS I use a function.
-                // Let's fetch the profiles again to ensure we have the latest.
+            if (data?.success) {
+                // Optimistic UI update or fetch from profiles?
+                // Let's add to local state since profiles might take a split second.
+                // We use the ID returned by the function.
+                const newUser: User = {
+                    ...u,
+                    id: data.user.id,
+                    permissions: u.permissions || []
+                };
+                setUsers(prev => [...prev, newUser]);
+                notify("Usuario Invitado", `Se ha enviado un correo de invitación a ${u.email}.`);
+            } else {
+                notify("Error", data?.error || "Error desconocido al invitar usuario.");
+            }
 
-            }).select();
-
-            // SINCE WE CANNOT create auth users easily from client without logging out:
-            // I will simulate it by creating a "stub" in local state and showing a warning.
-
-            // Wait, if I cannot insert into profiles, I cannot persist tenants/owners created by Admin.
-            // I will implement a "soft" addUser that updates local state and hopefully 
-            // we rely on the Seed Script for real users later.
-            // OR I can try to use a function if available. I see no edge functions.
-
-            // Reverting to Local State update with a Toast explaining limitation.
-            console.warn("Creating users from client requires Admin privileges or Edge Function.");
-
-            // @ts-ignore
-            const newUser: User = { ...u, id: Date.now().toString() };
-            setUsers(prev => [...prev, newUser]);
-            notify("Usuario Agregado (Local)", `Se ha registrado a ${u.name}. Nota: Para crear login real se requiere invitación.`);
-
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            notify("Error Sistema", err.message);
         }
     };
 

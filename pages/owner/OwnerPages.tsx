@@ -18,7 +18,7 @@ const OwnerHeader: React.FC<{ title: string }> = ({ title }) => (
 
 // --- Dashboard ---
 export const OwnerDashboard: React.FC = () => {
-    const { user, documents } = useStore();
+    const { user, documents, payments, properties, financeRequests } = useStore();
     const { showToast } = useToast();
 
     // Filter documents
@@ -28,6 +28,19 @@ export const OwnerDashboard: React.FC = () => {
         d.sharedWithId === user?.id ||
         d.owner === user?.name
     );
+
+    // Derived Income (Payments for my properties)
+    // Assuming 'properties' in store contains only my properties due to RLS or we filter by owner_id if available.
+    // Given the context doesn't expose owner_id in property object locally without check, let's assume properties list is correct.
+    const myPropertyIds = properties.map(p => p.id);
+    const myIncome = payments.filter(p => myPropertyIds.includes(p.property_id || -1) && p.status === 1)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Derived Expenses (Approved Finance Requests)
+    // Assuming 'financeRequests' are relevant to owner if they are approved OR requested by them
+    const myExpenses = financeRequests.filter(r => r.status === 'Aprobado')
+        .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
+
     return (
         <>
             <OwnerHeader title="Panel de Propietario" />
@@ -68,14 +81,21 @@ export const OwnerDashboard: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-5 py-3 text-sm dark:text-white">05 Oct 2026</td>
-                                            <td className="px-5 py-3 text-sm font-bold text-right text-emerald-600">+{formatCurrency(4500000)}</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-5 py-3 text-sm dark:text-white">05 Sep 2026</td>
-                                            <td className="px-5 py-3 text-sm font-bold text-right text-emerald-600">+{formatCurrency(4500000)}</td>
-                                        </tr>
+                                        {myIncome.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={2} className="px-5 py-8 text-center text-gray-500 text-sm">No hay consignaciones registradas.</td>
+                                            </tr>
+                                        ) : (
+                                            myIncome.map((payment) => (
+                                                <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td className="px-5 py-3 text-sm dark:text-white">
+                                                        <p className="font-bold">{new Date(payment.date).toLocaleDateString()}</p>
+                                                        <p className="text-xs text-gray-400">{payment.period}</p>
+                                                    </td>
+                                                    <td className="px-5 py-3 text-sm font-bold text-right text-emerald-600">+{formatCurrency(payment.amount)}</td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -99,20 +119,21 @@ export const OwnerDashboard: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-5 py-3 text-sm dark:text-white">
-                                                <p className="font-bold">Comisión Administración</p>
-                                                <p className="text-xs text-gray-500">Octubre 2026</p>
-                                            </td>
-                                            <td className="px-5 py-3 text-sm font-bold text-right text-gray-600 dark:text-gray-300">-{formatCurrency(500000)}</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-5 py-3 text-sm dark:text-white">
-                                                <p className="font-bold">Reparación Fontanería</p>
-                                                <p className="text-xs text-gray-500">Ticket #902</p>
-                                            </td>
-                                            <td className="px-5 py-3 text-sm font-bold text-right text-gray-600 dark:text-gray-300">-{formatCurrency(320000)}</td>
-                                        </tr>
+                                        {myExpenses.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={2} className="px-5 py-8 text-center text-gray-500 text-sm">No hay egresos registrados.</td>
+                                            </tr>
+                                        ) : (
+                                            myExpenses.map((exp) => (
+                                                <tr key={exp.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td className="px-5 py-3 text-sm dark:text-white">
+                                                        <p className="font-bold">{exp.title}</p>
+                                                        <p className="text-xs text-gray-500">{exp.description?.substring(0, 20)}...</p>
+                                                    </td>
+                                                    <td className="px-5 py-3 text-sm font-bold text-right text-gray-600 dark:text-gray-300">-{formatCurrency(exp.cost || 0)}</td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -129,7 +150,12 @@ export const OwnerProperties: React.FC = () => {
     const [selectedProp, setSelectedProp] = useState<any | null>(null);
     const [showHistory, setShowHistory] = useState(false);
     const { showToast } = useToast();
-    const { properties } = useStore(); // Get properties from store
+    const { properties, payments } = useStore(); // Get properties and payments from store
+
+    // Derived history for selected property
+    const propertyHistory = selectedProp
+        ? payments.filter(p => p.property_id === selectedProp.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        : [];
 
     const handleClose = () => {
         setSelectedProp(null);
@@ -170,17 +196,28 @@ export const OwnerProperties: React.FC = () => {
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-gray-50 dark:bg-slate-800">
                                         <tr>
-                                            <th className="p-3 font-semibold text-gray-600 dark:text-gray-300">Fecha</th>
+                                            <th className="p-3 font-semibold text-gray-600 dark:text-gray-300">Fecha / Periodo</th>
                                             <th className="p-3 font-semibold text-gray-600 dark:text-gray-300">Concepto</th>
                                             <th className="p-3 font-semibold text-right text-gray-600 dark:text-gray-300">Monto</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-slate-900">
-                                        <tr>
-                                            <td className="p-3 dark:text-gray-300">01 Oct 2026</td>
-                                            <td className="p-3 dark:text-gray-300">Renta Octubre</td>
-                                            <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(Number(selectedProp.rent))}</td>
-                                        </tr>
+                                        {propertyHistory.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={3} className="p-4 text-center text-gray-400">No hay pagos registrados.</td>
+                                            </tr>
+                                        ) : (
+                                            propertyHistory.map((h) => (
+                                                <tr key={h.id}>
+                                                    <td className="p-3 dark:text-gray-300">
+                                                        <p className="font-bold">{h.period}</p>
+                                                        <span className="text-xs text-gray-400">{new Date(h.date).toLocaleDateString()}</span>
+                                                    </td>
+                                                    <td className="p-3 dark:text-gray-300">Renta</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-600">+{formatCurrency(h.amount)}</td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
