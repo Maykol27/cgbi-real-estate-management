@@ -87,7 +87,7 @@ const Login: React.FC = () => {
           )}
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Correo Electrónico</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
             <div className="relative">
               <span className="material-icons-round absolute left-3 top-3.5 text-gray-400">email</span>
               <input
@@ -96,13 +96,13 @@ const Login: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@cgbi.com"
                 disabled={isLoading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F172A]/50 focus:border-[#0F172A] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
 
           <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
             <div className="relative">
               <span className="material-icons-round absolute left-3 top-3.5 text-gray-400">lock</span>
               <input
@@ -111,18 +111,20 @@ const Login: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 disabled={isLoading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F172A]/50 focus:border-[#0F172A] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <div className="mt-2 text-right">
-              <span className="text-xs text-slate-400">Tip: Intente con 'admin@cgbi.com'</span>
+              <a href="#" className="text-sm font-medium text-[#0F172A] hover:text-blue-600 transition-colors">
+                ¿Olvidó su contraseña? <span className="font-bold">Recuperar acceso</span>
+              </a>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3.5 px-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed transform-none' : ''}`}
+            className={`w-full py-3.5 px-4 bg-[#0F172A] hover:bg-[#1e293b] text-white font-bold rounded-xl shadow-lg shadow-black/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed transform-none' : ''}`}
           >
             {isLoading ? (
               <>
