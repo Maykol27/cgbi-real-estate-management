@@ -1823,7 +1823,7 @@ export const AdminCalendar: React.FC = () => {
 
 // --- Settings Page (Admin) ---
 export const AdminSettings: React.FC = () => {
-    const { addUser, user, users } = useStore();
+    const { addUser, deleteUser, user, users } = useStore();
 
     // Permission Check (Strict Admin Only)
     if (user?.role === 'Colaborador') {
@@ -1965,45 +1965,149 @@ export const AdminSettings: React.FC = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Usuarios del Sistema (ACTUALIZADO)</h3>
-                                    <p className="text-sm text-gray-500">Administre el acceso de propietarios y arrendatarios.</p>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Usuarios del Sistema</h3>
+                                    <p className="text-sm text-gray-500">Administra, elimina o resetea usuarios problemáticos.</p>
                                 </div>
                                 <button onClick={() => setShowUserModal(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-md">
-                                    <span className="material-icons-round">person_add</span> Crear Usuario
+                                    <span className="material-icons-round">person_add</span> Nuevo Usuario
                                 </button>
                             </div>
 
-                            {/* Mock User List */}
-                            {/* User List */}
-                            <div className="space-y-3">
-                                {users.length === 0 ? (
-                                    <p className="text-center text-gray-500 py-4">No hay usuarios registrados</p>
-                                ) : (
-                                    users.map(u => (
-                                        <div key={u.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-gray-700">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                                                    {u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold dark:text-white">{u.name}</p>
-                                                    <p className="text-xs text-gray-500">{u.email}</p>
-                                                </div>
-                                            </div>
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'Propietario' ? 'bg-purple-100 text-purple-700' :
-                                                u.role === 'Inquilino' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-orange-100 text-orange-700'
-                                                }`}>
-                                                {u.role}
-                                            </span>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
+                            <UserManagementTable users={users} />
                         </div>
                     )}
                 </div>
             </div>
         </div>
+    );
+};
+
+// Subcomponent for User Management to keep things clean
+const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
+    const { deleteUser, users: storeUsers } = useStore(); // Access deleteUser
+    const { showToast } = useToast();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [processingId, setProcessingId] = useState<string | number | null>(null);
+
+    const filtered = users.filter(u =>
+        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleDelete = async (id: string | number, name: string) => {
+        if (window.confirm(`¿Estás SEGURO de eliminar a ${name}?\nEsta acción borrará todo acceso del usuario.`)) {
+            setProcessingId(id);
+            const res = await deleteUser(id);
+            setProcessingId(null);
+
+            if (res.success) {
+                showToast("Usuario eliminado correctamente.", "success");
+            } else {
+                showToast(`Error: ${res.message}`, "error");
+            }
+        }
+    };
+
+    const handleResetPassword = async (id: string | number) => {
+        if (window.confirm(`¿Resetear contraseña a 'CGBI2026!'?`)) {
+            setProcessingId(id);
+            // We call the same Edge Function but with different action
+            // Since deleteUser is strict, we should probably add resetPassword to store or call function directly here.
+            // For speed, let's just call fetch directly here as we are in Admin context.
+            // Or better, let's assume deleteUser is enough for now as requested ("boton de eliminar").
+            // But I promised "Reset Password". Let's use fetch.
+
+            try {
+                const { supabase } = await import('../../lib/supabaseClient');
+                const { data, error } = await supabase.functions.invoke('manage-users', {
+                    body: { action: 'reset_password', userId: id }
+                });
+
+                if (error) throw error;
+                showToast("Contraseña restablecida a CGBI2026!", "success");
+            } catch (err: any) {
+                showToast("Error al resetear clave: " + err.message, "error");
+            } finally {
+                setProcessingId(null);
+            }
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="relative">
+                <span className="material-icons-round absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre o correo..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 dark:bg-slate-800 border-none text-sm focus:ring-1 focus:ring-primary dark:text-white"
+                />
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
+                            <th className="p-4 text-xs font-bold text-gray-500 uppercase">Usuario</th>
+                            <th className="p-4 text-xs font-bold text-gray-500 uppercase">Rol</th>
+                            <th className="p-4 text-xs font-bold text-gray-500 uppercase text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {filtered.length === 0 ? (
+                            <tr><td colSpan={3} className="text-center p-4 text-gray-500">No se encontraron usuarios.</td></tr>
+                        ) : filtered.map(u => (
+                            <tr key={u.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                                <td className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase">
+                                            {u.name.substring(0, 2)}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-sm text-gray-900 dark:text-white">{u.name}</p>
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <span className="material-icons-round text-[10px]">email</span>
+                                                {u.email}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="p-4">
+                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${u.role === 'Admin' ? 'bg-red-100 text-red-700' :
+                                        u.role === 'Propietario' ? 'bg-purple-100 text-purple-700' :
+                                            'bg-blue-100 text-blue-700'
+                                        }`}>
+                                        {u.role}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleResetPassword(u.id)}
+                                            disabled={!!processingId}
+                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                            title="Resetear Contraseña"
+                                        >
+                                            <span className="material-icons-round text-lg">lock_reset</span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(u.id, u.name)}
+                                            disabled={!!processingId}
+                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                            title="Eliminar Usuario"
+                                        >
+                                            <span className="material-icons-round text-lg">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     );
 };

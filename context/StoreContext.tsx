@@ -135,9 +135,9 @@ interface StoreContextType {
     addPayment: (p: Omit<Payment, 'id' | 'status'>) => Promise<{ success: boolean; message: string }>;
 
     // Users
-    // Users
     addUser: (u: Omit<User, 'id'>) => void;
     updateProfile: (userId: string | number, updates: Partial<User>) => void; // New method for generic profile updates
+    deleteUser: (userId: string | number) => Promise<{ success: boolean; message: string }>; // New method for deleting users
 
     // Notification Helper
     requestNotificationPermission: () => void;
