@@ -148,7 +148,7 @@ const Login: React.FC = () => {
             <span className="material-icons-round text-lg group-hover:text-accent transition-colors">help_outline</span>
             ¿Necesita ayuda para ingresar?
           </a>
-          <p className="text-xs text-gray-300 dark:text-gray-600 mt-6">© 2026 CGBI Real Estate. Todos los derechos reservados.</p>
+          <p className="text-xs text-gray-300 dark:text-gray-600 mt-6">© 2026 CGBI Real Estate - v1.3 (Fixed)</p>
           <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="block mt-2 text-xs font-semibold text-gray-300 dark:text-gray-600 hover:text-primary dark:hover:text-blue-400 transition-colors">
             Desarrollado por SIKAI
           </a>
