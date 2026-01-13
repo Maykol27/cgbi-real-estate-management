@@ -253,33 +253,35 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
           )}
         </div>
       </aside>
-      );
+      <ChangePasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} />
+    </>
+  );
 };
 
-      export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = ({children, role}) => {
+export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = ({ children, role }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-      const [isCollapsed, setIsCollapsed] = useState(false); // Desktop Collapsed State
-      const {user, loading} = useStore();
-      const navigate = useNavigate();
-      const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false); // Desktop Collapsed State
+  const { user, loading } = useStore();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // --- SECURITY: Route Guard ---
   // Calculate Authorization synchronously during render to prevent content flash
 
   const normalizeRole = (r: string) => {
     const lower = (r || '').toLowerCase();
-      if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
-      if (lower === 'owner' || lower === 'propietario') return 'OWNER';
-      if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
-      if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
-      return 'UNKNOWN';
+    if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
+    if (lower === 'owner' || lower === 'propietario') return 'OWNER';
+    if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
+    if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
+    return 'UNKNOWN';
   };
 
-      const currentUserRole = normalizeRole(user?.role || '');
-      let isAuthorized = false;
+  const currentUserRole = normalizeRole(user?.role || '');
+  let isAuthorized = false;
 
-      // Determine authorization status
-      if (role === UserRole.ADMIN) {
+  // Determine authorization status
+  if (role === UserRole.ADMIN) {
     if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') isAuthorized = true;
   } else if (role === UserRole.TENANT) {
     if (currentUserRole === 'TENANT') isAuthorized = true;
@@ -291,17 +293,17 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
     // 1. Wait for loading to finish
     if (loading) return;
 
-      // 2. If not logged in after loading, redirect to Login
-      if (!user) {
+    // 2. If not logged in after loading, redirect to Login
+    if (!user) {
       if (location.pathname !== '/') {
         navigate('/');
       }
       return;
     }
 
-      // 3. If logged in but unauthorized, redirect
-      if (!isAuthorized) {
-        console.warn(`Unauthorized access attempt. Role: ${user.role} (Norm: ${currentUserRole}) -> Target: ${role}`);
+    // 3. If logged in but unauthorized, redirect
+    if (!isAuthorized) {
+      console.warn(`Unauthorized access attempt. Role: ${user.role} (Norm: ${currentUserRole}) -> Target: ${role}`);
       if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') navigate('/admin/dashboard');
       else if (currentUserRole === 'TENANT') navigate('/tenant/dashboard');
       else if (currentUserRole === 'OWNER') navigate('/owner/dashboard');
@@ -309,62 +311,62 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
     }
   }, [user, loading, role, navigate, location.pathname, isAuthorized, currentUserRole]);
 
-      // Prevent rendering if not authorized
-      if (loading) {
+  // Prevent rendering if not authorized
+  if (loading) {
     return <div className="flex h-screen w-full items-center justify-center bg-background-light dark:bg-background-dark text-slate-500">Cargando...</div>;
   }
 
-      if (!user || !isAuthorized) {
+  if (!user || !isAuthorized) {
     return null; // Don't render anything while redirecting
   }
   // -----------------------------
 
   // Close sidebar automatically when route changes (mobile UX)
   useEffect(() => {
-        setIsSidebarOpen(false);
+    setIsSidebarOpen(false);
   }, [location]);
 
-      return (
-      <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans overflow-hidden">
+  return (
+    <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans overflow-hidden">
 
-        {/* Mobile Backdrop */}
-        <div
-          className={`fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-          onClick={() => setIsSidebarOpen(false)}
-        />
+      {/* Mobile Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
-        <Sidebar
-          role={role}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          isCollapsed={isCollapsed}
-          toggleCollapse={() => setIsCollapsed(!isCollapsed)}
-        />
+      <Sidebar
+        role={role}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        isCollapsed={isCollapsed}
+        toggleCollapse={() => setIsCollapsed(!isCollapsed)}
+      />
 
-        {/* Main Content Area */}
-        {/* Mobile: Top padding for toggle button. Desktop: No extra padding needed as sidebar is relative */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full pt-16 lg:pt-0 transition-all duration-300">
+      {/* Main Content Area */}
+      {/* Mobile: Top padding for toggle button. Desktop: No extra padding needed as sidebar is relative */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full pt-16 lg:pt-0 transition-all duration-300">
 
-          {/* Mobile Fixed Top Bar */}
-          <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-card-dark shadow-sm z-30 flex items-center px-4 justify-between">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-2 text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              aria-label="Abrir menú"
-            >
-              <span className="material-icons-round text-2xl">menu</span>
-            </button>
+        {/* Mobile Fixed Top Bar */}
+        <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-card-dark shadow-sm z-30 flex items-center px-4 justify-between">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 -ml-2 text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            aria-label="Abrir menú"
+          >
+            <span className="material-icons-round text-2xl">menu</span>
+          </button>
 
-            {/* Mobile Logo centered in header */}
-            <div className="h-8">
-              <img src={LOGO_BASE64} alt="CGBI" className="h-full object-contain" />
-            </div>
+          {/* Mobile Logo centered in header */}
+          <div className="h-8">
+            <img src={LOGO_BASE64} alt="CGBI" className="h-full object-contain" />
+          </div>
 
-            <div className="w-8"></div> {/* Spacer for centering */}
-          </header>
+          <div className="w-8"></div> {/* Spacer for centering */}
+        </header>
 
-          {children}
-        </main>
-      </div>
-      );
+        {children}
+      </main>
+    </div>
+  );
 };
