@@ -29,19 +29,27 @@ const Login: React.FC = () => {
 
       if (loggedInUser) {
         // Normalize role for routing
-        const roleLower = (loggedInUser.role || '').toLowerCase();
+        const roleLower = (loggedInUser.role || '').toLowerCase().trim();
+        console.log("CGBI Debug - User Role:", roleLower); // Debug log
 
-        if (roleLower === 'admin' || roleLower === 'colaborador' || roleLower === 'administrador') {
+        if (['admin', 'colaborador', 'administrador'].includes(roleLower)) {
           navigate('/admin/dashboard');
-        } else if (roleLower === 'propietario' || roleLower === 'owner') {
-          navigate('/owner/dashboard');
-        } else if (roleLower === 'inquilino' || roleLower === 'tenant') {
-          navigate('/tenant/dashboard');
-        } else {
-          console.warn("Role not matched for routing:", loggedInUser.role);
-          setError(`Error: Rol de usuario no reconocido (${loggedInUser.role})`);
-          setIsLoading(false);
+          return;
         }
+
+        if (['propietario', 'owner', 'propietario assigned'].includes(roleLower)) {
+          navigate('/owner/dashboard');
+          return;
+        }
+
+        if (['inquilino', 'tenant'].includes(roleLower)) {
+          navigate('/tenant/dashboard');
+          return;
+        }
+
+        console.warn("Role not matched for routing:", loggedInUser.role);
+        setError(`Error: Rol no reconocido (${loggedInUser.role}). Contacte soporte.`);
+        setIsLoading(false);
       } else {
         // Login failed (StoreContext notifies, but we must stop loading)
         setError('No se pudo iniciar sesión. Verifique sus credenciales o conexión.');
