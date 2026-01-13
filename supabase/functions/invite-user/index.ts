@@ -27,9 +27,14 @@ serve(async (req) => {
             )
         }
 
-        // 1. Create User via Admin API (sends invite email by default if email_confirm is on)
-        const { data: userData, error: userError } = await supabaseClient.auth.admin.inviteUserByEmail(email, {
-            data: {
+        // 1. Create User via Admin API with DEFAULT PASSWORD (bypassing email issues)
+        const defaultPassword = "CGBI2026!";
+
+        const { data: userData, error: userError } = await supabaseClient.auth.admin.createUser({
+            email: email,
+            password: defaultPassword,
+            email_confirm: true, // Auto-confirm user
+            user_metadata: {
                 full_name: full_name,
                 role: role
             }
