@@ -366,12 +366,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }, []);
 
     const fetchProfile = async (userId: string): Promise<User | undefined> => {
+        console.log("StoreContext: fetchProfile START", userId);
         try {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)
                 .single();
+
+            console.log("StoreContext: fetchProfile DB Result", { data, error });
 
             if (data) {
                 const loadedUser: User = {
@@ -382,6 +385,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     permissions: data.permissions
                 };
 
+                console.log("StoreContext: Setting User State", loadedUser);
                 setUser(loadedUser);
 
                 // Fetch User Payments - ENABLED
@@ -407,14 +411,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         } catch (error) {
             console.error(error);
         }
+        console.log("StoreContext: fetchProfile END (Returning undefined)");
         return undefined;
     };
 
     const login = async (email: string, password?: string): Promise<User | null> => {
+        console.log("StoreContext: login START", email);
         try {
             if (password) {
                 // 2. Auth Call
                 const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+                console.log("StoreContext: signInWithPassword Result", { authData, authError });
 
                 if (authError) {
                     // Capture and display Supabase error
@@ -426,11 +433,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 if (authData?.user) {
                     // Fetch profile immediately to get the role
                     const profile = await fetchProfile(authData.user.id);
+                    console.log("StoreContext: Profile Fetched in Login", profile);
                     if (profile) {
                         return profile;
                     }
 
                     // Fallback if profile fetch fails (though it shouldn't for valid users)
+                    console.log("StoreContext: Using Fallback User");
                     return {
                         id: authData.user.id,
                         email: authData.user.email,
