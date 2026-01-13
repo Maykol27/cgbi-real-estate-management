@@ -13,21 +13,33 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#1a88ff',
-                    dark: '#16181d'
+                    DEFAULT: "#0F172A", // CGBI Dark Navy
+                    dark: "#020617",
+                    foreground: "#F8FAFC"
                 },
                 secondary: {
-                    DEFAULT: '#26d8c4',
-                    dark: '#1f1f21'
+                    DEFAULT: "#E11D48", // CGBI Pink/Magenta
+                    foreground: "#FFFFFF"
+                },
+                accent: {
+                    DEFAULT: "#E11D48",
+                    hover: "#BE123C"
                 },
                 background: {
-                    light: '#faf6fd',
-                    dark: '#16181d'
+                    light: "#F8FAFC",
+                    dark: "#0F172A"
                 },
                 card: {
-                    light: '#ffffff',
-                    dark: '#1f1f21'
-                }
+                    light: "#FFFFFF",
+                    dark: "#1E293B"
+                },
+                text: {
+                    light: "#1F2937",
+                    dark: "#F9FAFB"
+                },
+                success: "#10B981",
+                warning: "#F59E0B",
+                danger: "#EF4444"
             }
         },
     },
