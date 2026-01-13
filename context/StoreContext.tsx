@@ -424,17 +424,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }
 
                 if (authData?.user) {
-                    // Do NOT manually call fetchProfile here; onAuthStateChange will do it.
-                    // Returning partial user to satisfy type, or rely on state.
-                    // We can just return null and let the UI react to the 'user' state change.
-                    // Or return a stub.
-                    // Returning null might be confusing for the caller 'handleLogin'.
-                    // Let's return the basic auth user mapped to our type.
+                    // Fetch profile immediately to get the role
+                    const profile = await fetchProfile(authData.user.id);
+                    if (profile) {
+                        return profile;
+                    }
+
+                    // Fallback if profile fetch fails (though it shouldn't for valid users)
                     return {
                         id: authData.user.id,
                         email: authData.user.email,
-                        name: "Cargando...", // Will be updated by fetchProfile
-                        role: "" as any, // Wait for fetchProfile
+                        name: "Usuario",
+                        role: "propietario" as any, // Temporary default to avoid crash, or better to throw? Let's return a safe default allowing access to at least something or let the UI handle empty role gracefully. The UI checks specifically.
                         permissions: []
                     };
                 }

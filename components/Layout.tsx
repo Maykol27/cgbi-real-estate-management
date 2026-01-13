@@ -24,12 +24,27 @@ export const Logo = ({ className }: { className?: string }) => (
 );
 
 export const ThemeToggle = () => {
-  const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
-  };
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
   return (
     <button
-      onClick={toggleTheme}
+      onClick={() => setIsDark(!isDark)}
       className="p-2 rounded-full bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-600 transition-all border border-gray-100 dark:border-gray-600"
     >
       <span className="material-icons-round dark:hidden text-xl">dark_mode</span>
