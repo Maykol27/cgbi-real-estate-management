@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Logo, ThemeToggle } from '../components/Layout';
+import { ThemeToggle } from '../components/Layout';
 import { useStore } from '../context/StoreContext';
+import { LOGO_BASE64 } from '../constants/logo';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const Login: React.FC = () => {
       <main className="w-full max-w-5xl mx-auto flex flex-col items-center">
         <div className="mb-10 text-center">
           <div className="inline-flex flex-col items-center justify-center">
-            <Logo className="h-24 w-24 md:h-28 md:w-28 mb-6 bg-white rounded-2xl shadow-lg p-2" />
+            <img src={LOGO_BASE64} alt="CGBI Logo" className="h-32 w-auto mb-6 transition-transform hover:scale-105" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary dark:text-white mt-2 tracking-tight">
             Iniciar Sesión
