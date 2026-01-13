@@ -393,7 +393,7 @@ export const AdminDocuments: React.FC = () => {
 
 // --- Properties Page (Admin) ---
 export const AdminProperties: React.FC = () => {
-    const { user, properties, updatePropertyStatus, addProperty } = useStore();
+    const { user, properties, updatePropertyStatus, addProperty, users } = useStore();
     const { showToast } = useToast();
 
     // Permission Check
@@ -418,12 +418,18 @@ export const AdminProperties: React.FC = () => {
         const form = e.target as HTMLFormElement;
         const imageUrl = propertyImage ? URL.createObjectURL(propertyImage) : undefined;
 
+        const ownerSelect = form.elements.namedItem('owner') as HTMLSelectElement;
+        const selectedOption = ownerSelect.options[ownerSelect.selectedIndex];
+        const ownerName = ownerSelect.value;
+        const ownerId = selectedOption?.getAttribute('data-id');
+
         const formData = {
             name: (form.elements.namedItem('name') as HTMLInputElement).value,
             address: (form.elements.namedItem('address') as HTMLInputElement).value,
             type: (form.elements.namedItem('type') as HTMLSelectElement).value,
             rent: (form.elements.namedItem('rent') as HTMLInputElement).value,
-            owner: (form.elements.namedItem('owner') as HTMLInputElement).value,
+            owner: ownerName,
+            owner_id: ownerId, // Pass the ID
             status: (form.elements.namedItem('status') as HTMLSelectElement)?.value as any, // 'Disponible' | 'Vendido' | ...
             listingType: formListingType, // Use controlled state value
             sqMeters: Number((form.elements.namedItem('sqMeters') as HTMLInputElement).value),
@@ -563,7 +569,23 @@ export const AdminProperties: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">Propietario Asignado</label>
-                                <input required name="owner" defaultValue={editingProp?.owner} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Nombre del propietario" />
+                                <select
+                                    required
+                                    name="owner"
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                        // Find the user object to set the hidden owner_id logic if needed, 
+                                        // or just reliable on form submit handler logic which I will update below
+                                    }}
+                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                                >
+                                    <option value="" disabled>Seleccionar Propietario</option>
+                                    {users.filter(u => u.role === 'Propietario' || u.role === 'Owner').map(u => (
+                                        <option key={u.id} value={u.name} data-id={u.id}>
+                                            {u.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

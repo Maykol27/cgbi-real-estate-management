@@ -238,6 +238,29 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
   const location = useLocation();
 
   // --- SECURITY: Route Guard ---
+  // Calculate Authorization synchronously during render to prevent content flash
+
+  const normalizeRole = (r: string) => {
+    const lower = (r || '').toLowerCase();
+    if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
+    if (lower === 'owner' || lower === 'propietario') return 'OWNER';
+    if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
+    if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
+    return 'UNKNOWN';
+  };
+
+  const currentUserRole = normalizeRole(user?.role || '');
+  let isAuthorized = false;
+
+  // Determine authorization status
+  if (role === UserRole.ADMIN) {
+    if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') isAuthorized = true;
+  } else if (role === UserRole.TENANT) {
+    if (currentUserRole === 'TENANT') isAuthorized = true;
+  } else if (role === UserRole.OWNER) {
+    if (currentUserRole === 'OWNER') isAuthorized = true;
+  }
+
   useEffect(() => {
     // 1. Wait for loading to finish
     if (loading) return;
@@ -250,36 +273,24 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
       return;
     }
 
-    // RBAC Normalization Helper
-    const normalizeRole = (r: string) => {
-      const lower = (r || '').toLowerCase();
-      if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
-      if (lower === 'owner' || lower === 'propietario') return 'OWNER';
-      if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
-      if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
-      return 'UNKNOWN';
-    };
-
-    const currentUserRole = normalizeRole(user.role);
-    let isAuthorized = false;
-
-    if (role === UserRole.ADMIN) {
-      if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') isAuthorized = true;
-    } else if (role === UserRole.TENANT) {
-      if (currentUserRole === 'TENANT') isAuthorized = true;
-    } else if (role === UserRole.OWNER) {
-      if (currentUserRole === 'OWNER') isAuthorized = true;
-    }
-
+    // 3. If logged in but unauthorized, redirect
     if (!isAuthorized) {
-      // Redirect unauthorized users to their dashboard
       console.warn(`Unauthorized access attempt. Role: ${user.role} (Norm: ${currentUserRole}) -> Target: ${role}`);
       if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') navigate('/admin/dashboard');
       else if (currentUserRole === 'TENANT') navigate('/tenant/dashboard');
       else if (currentUserRole === 'OWNER') navigate('/owner/dashboard');
       else navigate('/');
     }
-  }, [user, loading, role, navigate, location.pathname]);
+  }, [user, loading, role, navigate, location.pathname, isAuthorized, currentUserRole]);
+
+  // Prevent rendering if not authorized
+  if (loading) {
+    return <div className="flex h-screen w-full items-center justify-center bg-background-light dark:bg-background-dark text-slate-500">Cargando...</div>;
+  }
+
+  if (!user || !isAuthorized) {
+    return null; // Don't render anything while redirecting
+  }
   // -----------------------------
 
   // Close sidebar automatically when route changes (mobile UX)

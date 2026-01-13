@@ -3,6 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { ThemeToggle, NotificationButton } from '../../components/Layout';
 import { useStore } from '../../context/StoreContext';
 
+const RecentActivityList: React.FC = () => {
+  const { documents, user } = useStore();
+  const navigate = useNavigate();
+
+  // Sort documents by date (assuming they have dates)
+  // Taking top 5 recent documents
+  const recentDocs = documents.slice(0, 5);
+
+  if (recentDocs.length === 0) {
+    return <div className="p-4 text-sm text-slate-500 text-center">No hay actividad reciente.</div>;
+  }
+
+  return (
+    <>
+      {recentDocs.map((doc, idx) => (
+        <div key={idx} onClick={() => navigate('/admin/documents')} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer group">
+          <div className="flex-shrink-0 size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center">
+            <span className="material-icons-round text-[24px]">description</span>
+          </div>
+          <div className="flex flex-col flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">{doc.name}</p>
+            <p className="text-xs text-slate-500 mt-0.5">Tipo: {doc.type} • {doc.date}</p>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { properties, tickets, user } = useStore();
@@ -127,18 +156,28 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium">#TR-8832</td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Mantenimiento AA</td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Sunset Blvd, Unidad 4B</td>
-                      <td className="px-6 py-4"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">En Progreso</span></td>
-                    </tr>
-                    <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium">#TR-8831</td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Fuga en Vestíbulo</td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Downtown Lofts</td>
-                      <td className="px-6 py-4"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">Pendiente Prov.</span></td>
-                    </tr>
+                    {tickets.slice(0, 5).map(ticket => (
+                      <tr key={ticket.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-medium">#{ticket.id}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{ticket.title}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{ticket.propertyName || 'N/A'}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            ${ticket.status === 'Abierto' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                              ticket.status === 'En Progreso' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' :
+                                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`}>
+                            {ticket.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {tickets.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-sm text-slate-500">
+                          No hay tickets recientes.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -148,24 +187,9 @@ const AdminDashboard: React.FC = () => {
                 <h3 className="font-bold text-lg">Actividad Reciente</h3>
               </div>
               <div className="flex flex-col p-2">
-                <div onClick={() => navigate('/admin/documents')} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer group">
-                  <div className="flex-shrink-0 size-10 rounded-lg bg-red-50 dark:bg-red-900/20 text-accent flex items-center justify-center">
-                    <span className="material-icons-round text-[24px]">description</span>
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">Contrato de Alquiler - Unidad 402</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Subido por Sistema • hace 2m</p>
-                  </div>
-                </div>
-                <div onClick={() => navigate('/admin/tickets')} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer group">
-                  <div className="flex-shrink-0 size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center">
-                    <span className="material-icons-round text-[24px]">contract</span>
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">Contrato Prov.: Jardinería Verde</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Subido por {user?.name || 'Admin'} • hace 2h</p>
-                  </div>
-                </div>
+                {/* Dynamically List Recent Documents as Activity */}
+                {/* We need documents from store to be safe, assuming it's imported or avail via useStore */}
+                <RecentActivityList />
               </div>
             </div>
           </div>

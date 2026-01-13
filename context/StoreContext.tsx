@@ -162,23 +162,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         const fetchAllData = async () => {
             // 1. Fetch Profiles
             const { data: profilesData } = await supabase.from('profiles').select('*');
+            let mappedUsers: User[] = [];
+
             if (profilesData) {
-                let mappedUsers = profilesData.map((p: any) => ({
+                mappedUsers = profilesData.map((p: any) => ({
                     id: p.id,
                     name: p.full_name || p.email, // Fallback if name empty
                     email: p.email,
                     role: p.role,
-                    permissions: [] // handle permissions if stored in DB
+                    permissions: p.permissions || [] // handle permissions if stored in DB
                 })) as unknown as User[];
-
-                // Merge with local overrides
-                try {
-                    const stored = localStorage.getItem('sikai_user_updates');
-                    if (stored) {
-                        const updates = JSON.parse(stored);
-                        mappedUsers = mappedUsers.map(u => updates[u.id] ? { ...u, ...updates[u.id] } : u);
-                    }
-                } catch (e) { }
 
                 setUsers(mappedUsers);
             }
@@ -186,40 +179,47 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             // 2. Fetch Properties
             const { data: propsData } = await supabase.from('properties').select('*');
             if (propsData) {
-                const mappedProps = propsData.map((p: any) => ({
-                    id: p.id,
-                    name: p.name,
-                    address: p.address,
-                    type: p.type,
-                    status: p.status,
-                    listingType: p.listing_type,
-                    rent: p.rent,
-                    owner: 'Unknown', // Need to join or look up owner name
-                    owner_id: p.owner_id,
-                    sqMeters: p.sq_meters,
-                    rooms: p.rooms,
-                    bathrooms: p.bathrooms,
-                    parking: p.parking,
-                    description: p.description
-                })) as Property[];
+                const mappedProps = propsData.map((p: any) => {
+                    const ownerUser = mappedUsers.find(u => u.id === p.owner_id);
+                    return {
+                        id: p.id,
+                        name: p.name,
+                        address: p.address,
+                        type: p.type,
+                        status: p.status,
+                        listingType: p.listing_type,
+                        rent: p.rent,
+                        owner: ownerUser ? ownerUser.name : 'No Asignado',
+                        owner_id: p.owner_id,
+                        sqMeters: p.sq_meters,
+                        rooms: p.rooms,
+                        bathrooms: p.bathrooms,
+                        parking: p.parking,
+                        description: p.description
+                    };
+                }) as Property[];
                 setProperties(mappedProps);
             }
 
             // 3. Fetch Tickets
             const { data: ticketsData } = await supabase.from('tickets').select('*');
             if (ticketsData) {
-                const mappedTickets = ticketsData.map((t: any) => ({
-                    id: t.id,
-                    title: t.title,
-                    desc: t.description,
-                    status: t.status,
-                    priority: t.priority,
-                    requester: 'Unknown', // Need to resolve
-                    requesterRole: 'Propietario', // Default or resolve
-                    date: new Date(t.created_at).toLocaleDateString(),
-                    propertyId: t.property_id,
-                    messages: t.messages || [] // Fetch messages from DB JSONB column
-                })) as Ticket[];
+                const mappedTickets = ticketsData.map((t: any) => {
+                    // Assuming tickets have a user_id or created_by
+                    const requester = mappedUsers.find(u => u.id === t.user_id);
+                    return {
+                        id: t.id,
+                        title: t.title,
+                        desc: t.description,
+                        status: t.status,
+                        priority: t.priority,
+                        requester: requester ? requester.name : 'Unknown',
+                        requesterRole: requester ? requester.role : 'Usuario',
+                        date: new Date(t.created_at).toLocaleDateString(),
+                        propertyId: t.property_id,
+                        messages: t.messages || []
+                    };
+                }) as Ticket[];
                 setTickets(mappedTickets);
             }
 
@@ -434,7 +434,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         id: authData.user.id,
                         email: authData.user.email,
                         name: "Cargando...", // Will be updated by fetchProfile
-                        role: "Propietario" as any, // Temporary
+                        role: "" as any, // Wait for fetchProfile
                         permissions: []
                     };
                 }
@@ -657,7 +657,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 bathrooms: p.bathrooms,
                 parking: p.parking,
                 description: p.description,
-                owner_id: user?.id
+                owner_id: p.owner_id // Use the selected owner ID
             }).select().single();
 
             if (error) {
