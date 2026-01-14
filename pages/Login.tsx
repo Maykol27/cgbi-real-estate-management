@@ -170,8 +170,9 @@ const Login: React.FC = () => {
             ¿Necesita ayuda para ingresar?
           </a>
           <p className="text-xs text-gray-300 dark:text-gray-600 mt-6">© 2026 CGBI Real Estate - v1.3 (Fixed)</p>
-          <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="block mt-2 text-xs font-semibold text-gray-300 dark:text-gray-600 hover:text-primary dark:hover:text-blue-400 transition-colors">
-            Desarrollado por SIKAI
+          <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 mt-2 text-xs font-semibold text-gray-300 dark:text-gray-600 hover:text-primary dark:hover:text-blue-400 transition-colors group">
+            <span>Desarrollado por SIKAI</span>
+            <img src="/sikai-icon.png" alt="SIKAI" className="h-5 w-auto opacity-70 group-hover:opacity-100 transition-opacity" />
           </a>
         </div>
       </main>

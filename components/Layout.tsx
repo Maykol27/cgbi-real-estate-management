@@ -249,9 +249,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
           {/* Developer Credit - SIKAI */}
           {!effectiveCollapsed && (
             <div className="pt-4 mt-1 border-t border-white/5 flex flex-col items-center">
-              <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group cursor-pointer">
-                <span className="text-[10px] text-white/40 group-hover:text-white/90 font-medium mb-1 uppercase tracking-widest transition-colors">Desarrollado por SIKAI</span>
-                <img src="/sikai-logo.png" alt="SIKAI Consulting" className="h-7 w-auto opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+              <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 group cursor-pointer">
+                <span className="text-[10px] text-white/40 group-hover:text-white/90 font-medium uppercase tracking-widest transition-colors">Desarrollado por SIKAI</span>
+                <img src="/sikai-icon.png" alt="SIKAI Consulting" className="h-6 w-auto opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
               </a>
             </div>
           )}
