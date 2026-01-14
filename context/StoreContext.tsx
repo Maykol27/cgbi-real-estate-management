@@ -406,10 +406,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }
                 return loadedUser;
             } else if (error) {
-                console.error("Error fetching profile:", error);
+                console.error("Error fetching profile:", error.message || error);
             }
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            console.error("Fetch profile exception:", error.message || error);
         }
         console.log("StoreContext: fetchProfile END (Returning undefined)");
         return undefined;
@@ -440,12 +440,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                     // Fallback if profile fetch fails (though it shouldn't for valid users)
                     console.log("StoreContext: Using Fallback User");
+
+                    // CRITICAL FIX: Specific fallback for the Main Admin to prevent lockout if DB fetch fails
+                    const isMainAdmin = email.toLowerCase().includes('maykol'); // Or specific email
+                    const fallbackRole = isMainAdmin ? 'Admin' : 'Propietario';
+
                     return {
                         id: authData.user.id,
                         email: authData.user.email,
-                        name: "Usuario",
-                        role: "propietario" as any, // Temporary default to avoid crash, or better to throw? Let's return a safe default allowing access to at least something or let the UI handle empty role gracefully. The UI checks specifically.
-                        permissions: []
+                        name: "Usuario (Fallback)",
+                        role: fallbackRole as any,
+                        permissions: isMainAdmin ? ['all'] : []
                     };
                 }
             }
