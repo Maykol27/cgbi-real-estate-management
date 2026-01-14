@@ -157,27 +157,35 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const [financeRequests, setFinanceRequests] = useState<FinanceRequest[]>([]);
     const [payments, setPayments] = useState<Payment[]>([]);
 
-    // --- Data Fetching ---
-    useEffect(() => {
-        const fetchAllData = async () => {
-            // 1. Fetch Profiles
-            const { data: profilesData } = await supabase.from('profiles').select('*');
-            let mappedUsers: User[] = [];
+    // --- CONSOLIDATED Data Fetching Function ---
+    const fetchAllData = async () => {
+        try {
+            console.log("📥 Fetching all data from Supabase...");
 
+            // 1. Fetch Profiles
+            const { data: profilesData, error: profilesError } = await supabase.from('profiles').select('*');
+            if (profilesError) {
+                console.error("Error fetching profiles:", profilesError);
+            }
+
+            let mappedUsers: User[] = [];
             if (profilesData) {
                 mappedUsers = profilesData.map((p: any) => ({
                     id: p.id,
-                    name: p.full_name || p.email, // Fallback if name empty
+                    name: p.full_name || p.email,
                     email: p.email,
                     role: p.role,
-                    permissions: p.permissions || [] // handle permissions if stored in DB
+                    permissions: p.permissions || []
                 })) as unknown as User[];
-
                 setUsers(mappedUsers);
+                console.log("✅ Loaded", mappedUsers.length, "users");
             }
 
             // 2. Fetch Properties
-            const { data: propsData } = await supabase.from('properties').select('*');
+            const { data: propsData, error: propsError } = await supabase.from('properties').select('*');
+            if (propsError) {
+                console.error("Error fetching properties:", propsError);
+            }
             if (propsData) {
                 const mappedProps = propsData.map((p: any) => {
                     const ownerUser = mappedUsers.find(u => u.id === p.owner_id);
@@ -199,14 +207,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     };
                 }) as Property[];
                 setProperties(mappedProps);
+                console.log("✅ Loaded", mappedProps.length, "properties");
             }
 
             // 3. Fetch Tickets
-            const { data: ticketsData } = await supabase.from('tickets').select('*');
+            const { data: ticketsData, error: ticketsError } = await supabase.from('tickets').select('*');
+            if (ticketsError) {
+                console.error("Error fetching tickets:", ticketsError);
+            }
             if (ticketsData) {
                 const mappedTickets = ticketsData.map((t: any) => {
-                    // Assuming tickets have a user_id or created_by
-                    const requester = mappedUsers.find(u => u.id === t.user_id);
+                    const requester = mappedUsers.find(u => u.id === t.requester_id);
                     return {
                         id: t.id,
                         title: t.title,
@@ -221,41 +232,53 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     };
                 }) as Ticket[];
                 setTickets(mappedTickets);
+                console.log("✅ Loaded", mappedTickets.length, "tickets");
             }
 
             // 4. Fetch Documents
-            const { data: docsData } = await supabase.from('documents').select('*');
+            const { data: docsData, error: docsError } = await supabase.from('documents').select('*');
+            if (docsError) {
+                console.error("Error fetching documents:", docsError);
+            }
             if (docsData) {
                 const mappedDocs = docsData.map((d: any) => ({
                     id: d.id,
                     name: d.name,
                     type: d.type,
-                    target: 'Todos', // Default or from DB
+                    target: d.target || 'Todos',
                     date: new Date(d.created_at).toLocaleDateString(),
                     size: d.size,
                     fileUrl: d.url
                 })) as Document[];
                 setDocuments(mappedDocs);
+                console.log("✅ Loaded", mappedDocs.length, "documents");
             }
 
             // 5. Fetch Visits
-            const { data: visitsData } = await supabase.from('visits').select('*');
+            const { data: visitsData, error: visitsError } = await supabase.from('visits').select('*');
+            if (visitsError) {
+                console.error("Error fetching visits:", visitsError);
+            }
             if (visitsData) {
                 const mappedVisits = visitsData.map((v: any) => ({
                     id: v.id,
                     propertyId: v.property_id,
-                    propertyName: 'Unknown', // Resolve
+                    propertyName: 'Unknown',
                     visitorName: v.visitor_name,
-                    advisor: v.advisor, // Map advisor
+                    advisor: v.advisor,
                     date: new Date(v.date),
                     status: v.status,
                     feedback: v.feedback
                 })) as Visit[];
                 setVisits(mappedVisits);
+                console.log("✅ Loaded", mappedVisits.length, "visits");
             }
 
             // 6. Fetch Finance Requests
-            const { data: finData } = await supabase.from('finance_requests').select('*');
+            const { data: finData, error: finError } = await supabase.from('finance_requests').select('*');
+            if (finError) {
+                console.error("Error fetching finance requests:", finError);
+            }
             if (finData) {
                 const mappedFin = finData.map((f: any) => ({
                     id: f.id,
@@ -263,39 +286,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     desc: f.description,
                     cost: f.amount,
                     status: f.status,
-                    requester: 'Unknown', // Resolve from requester_id
+                    requester: 'Unknown',
                     date: new Date(f.created_at).toLocaleDateString(),
                     rejectionReason: f.rejection_reason
                 })) as FinanceRequest[];
                 setFinanceRequests(mappedFin);
+                console.log("✅ Loaded", mappedFin.length, "finance requests");
             }
-        };
 
-        fetchAllData();
-
-        // Auth subscription handles user session
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-                await fetchProfile(session.user.id);
-                // Reload data on sign in?
-                fetchAllData();
-            } else if (event === 'SIGNED_OUT') {
-                setUser(null);
-                setUsers([]);
-                setProperties([]);
-                setTickets([]);
-                // Clear others
-                setDocuments([]);
-                setVisits([]);
-                setFinanceRequests([]);
-            }
-        });
-
-        return () => {
-            authListener.subscription.unsubscribe();
-        };
-
-    }, []);
+            console.log("✅ All data fetched successfully");
+        } catch (error) {
+            console.error("❌ Critical error in fetchAllData:", error);
+        }
+    };
 
     // --- Actions ---
     const notify = (title: string, body: string) => {
@@ -332,27 +335,48 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         });
     };
 
-    // --- Supabase Auth Integration ---
-    // --- Supabase Auth Integration & Global State Management ---
+    // --- CONSOLIDATED Supabase Auth Integration ---
     useEffect(() => {
-        // 1. Initial Session Check
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session?.user) {
-                fetchProfile(session.user.id).finally(() => setLoading(false));
-            } else {
-                setLoading(false);
-            }
-        });
+        console.log("🔄 Initializing auth and data loading...");
 
-        // 2. Global Auth State Listener
+        // 1. Initial Session Check
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                if (session?.user) {
+                    console.log("✅ Existing session found for:", session.user.email);
+                    return fetchProfile(session.user.id);
+                } else {
+                    console.log("ℹ️ No existing session found");
+                    setLoading(false);
+                    return null;
+                }
+            })
+            .then(() => {
+                // Fetch all data after auth is resolved
+                return fetchAllData();
+            })
+            .catch((error) => {
+                console.error("❌ Error during initialization:", error);
+            })
+            .finally(() => {
+                setLoading(false);
+                console.log("✅ Initialization complete");
+            });
+
+        // 2. Auth State Listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("🔔 Auth state changed:", event);
+
             if (event === 'SIGNED_IN' && session?.user) {
                 console.log(`🟢 Usuario logueado: ${session.user.email}`);
                 await fetchProfile(session.user.id);
+                await fetchAllData(); // Reload data on sign in
             } else if (event === 'SIGNED_OUT') {
                 console.log('🔴 Sesión cerrada correctamente.');
                 // Cleanup Local State
                 setUser(null);
+                setUsers([]);
+                setProperties([]);
                 setTickets([]);
                 setDocuments([]);
                 setVisits([]);
@@ -361,8 +385,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
         });
 
-        // Unsubscribe on unmount
-        return () => subscription.unsubscribe();
+        return () => {
+            console.log("🔄 Cleaning up auth subscription");
+            subscription.unsubscribe();
+        };
     }, []);
 
     const fetchProfile = async (userId: string): Promise<User | undefined> => {
@@ -587,7 +613,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addDocument = async (d: Omit<Document, 'id' | 'date'> & { file?: File }) => {
         try {
-            let publicUrl = d.fileUrl; // Fallback or existing URL
+            console.log("📄 Creating document:", d.name);
+            let publicUrl = d.fileUrl;
 
             // 1. Upload File if present
             if (d.file) {
@@ -600,20 +627,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     .upload(filePath, d.file);
 
                 if (uploadError) {
-                    console.error("Error uploading file:", uploadError);
-                    notify("Error", "Fallo al subir el archivo físico.");
+                    console.error("❌ Error uploading file:", uploadError);
+                    notify("Error", `Fallo al subir el archivo: ${uploadError.message}`);
                     return;
                 }
 
-                // 2. Get Public URL
                 const { data: publicUrlData } = supabase.storage
                     .from('project_files')
                     .getPublicUrl(filePath);
-
                 publicUrl = publicUrlData.publicUrl;
             }
 
-            // 3. Insert Record
+            // 2. Insert Record and verify it was created
             const { data, error } = await supabase.from('documents').insert({
                 name: d.name,
                 type: d.type,
@@ -623,12 +648,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }).select().single();
 
             if (error) {
-                console.error("Error creating document record:", error);
-                notify("Error", "Fallo al guardar referencia del documento.");
+                console.error("❌ Error creating document:", error);
+                notify("Error", `No se pudo guardar el documento: ${error.message}`);
                 return;
             }
 
             if (data) {
+                console.log("✅ Document created successfully:", data.id);
                 const newDoc: Document = {
                     ...d,
                     id: data.id,
@@ -636,10 +662,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     fileUrl: data.url
                 };
                 setDocuments(prev => [newDoc, ...prev]);
-                notify("Documento Registrado", `Se ha guardado ${newDoc.name} y el archivo está en la nube.`);
+                // Refetch all data to ensure it appears for all users
+                await fetchAllData();
+                notify("Documento Registrado", `${newDoc.name} guardado exitosamente.`);
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error("❌ Exception in addDocument:", err);
+            notify("Error", err.message || "Error inesperado al agregar documento.");
         }
     };
 
@@ -657,9 +686,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    // ... addProperty restore
     const addProperty = async (p: Omit<Property, 'id'>) => {
         try {
+            console.log("🏠 Creating property:", p.name);
+
+            if (!p.owner_id) {
+                notify("Error", "Debe seleccionar un propietario para la propiedad.");
+                return;
+            }
+
             const { data, error } = await supabase.from('properties').insert({
                 name: p.name,
                 address: p.address,
@@ -672,22 +707,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 bathrooms: p.bathrooms,
                 parking: p.parking,
                 description: p.description,
-                owner_id: p.owner_id // Use the selected owner ID
+                owner_id: p.owner_id
             }).select().single();
 
             if (error) {
-                console.error("Error creating property:", error);
-                notify("Error", "No se pudo crear la propiedad.");
+                console.error("❌ Error creating property:", error);
+                notify("Error", `No se pudo crear la propiedad: ${error.message}`);
                 return;
             }
 
             if (data) {
+                console.log("✅ Property created successfully:", data.id);
                 const newProp: Property = { ...p, id: data.id };
                 setProperties(prev => [newProp, ...prev]);
-                notify("Propiedad Agregada", `${newProp.name} guardada en base de datos.`);
+                // Refetch to ensure data appears for all users
+                await fetchAllData();
+                notify("Propiedad Agregada", `${newProp.name} creada exitosamente.`);
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error("❌ Exception in addProperty:", err);
+            notify("Error", err.message || "Error inesperado al agregar propiedad.");
         }
     };
 
@@ -705,20 +744,23 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addVisit = async (v: Omit<Visit, 'id'>): Promise<{ success: boolean; message: string }> => {
         try {
+            console.log("📅 Creating visit for property:", v.propertyId);
+
             const { data, error } = await supabase.from('visits').insert({
                 property_id: v.propertyId,
                 visitor_name: v.visitorName,
-                // advisor: v.advisor, // Column does not exist in DB
                 date: v.date.toISOString(),
                 status: v.status
             }).select().single();
 
             if (error) {
-                console.error("Error agendando visita:", error);
+                console.error("❌ Error creating visit:", error);
+                notify("Error", `No se pudo agendar la visita: ${error.message}`);
                 return { success: false, message: error.message || "Error al agendar visita." };
             }
 
             if (data) {
+                console.log("✅ Visit created successfully:", data.id);
                 const newVisit: Visit = {
                     id: data.id,
                     propertyId: data.property_id,
@@ -729,12 +771,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     propertyName: v.propertyName
                 };
                 setVisits(prev => [...prev, newVisit]);
+                // Refetch to ensure data appears for all users
+                await fetchAllData();
                 notify("Visita Agendada", `Visita para ${v.propertyName} programada.`);
                 return { success: true, message: "Visita agendada correctamente." };
             }
             return { success: false, message: "No se recibieron datos de confirmación." };
         } catch (err: any) {
-            console.error(err);
+            console.error("❌ Exception in addVisit:", err);
+            notify("Error", err.message || "Error inesperado al agendar visita.");
             return { success: false, message: err.message || "Error inesperado." };
         }
     };
@@ -785,21 +830,24 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => {
         try {
+            console.log("💰 Creating finance request:", r.title);
+
             const { data, error } = await supabase.from('finance_requests').insert({
                 title: r.title,
                 description: r.desc,
-                amount: r.cost, // Mapeo a columna 'amount'
+                amount: r.cost,
                 status: 'Pendiente',
                 requester_id: user?.id
             }).select().single();
 
             if (error) {
-                console.error("Error creando solicitud:", error);
-                notify("Error", "No se pudo enviar la solicitud.");
+                console.error("❌ Error creating finance request:", error);
+                notify("Error", `No se pudo enviar la solicitud: ${error.message}`);
                 return;
             }
 
             if (data) {
+                console.log("✅ Finance request created successfully:", data.id);
                 const newRequest: FinanceRequest = {
                     ...r,
                     id: data.id,
@@ -807,10 +855,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     status: 'Pendiente'
                 };
                 setFinanceRequests(prev => [newRequest, ...prev]);
-                notify("Solicitud Enviada", `Nueva solicitud registrada exitosamente.`);
+                // Refetch to ensure data appears for all users
+                await fetchAllData();
+                notify("Solicitud Enviada", "Nueva solicitud registrada exitosamente.");
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error("❌ Exception in addFinanceRequest:", err);
+            notify("Error", err.message || "Error inesperado al crear solicitud.");
         }
     };
 
