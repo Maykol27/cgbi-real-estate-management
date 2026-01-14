@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import { DebugConnection } from './pages/DebugConnection';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -24,6 +24,7 @@ const App: React.FC = () => {
             <Route path="/admin/*" element={
               <Layout role={UserRole.ADMIN}>
                 <Routes>
+                  <Route path="/" element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="properties" element={<AdminProperties />} />
                   <Route path="tenants" element={<AdminTenants />} />
@@ -39,6 +40,7 @@ const App: React.FC = () => {
             <Route path="/tenant/*" element={
               <Layout role={UserRole.TENANT}>
                 <Routes>
+                  <Route path="/" element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<TenantDashboard />} />
                   <Route path="payments" element={<TenantPayments />} />
                   <Route path="contracts" element={<TenantContracts />} />
@@ -52,6 +54,7 @@ const App: React.FC = () => {
             <Route path="/owner/*" element={
               <Layout role={UserRole.OWNER}>
                 <Routes>
+                  <Route path="/" element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<OwnerDashboard />} />
                   <Route path="properties" element={<OwnerProperties />} />
                   <Route path="calendar" element={<OwnerCalendar />} />

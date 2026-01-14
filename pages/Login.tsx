@@ -20,11 +20,11 @@ const Login: React.FC = () => {
       const roleLower = user.role?.toLowerCase().trim() || '';
 
       if (['admin', 'administrador', 'administrator'].includes(roleLower)) {
-        navigate('/admin');
+        navigate('/admin/dashboard');
       } else if (['owner', 'propietario', 'landlord'].includes(roleLower)) {
-        navigate('/owner');
+        navigate('/owner/dashboard');
       } else if (['tenant', 'arrendatario', 'inquilino'].includes(roleLower)) {
-        navigate('/tenant');
+        navigate('/tenant/dashboard');
       } else {
         // Fallback for unknown roles - maybe go to owner for now or show error
         console.warn("Unknown role for auto-redirect:", roleLower);
