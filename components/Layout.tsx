@@ -45,8 +45,12 @@ export const ThemeToggle = () => {
 
   return (
     <button
-      onClick={() => setIsDark(!isDark)}
-      className="p-2 rounded-full bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-600 transition-all border border-gray-100 dark:border-gray-600"
+      onClick={() => {
+        console.log("Toggling theme. Current:", isDark ? "Dark" : "Light");
+        setIsDark(!isDark);
+      }}
+      className="relative z-50 p-2 rounded-full bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-600 transition-all border border-gray-100 dark:border-gray-600 cursor-pointer shadow-sm"
+      aria-label="Alternar Tema"
     >
       <span className="material-icons-round dark:hidden text-xl">dark_mode</span>
       <span className="material-icons-round hidden dark:block text-xl">light_mode</span>

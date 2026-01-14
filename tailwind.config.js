@@ -13,28 +13,28 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: "#0F172A", // CGBI Dark Navy
-                    dark: "#020617",
-                    foreground: "#F8FAFC"
-                },
-                secondary: {
-                    DEFAULT: "#E11D48", // CGBI Pink/Magenta
+                    DEFAULT: "#1A88FF", // SIKAI Brand Blue
+                    dark: "#0066CC",
                     foreground: "#FFFFFF"
                 },
+                secondary: {
+                    DEFAULT: "#26D8C4", // SIKAI Teal
+                    foreground: "#0F172A"
+                },
                 accent: {
-                    DEFAULT: "#E11D48",
-                    hover: "#BE123C"
+                    DEFAULT: "#6C757D", // Grey
+                    hover: "#495057"
                 },
                 background: {
-                    light: "#F8FAFC",
-                    dark: "#0F172A"
+                    light: "#F3F4F6", // Lighter grey for premium feel
+                    dark: "#0F172A"   // Deep Navy/Black
                 },
                 card: {
                     light: "#FFFFFF",
                     dark: "#1E293B"
                 },
                 text: {
-                    light: "#1F2937",
+                    light: "#111827",
                     dark: "#F9FAFB"
                 },
                 success: "#10B981",
