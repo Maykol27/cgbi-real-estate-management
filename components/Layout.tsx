@@ -10,7 +10,7 @@ export const Logo = ({ className }: { className?: string }) => (
     <img
       alt="CGBI Logo"
       className="object-cover h-full w-full transform hover:scale-105 transition-transform"
-      src={LOGO_BASE64}
+      src="/sikai-logo.png"
       onError={(e) => {
         const target = e.currentTarget;
         target.style.display = 'none';
