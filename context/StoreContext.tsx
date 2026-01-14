@@ -899,6 +899,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
+    const deleteUser = async (userId: string | number): Promise<{ success: boolean; message: string }> => {
+        try {
+            console.log("Invoking manage-users to delete:", userId);
+            const { data, error } = await supabase.functions.invoke('manage-users', {
+                body: { action: 'delete', userId: userId }
+            });
+
+            if (error) {
+                console.error("Delete user error invoke:", error);
+                return { success: false, message: error.message || "Error de conexión con el servidor." };
+            }
+
+            if (data?.error) {
+                console.error("Delete user error data:", data.error);
+                return { success: false, message: data.error };
+            }
+
+            // Success
+            setUsers(prev => prev.filter(u => u.id !== userId));
+            notify("Usuario Eliminado", "El usuario ha sido eliminado correctamente.");
+            return { success: true, message: "Eliminado correctamente" };
+        } catch (err: any) {
+            console.error("Delete user exception:", err);
+            return { success: false, message: err.message };
+        }
+    };
+
     const updateProfile = (userId: string | number, updates: Partial<User>) => {
         // Update Local State for immediate UI change
         setUser(prev => prev && prev.id === userId ? { ...prev, ...updates } : prev);
@@ -920,7 +947,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     return (
         <StoreContext.Provider value={{
-            user, loading, login, logout, users, addUser,
+            user, loading, login, logout, users, addUser, deleteUser,
             tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
             documents, addDocument, deleteDocument,
             properties, addProperty, updatePropertyStatus,
