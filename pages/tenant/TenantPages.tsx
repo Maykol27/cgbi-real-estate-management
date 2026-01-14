@@ -17,11 +17,19 @@ const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
 
 // --- Dashboard ---
 export const TenantDashboard: React.FC = () => {
-    const { user, payments } = useStore();
+    const { user, payments, documents } = useStore();
     const { showToast } = useToast();
 
     // Get first name for greeting
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
+
+    // Filter Documents for News/Feed
+    const myDocuments = documents.filter(d =>
+        d.target === 'Todos' ||
+        d.target === 'Inquilinos' ||
+        d.target === 'Tenant' ||
+        d.target === 'All'
+    ).slice(0, 5); // Show last 5
 
     // Derived Payment State
     // Find earliest pending payment
@@ -45,22 +53,35 @@ export const TenantDashboard: React.FC = () => {
                         </p>
                         <h1 className="text-2xl sm:text-3xl font-bold dark:text-white">Bienvenido, {firstName}</h1>
                     </div>
-                    {/* ... (rest of dashboard) ... */}
+
+                    {/* News Feed / Documents */}
                     <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="material-icons-round text-primary dark:text-blue-400">notifications_active</span>
                             <h3 className="font-bold text-lg text-primary dark:text-blue-200">Buzón de Novedades</h3>
                         </div>
                         <div className="space-y-3">
-                            <div className="flex gap-3 items-start bg-white/60 dark:bg-card-dark/60 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm">
-                                <span className="material-icons-round text-primary text-sm mt-0.5">info</span>
-                                <div>
-                                    <p className="text-sm font-bold text-slate-800 dark:text-white">Mantenimiento Programado</p>
-                                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Estimados residentes, el ascensor de la Torre A estará en mantenimiento preventivo.</p>
-                                </div>
-                            </div>
+                            {myDocuments.length > 0 ? (
+                                myDocuments.map(doc => (
+                                    <div key={doc.id} className="flex gap-3 items-start bg-white/60 dark:bg-card-dark/60 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                                        <span className="material-icons-round text-primary text-sm mt-0.5">description</span>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-slate-800 dark:text-white">{doc.name}</p>
+                                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                                                {doc.date} • {doc.type}
+                                            </p>
+                                        </div>
+                                        <a href={doc.fileUrl || '#'} target="_blank" rel="noreferrer" className="text-primary hover:text-primary-dark">
+                                            <span className="material-icons-round text-sm">open_in_new</span>
+                                        </a>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500 italic">No hay novedades recientes.</p>
+                            )}
                         </div>
                     </div>
+
                     <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm border border-gray-100 dark:border-gray-700 p-6 sm:p-8 flex flex-col gap-6">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                             <div>
@@ -158,10 +179,22 @@ export const TenantPayments: React.FC = () => {
 
 // --- Contracts ---
 export const TenantContracts: React.FC = () => {
+    const { documents } = useStore();
     const { showToast } = useToast();
-    const handleDownload = (docName: string) => {
-        if (window.confirm(`¿Desea descargar "${docName}"?`)) {
-            showToast("Descarga iniciada...", "info");
+
+    // Filter docs
+    const myDocuments = documents.filter(d =>
+        d.target === 'Todos' ||
+        d.target === 'Inquilinos' ||
+        d.target === 'Tenant' ||
+        d.target === 'All'
+    );
+
+    const handleDownload = (doc: any) => {
+        if (doc.fileUrl) {
+            window.open(doc.fileUrl, '_blank');
+        } else {
+            showToast("Documento no disponible", "error");
         }
     };
 
@@ -170,41 +203,39 @@ export const TenantContracts: React.FC = () => {
             <TenantHeader title="Documentos y Contratos" />
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="grid gap-4 max-w-3xl mx-auto">
-                    {/* Active Contract Card */}
+                    {/* Active Contract Card (Mock for now, or fetch specific type) */}
                     <div className="bg-gradient-to-br from-primary to-slate-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <span className="material-icons-round text-9xl">gavel</span>
                         </div>
                         <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="bg-white/20 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Vigente</span>
-                                <span className="text-slate-200 text-xs">Firmado el 15 Ene, 2026</span>
-                            </div>
                             <h2 className="text-2xl font-bold mb-1">Contrato de Arrendamiento</h2>
-                            <p className="text-slate-200 mb-6 text-sm">Residencial Las Palmas, Apto 402</p>
-
-                            <button onClick={() => handleDownload("Contrato_Arrendamiento_Vigente.pdf")} className="bg-white text-primary hover:bg-slate-100 px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                                <span className="material-icons-round">download</span> Descargar PDF
-                            </button>
+                            <p className="text-slate-200 mb-6 text-sm">Documentos Generales</p>
                         </div>
                     </div>
 
-                    {/* Past Documents */}
+                    {/* All Documents */}
                     <div className="bg-card-light dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-4">Historial</h3>
+                        <h3 className="font-bold text-gray-800 dark:text-white mb-4">Historial de Documentos</h3>
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-500">
-                                        <span className="material-icons-round">description</span>
+                            {myDocuments.length > 0 ? (
+                                myDocuments.map(doc => (
+                                    <div key={doc.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-500">
+                                                <span className="material-icons-round">description</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold dark:text-white">{doc.name}</p>
+                                                <p className="text-xs text-gray-400">{doc.date} • {doc.type}</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => handleDownload(doc)} className="text-primary text-sm font-bold hover:underline">Ver / Descargar</button>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold dark:text-white">Inventario Inicial</p>
-                                        <p className="text-xs text-gray-400">15 Ene, 2026</p>
-                                    </div>
-                                </div>
-                                <button onClick={() => handleDownload("Inventario_Inicial.pdf")} className="text-primary text-sm font-bold hover:underline">Ver</button>
-                            </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500 p-4 text-center">No hay documentos disponibles.</p>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -26,8 +26,15 @@ export const OwnerDashboard: React.FC = () => {
         d.sharedWith === 'Todos' ||
         d.sharedWith === user?.name ||
         d.sharedWithId === user?.id ||
-        d.owner === user?.name
+        d.owner === user?.name ||
+        d.target === 'Todos' ||
+        d.target === 'Propietarios' ||
+        d.target === 'Owner' ||
+        d.target === 'All'
     );
+
+    // Find active contract
+    const myContract = myDocs.find(d => d.name.toLowerCase().includes('contrato') || d.type.toLowerCase().includes('contrato'));
 
     // Derived Income (Payments for my properties)
     // Assuming 'properties' in store contains only my properties due to RLS or we filter by owner_id if available.
@@ -46,23 +53,74 @@ export const OwnerDashboard: React.FC = () => {
             <OwnerHeader title="Panel de Propietario" />
             <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
                 <div className="max-w-7xl mx-auto space-y-6">
-                    <div className="bg-gradient-to-r from-primary to-slate-800 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <span className="material-icons-round text-9xl">gavel</span>
-                        </div>
-                        <div className="flex items-center gap-4 relative z-10">
-                            <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/10">
-                                <span className="material-icons-round text-3xl">gavel</span>
+                    {/* Welcome & Contract Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Welcome / News Feed */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="flex flex-col gap-1">
+                                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                    {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </p>
+                                <h1 className="text-2xl font-bold dark:text-white">Bienvenido, {user?.name?.split(' ')[0] || 'Propietario'}</h1>
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold">Contrato de Administración Vigente</h3>
-                                <p className="text-slate-300 text-sm">Ref: CGBI-2026-884 • Vence: Dic 2027</p>
+
+                            {/* News Feed */}
+                            <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-icons-round text-primary dark:text-blue-400">notifications_active</span>
+                                    <h3 className="font-bold text-lg text-primary dark:text-blue-200">Buzón de Novedades</h3>
+                                </div>
+                                <div className="space-y-3">
+                                    {myDocs.slice(0, 5).length > 0 ? (
+                                        myDocs.slice(0, 5).map(doc => (
+                                            <div key={doc.id} className="flex gap-3 items-start bg-white/60 dark:bg-card-dark/60 p-3 rounded-xl border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                                                <span className="material-icons-round text-primary text-sm mt-0.5">description</span>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold text-slate-800 dark:text-white">{doc.name}</p>
+                                                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                                                        {doc.date} • {doc.type}
+                                                    </p>
+                                                </div>
+                                                <a href={doc.fileUrl || '#'} target="_blank" rel="noreferrer" className="text-primary hover:text-primary-dark">
+                                                    <span className="material-icons-round text-sm">open_in_new</span>
+                                                </a>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">No hay novedades recientes.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <button onClick={() => showToast("Descargando Contrato...", "info")} className="bg-white text-primary hover:bg-slate-50 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-colors flex items-center gap-2 relative z-10">
-                            <span className="material-icons-round text-lg">download</span> Descargar Copia
-                        </button>
+
+                        {/* Contract Card */}
+                        <div className="bg-gradient-to-r from-primary to-slate-800 rounded-2xl p-6 text-white shadow-lg flex flex-col justify-between gap-6 relative overflow-hidden h-full min-h-[200px]">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <span className="material-icons-round text-9xl">gavel</span>
+                            </div>
+                            <div className="flex items-center gap-4 relative z-10">
+                                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/10">
+                                    <span className="material-icons-round text-3xl">gavel</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold">Contrato de Administración</h3>
+                                    <p className="text-slate-300 text-sm">
+                                        {myContract ? `Ref: ${myContract.name}` : 'No hay contrato activo'}
+                                    </p>
+                                </div>
+                            </div>
+                            {myContract ? (
+                                <button onClick={() => window.open(myContract.fileUrl, '_blank')} className="bg-white text-primary hover:bg-slate-50 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-colors flex items-center gap-2 relative z-10 w-fit">
+                                    <span className="material-icons-round text-lg">download</span> Descargar Copia
+                                </button>
+                            ) : (
+                                <button disabled className="bg-white/20 text-white/50 px-6 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 relative z-10 w-fit cursor-not-allowed">
+                                    <span className="material-icons-round text-lg">block</span> No disponible
+                                </button>
+                            )}
+                        </div>
                     </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Consignaciones (Ingresos) */}
                         <div className="bg-card-light dark:bg-card-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col h-96">

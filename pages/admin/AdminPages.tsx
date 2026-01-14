@@ -226,10 +226,10 @@ export const AdminDocuments: React.FC = () => {
                                 onChange={(e) => setRecipient(e.target.value)}
                                 className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 transition-all py-2.5 dark:text-white"
                             >
-                                <option>General (Todos)</option>
-                                <option>Inquilinos</option>
-                                <option>Propietarios</option>
-                                <option>Cliente Específico</option>
+                                <option value="Todos">General (Todos)</option>
+                                <option value="Inquilinos">Inquilinos</option>
+                                <option value="Propietarios">Propietarios</option>
+                                <option value="Cliente Específico">Cliente Específico</option>
                             </select>
                         </div>
                     </div>
