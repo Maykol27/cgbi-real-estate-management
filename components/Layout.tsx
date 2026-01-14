@@ -81,11 +81,11 @@ const SidebarLink = ({ to, icon, label, isCollapsed }: { to: string; icon: strin
       to={to}
       title={isCollapsed ? label : undefined}
       className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'} py-3 cursor-pointer rounded-xl transition-all duration-200 ${isActive
-        ? 'bg-white/10 text-white font-semibold shadow-sm'
+        ? 'bg-secondary/10 text-secondary font-bold shadow-sm border border-secondary/20'
         : 'text-slate-400 hover:text-white hover:bg-white/5'
         }`}
     >
-      <span className={`material-icons-round text-2xl ${isActive ? 'text-secondary' : ''}`}>{icon}</span>
+      <span className={`material-icons-round text-2xl ${isActive ? 'text-secondary' : 'group-hover:text-white'}`}>{icon}</span>
       {!isCollapsed && <span className="font-medium text-sm animate-in fade-in slide-in-from-left-2 duration-300">{label}</span>}
     </Link>
   );
@@ -122,8 +122,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
     ${isCollapsed ? 'lg:w-24' : 'lg:w-72'}
   `;
 
-  // UNIFIED THEME: Always Dark Navy (primary) with white text for all roles
-  const themeClasses = "bg-primary text-white border-white/10";
+  // UNIFIED THEME: CGBI Navy (Primary)
+  const themeClasses = "bg-primary text-white border-white/5";
 
   // Override collapse state on mobile (when isOpen is true, labels must show)
   const showLabels = !isCollapsed || isOpen;
@@ -133,11 +133,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
   return (
     <>
       <aside className={`${baseClasses} ${themeClasses}`}>
-        <div className={`h-24 flex items-center justify-center relative border-b border-white/10 transition-all duration-300 ${effectiveCollapsed ? 'px-0' : 'px-6'}`}>
+        <div className={`h-24 flex items-center justify-center relative border-b border-white/5 transition-all duration-300 ${effectiveCollapsed ? 'px-0' : 'px-6'}`}>
 
           {/* LOGO: Always Centered */}
-          <div className={`transition-all duration-300 ${effectiveCollapsed ? 'w-16 h-16' : 'w-24 h-24'} flex items-center justify-center shrink-0`}>
-            <Logo className="w-full h-full" />
+          <div className={`transition-all duration-300 ${effectiveCollapsed ? 'w-16 h-16' : 'w-auto h-20'} flex items-center justify-center shrink-0`}>
+            <Logo className="w-full h-full border-none shadow-none bg-transparent" />
           </div>
 
           {/* Desktop Collapse Button - Absolute Positioned to Right */}

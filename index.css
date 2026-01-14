@@ -1,7 +1,66 @@
 @import "tailwindcss";
 
-/* Basic styles */
+@theme {
+  --color-primary: #1B2240;
+  /* CGBI Navy */
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-dark: #12162B;
+
+  --color-secondary: #D62C5E;
+  /* CGBI Magenta */
+  --color-secondary-foreground: #FFFFFF;
+
+  --color-background-light: #F8FAFC;
+  --color-background-dark: #0F172A;
+  /* Deep Navy */
+
+  --color-card-light: #FFFFFF;
+  --color-card-dark: #1E293B;
+
+  --color-text-light: #1E293B;
+  --color-text-dark: #F8FAFC;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+}
+
+/* Dark Mode Handling */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --background: var(--color-background-light);
+  --foreground: var(--color-text-light);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --background: var(--color-background-dark);
+  --foreground: var(--color-text-dark);
+}
+
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', system-ui, sans-serif;
+  /* Modern font */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
