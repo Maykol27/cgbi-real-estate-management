@@ -156,6 +156,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const [visits, setVisits] = useState<Visit[]>([]);
     const [financeRequests, setFinanceRequests] = useState<FinanceRequest[]>([]);
     const [payments, setPayments] = useState<Payment[]>([]);
+    const [isInitializing, setIsInitializing] = useState(false);
 
     // --- CONSOLIDATED Data Fetching Function ---
     const fetchAllData = async () => {
@@ -338,39 +339,44 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // --- CONSOLIDATED Supabase Auth Integration ---
     useEffect(() => {
         console.log("🔄 Initializing auth and data loading...");
+        setIsInitializing(true);
 
         // 1. Initial Session Check
         supabase.auth.getSession()
-            .then(({ data: { session } }) => {
+            .then(async ({ data: { session } }) => {
                 if (session?.user) {
                     console.log("✅ Existing session found for:", session.user.email);
-                    return fetchProfile(session.user.id);
+                    await fetchProfile(session.user.id);
+                    await fetchAllData();
                 } else {
                     console.log("ℹ️ No existing session found");
-                    setLoading(false);
-                    return null;
                 }
-            })
-            .then(() => {
-                // Fetch all data after auth is resolved
-                return fetchAllData();
             })
             .catch((error) => {
                 console.error("❌ Error during initialization:", error);
             })
             .finally(() => {
                 setLoading(false);
+                setIsInitializing(false);
                 console.log("✅ Initialization complete");
             });
 
-        // 2. Auth State Listener
+        // 2. Auth State Listener (only for subsequent changes, not initial load)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("🔔 Auth state changed:", event);
 
+            // Avoid reacting to INITIAL_SESSION as we handle it above
+            if (event === 'INITIAL_SESSION') {
+                console.log("ℹ️ Ignoring INITIAL_SESSION (already handled)");
+                return;
+            }
+
             if (event === 'SIGNED_IN' && session?.user) {
                 console.log(`🟢 Usuario logueado: ${session.user.email}`);
+                setLoading(true);
                 await fetchProfile(session.user.id);
-                await fetchAllData(); // Reload data on sign in
+                await fetchAllData();
+                setLoading(false);
             } else if (event === 'SIGNED_OUT') {
                 console.log('🔴 Sesión cerrada correctamente.');
                 // Cleanup Local State
@@ -382,6 +388,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setVisits([]);
                 setFinanceRequests([]);
                 setPayments([]);
+                setLoading(false);
             }
         });
 

@@ -725,7 +725,7 @@ export const AdminProperties: React.FC = () => {
 
 // --- Tenants Page (Admin) ---
 export const AdminTenants: React.FC = () => {
-    const { user, users, addUser, payments, addPayment } = useStore();
+    const { user, users, addUser, payments, addPayment, properties } = useStore();
     const { showToast } = useToast();
 
     // Permission Check (Grouped with Properties)
@@ -749,18 +749,29 @@ export const AdminTenants: React.FC = () => {
 
     const isCollaborator = user?.role === 'Colaborador';
 
-    const handleAddTenant = (e: React.FormEvent) => {
+    const handleAddTenant = async (e: React.FormEvent) => {
         e.preventDefault();
-        const form = e.target as HTMLFormElement; // Cast to HTMLFormElement
-        // Simplified creation for prototype
-        addUser({
-            name: (form.elements[0] as HTMLInputElement).value + ' ' + (form.elements[1] as HTMLInputElement).value,
+        const form = e.target as HTMLFormElement;
+
+        const firstName = (form.elements.namedItem('firstName') as HTMLInputElement)?.value;
+        const lastName = (form.elements.namedItem('lastName') as HTMLInputElement)?.value;
+        const email = (form.elements.namedItem('email') as HTMLInputElement)?.value;
+        const policyNumber = (form.elements.namedItem('policyNumber') as HTMLInputElement)?.value;
+
+        if (!firstName || !lastName || !email) {
+            showToast("Por favor complete todos los campos obligatorios", "error");
+            return;
+        }
+
+        await addUser({
+            name: `${firstName} ${lastName}`,
             role: 'Inquilino',
-            email: (form.elements[2] as HTMLInputElement).value,
-            policyNumber: (form.elements[4] as HTMLInputElement).value // Index 4 based on form order
+            email: email,
+            policyNumber: policyNumber
         });
+
         setIsModalOpen(false);
-        showToast("Inquilino registrado y notificación enviada.", "success");
+        showToast("Inquilino registrado exitosamente.", "success");
     };
 
     const handleSendMessage = (e: React.FormEvent) => {
@@ -790,27 +801,29 @@ export const AdminTenants: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
-                                <input required type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                                <input required name="firstName" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
-                                <input required type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                                <input required name="lastName" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
                             </div>
                         </div>
                         <div>
                             <label className="block text-xs font-bold text-gray-500 mb-1">Correo Electrónico</label>
-                            <input required type="email" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                            <input required name="email" type="email" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
                         </div>
                         <div>
                             <label className="block text-xs font-bold text-gray-500 mb-1">Propiedad Asignada</label>
-                            <select className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                <option>Residencial Las Palmas #402</option>
-                                <option>Torre B #505</option>
+                            <select name="propertyId" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                                <option value="">Seleccionar propiedad...</option>
+                                {properties.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
                             </select>
                         </div>
                         <div>
                             <label className="block text-xs font-bold text-gray-500 mb-1">Número de Póliza Asignado</label>
-                            <input required type="text" placeholder="Ej: POL-123456" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                            <input required name="policyNumber" type="text" placeholder="Ej: POL-123456" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
                         </div>
                         <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark">Guardar y Enviar Acceso</button>
                     </form>
