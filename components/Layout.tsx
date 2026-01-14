@@ -328,7 +328,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
   // Close sidebar automatically when route changes (mobile UX)
   useEffect(() => {
     setIsSidebarOpen(false);
-  }, [location]);
+  }, [location.pathname]);
 
   return (
     <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans overflow-hidden">
