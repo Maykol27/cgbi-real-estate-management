@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
 
           {/* LOGO: Always Centered */}
           <div className={`transition-all duration-300 ${effectiveCollapsed ? 'w-16 h-16' : 'w-auto h-20'} flex items-center justify-center shrink-0`}>
-            <Logo className="w-full h-full border-none shadow-none bg-transparent" />
+            <Logo className="h-16 w-16 shadow-lg" />
           </div>
 
           {/* Desktop Collapse Button - Absolute Positioned to Right */}
@@ -370,9 +370,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
           </button>
 
           {/* Mobile Logo centered in header */}
-          <div className="h-8">
-            <img src={LOGO_BASE64} alt="CGBI" className="h-full object-contain" />
-          </div>
+          <Logo className="h-10 w-10 shadow-sm" />
 
           <div className="w-8"></div> {/* Spacer for centering */}
         </header>
