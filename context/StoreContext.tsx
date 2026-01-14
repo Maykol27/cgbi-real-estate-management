@@ -804,263 +804,262 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             notify("Error", err.message || "Error inesperado al agendar visita.");
             return { success: false, message: err.message || "Error inesperado." };
         }
-        return { success: false, message: err.message || "Error inesperado." };
-    }
-};
+    };
 
-const deleteVisit = async (id: string | number): Promise<{ success: boolean; message: string }> => {
-    try {
-        const { error } = await supabase.from('visits').delete().eq('id', id);
+    const deleteVisit = async (id: string | number): Promise<{ success: boolean; message: string }> => {
+        try {
+            const { error } = await supabase.from('visits').delete().eq('id', id);
 
-        if (error) {
-            console.error("❌ Error deleting visit:", error);
-            notify("Error", "No se pudo eliminar la visita.");
-            return { success: false, message: error.message };
-        }
-
-        setVisits(prev => prev.filter(v => v.id !== id));
-        notify("Visita Eliminada", "El evento ha sido eliminado correctamente.");
-        return { success: true, message: "Visita eliminada." };
-    } catch (err: any) {
-        console.error("❌ Exception in deleteVisit:", err);
-        notify("Error", err.message || "Error al eliminar visita.");
-        return { success: false, message: err.message };
-    }
-};
-
-const updateVisitFeedback = async (id: string | number, feedback: string) => {
-    // Now mostly redundant if updateVisit works, but kept for compatibility
-    const { error } = await supabase.from('visits').update({
-        feedback: feedback
-    }).eq('id', id);
-
-    if (error) {
-        console.error("❌ Error saving feedback:", error);
-        notify("Error", "No se pudo guardar el feedback.");
-        return;
-    }
-    setVisits(prev => prev.map(v => v.id === id ? { ...v, feedback } : v)); // Status not forced to realized here necessarily? Or should be?
-    notify("Feedback Registrado", "Se ha guardado el feedback de la visita.");
-};
-
-const updateVisit = async (id: string | number, updates: Partial<Visit>) => {
-    try {
-        // Map local updates to Supabase columns
-        const dbUpdates: any = {};
-        if (updates.date) dbUpdates.date = updates.date.toISOString();
-        if (updates.status) dbUpdates.status = updates.status;
-        if (updates.advisor) dbUpdates.advisor = updates.advisor; // Now enabled
-        if (updates.visitorName) dbUpdates.visitor_name = updates.visitorName;
-        if (updates.propertyId) dbUpdates.property_id = updates.propertyId;
-        if (updates.feedback !== undefined) dbUpdates.feedback = updates.feedback; // Fix feedback update
-
-        const { error } = await supabase.from('visits').update(dbUpdates).eq('id', id);
-
-        if (error) {
-            console.error("Error updating visit:", error);
-            notify("Error", "No se pudo actualizar la visita.");
-            return;
-        }
-
-        // Update local state
-        setVisits(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
-        notify("Visita Actualizada", "Los cambios han sido guardados.");
-
-    } catch (err) {
-        console.error("Error in updateVisit:", err);
-    }
-};
-
-// --- Financial Requests / Approvals ---
-
-const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => {
-    try {
-        console.log("💰 Creating finance request:", r.title);
-
-        const { data, error } = await supabase.from('finance_requests').insert({
-            title: r.title,
-            description: r.desc,
-            amount: r.cost,
-            status: 'Pendiente',
-            requester_id: user?.id
-        }).select().single();
-
-        if (error) {
-            console.error("❌ Error creating finance request:", error);
-            notify("Error", `No se pudo enviar la solicitud: ${error.message}`);
-            return;
-        }
-
-        if (data) {
-            console.log("✅ Finance request created successfully:", data.id);
-            const newRequest: FinanceRequest = {
-                ...r,
-                id: data.id,
-                date: new Date(data.created_at).toLocaleDateString(),
-                status: 'Pendiente'
-            };
-            setFinanceRequests(prev => [newRequest, ...prev]);
-            // Refetch to ensure data appears for all users
-            await fetchAllData();
-            notify("Solicitud Enviada", "Nueva solicitud registrada exitosamente.");
-        }
-    } catch (err: any) {
-        console.error("❌ Exception in addFinanceRequest:", err);
-        notify("Error", err.message || "Error inesperado al crear solicitud.");
-    }
-};
-
-const updateFinanceRequestStatus = async (id: string | number, status: string, reason?: string) => {
-    const { error } = await supabase.from('finance_requests').update({
-        status: status,
-        rejection_reason: reason
-    }).eq('id', id);
-
-    if (error) {
-        notify("Error", "No se pudo actualizar la solicitud.");
-        return;
-    }
-
-    setFinanceRequests(prev => prev.map(r => r.id === id ? { ...r, status: status as any, rejectionReason: reason || "" } : r));
-    notify("Estado Actualizado", `La solicitud #${id} ha sido marcada como ${status}.`);
-};
-
-const addPayment = async (p: Omit<Payment, 'id' | 'status'>): Promise<{ success: boolean; message: string }> => {
-    try {
-        const { data, error } = await supabase.from('payments').insert({
-            amount: p.amount,
-            period: p.period,
-            date: p.date,
-            status: 1, // 1=Pagado
-            tenant_id: p.tenant_id || user?.id
-        }).select().single();
-
-        if (error) {
-            console.error("Error saving payment:", error);
-            return { success: false, message: `Error DB: ${error.message}` };
-        }
-
-        if (data) {
-            const newPayment: Payment = {
-                ...p,
-                id: data.id,
-                status: 1,
-                tenant_id: data.tenant_id
-            };
-            setPayments(prev => [newPayment, ...prev]);
-            notify("Pago Registrado", `Pago de ${p.period} registrado exitosamente.`);
-            return { success: true, message: "Pago registrado." };
-        }
-        return { success: false, message: "No data returned." };
-    } catch (err: any) {
-        console.error(err);
-        return { success: false, message: err.message };
-    }
-};
-
-const addUser = async (u: Omit<User, 'id'>) => {
-    try {
-        // Call Edge Function 'invite-user' to securely invite user and create profile
-        const { data, error } = await supabase.functions.invoke('invite-user', {
-            body: {
-                email: u.email,
-                role: u.role,
-                full_name: u.name,
-                policy_number: u.policyNumber,
-                permissions: u.permissions
+            if (error) {
+                console.error("❌ Error deleting visit:", error);
+                notify("Error", "No se pudo eliminar la visita.");
+                return { success: false, message: error.message };
             }
-        });
+
+            setVisits(prev => prev.filter(v => v.id !== id));
+            notify("Visita Eliminada", "El evento ha sido eliminado correctamente.");
+            return { success: true, message: "Visita eliminada." };
+        } catch (err: any) {
+            console.error("❌ Exception in deleteVisit:", err);
+            notify("Error", err.message || "Error al eliminar visita.");
+            return { success: false, message: err.message };
+        }
+    };
+
+    const updateVisitFeedback = async (id: string | number, feedback: string) => {
+        // Now mostly redundant if updateVisit works, but kept for compatibility
+        const { error } = await supabase.from('visits').update({
+            feedback: feedback
+        }).eq('id', id);
 
         if (error) {
-            console.error("Error invoking invite-user:", error);
-            // Fallback: Show error toast but maybe keep local optimistic update if needed?
-            // No, better to show error.
-            notify("Error al crear usuario", "No se pudo enviar la invitación. Intente nuevamente.");
+            console.error("❌ Error saving feedback:", error);
+            notify("Error", "No se pudo guardar el feedback.");
+            return;
+        }
+        setVisits(prev => prev.map(v => v.id === id ? { ...v, feedback } : v)); // Status not forced to realized here necessarily? Or should be?
+        notify("Feedback Registrado", "Se ha guardado el feedback de la visita.");
+    };
+
+    const updateVisit = async (id: string | number, updates: Partial<Visit>) => {
+        try {
+            // Map local updates to Supabase columns
+            const dbUpdates: any = {};
+            if (updates.date) dbUpdates.date = updates.date.toISOString();
+            if (updates.status) dbUpdates.status = updates.status;
+            if (updates.advisor) dbUpdates.advisor = updates.advisor; // Now enabled
+            if (updates.visitorName) dbUpdates.visitor_name = updates.visitorName;
+            if (updates.propertyId) dbUpdates.property_id = updates.propertyId;
+            if (updates.feedback !== undefined) dbUpdates.feedback = updates.feedback; // Fix feedback update
+
+            const { error } = await supabase.from('visits').update(dbUpdates).eq('id', id);
+
+            if (error) {
+                console.error("Error updating visit:", error);
+                notify("Error", "No se pudo actualizar la visita.");
+                return;
+            }
+
+            // Update local state
+            setVisits(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
+            notify("Visita Actualizada", "Los cambios han sido guardados.");
+
+        } catch (err) {
+            console.error("Error in updateVisit:", err);
+        }
+    };
+
+    // --- Financial Requests / Approvals ---
+
+    const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => {
+        try {
+            console.log("💰 Creating finance request:", r.title);
+
+            const { data, error } = await supabase.from('finance_requests').insert({
+                title: r.title,
+                description: r.desc,
+                amount: r.cost,
+                status: 'Pendiente',
+                requester_id: user?.id
+            }).select().single();
+
+            if (error) {
+                console.error("❌ Error creating finance request:", error);
+                notify("Error", `No se pudo enviar la solicitud: ${error.message}`);
+                return;
+            }
+
+            if (data) {
+                console.log("✅ Finance request created successfully:", data.id);
+                const newRequest: FinanceRequest = {
+                    ...r,
+                    id: data.id,
+                    date: new Date(data.created_at).toLocaleDateString(),
+                    status: 'Pendiente'
+                };
+                setFinanceRequests(prev => [newRequest, ...prev]);
+                // Refetch to ensure data appears for all users
+                await fetchAllData();
+                notify("Solicitud Enviada", "Nueva solicitud registrada exitosamente.");
+            }
+        } catch (err: any) {
+            console.error("❌ Exception in addFinanceRequest:", err);
+            notify("Error", err.message || "Error inesperado al crear solicitud.");
+        }
+    };
+
+    const updateFinanceRequestStatus = async (id: string | number, status: string, reason?: string) => {
+        const { error } = await supabase.from('finance_requests').update({
+            status: status,
+            rejection_reason: reason
+        }).eq('id', id);
+
+        if (error) {
+            notify("Error", "No se pudo actualizar la solicitud.");
             return;
         }
 
-        if (data?.success) {
-            // Optimistic UI update or fetch from profiles?
-            // Let's add to local state since profiles might take a split second.
-            // We use the ID returned by the function.
-            const newUser: User = {
-                ...u,
-                id: data.user.id,
-                permissions: u.permissions || []
-            };
-            setUsers(prev => [...prev, newUser]);
-            notify("Usuario Invitado", `Se ha enviado un correo de invitación a ${u.email}.`);
-        } else {
-            notify("Error", data?.error || "Error desconocido al invitar usuario.");
+        setFinanceRequests(prev => prev.map(r => r.id === id ? { ...r, status: status as any, rejectionReason: reason || "" } : r));
+        notify("Estado Actualizado", `La solicitud #${id} ha sido marcada como ${status}.`);
+    };
+
+    const addPayment = async (p: Omit<Payment, 'id' | 'status'>): Promise<{ success: boolean; message: string }> => {
+        try {
+            const { data, error } = await supabase.from('payments').insert({
+                amount: p.amount,
+                period: p.period,
+                date: p.date,
+                status: 1, // 1=Pagado
+                tenant_id: p.tenant_id || user?.id
+            }).select().single();
+
+            if (error) {
+                console.error("Error saving payment:", error);
+                return { success: false, message: `Error DB: ${error.message}` };
+            }
+
+            if (data) {
+                const newPayment: Payment = {
+                    ...p,
+                    id: data.id,
+                    status: 1,
+                    tenant_id: data.tenant_id
+                };
+                setPayments(prev => [newPayment, ...prev]);
+                notify("Pago Registrado", `Pago de ${p.period} registrado exitosamente.`);
+                return { success: true, message: "Pago registrado." };
+            }
+            return { success: false, message: "No data returned." };
+        } catch (err: any) {
+            console.error(err);
+            return { success: false, message: err.message };
         }
+    };
 
-    } catch (err: any) {
-        console.error(err);
-        notify("Error Sistema", err.message);
-    }
-};
+    const addUser = async (u: Omit<User, 'id'>) => {
+        try {
+            // Call Edge Function 'invite-user' to securely invite user and create profile
+            const { data, error } = await supabase.functions.invoke('invite-user', {
+                body: {
+                    email: u.email,
+                    role: u.role,
+                    full_name: u.name,
+                    policy_number: u.policyNumber,
+                    permissions: u.permissions
+                }
+            });
 
-const deleteUser = async (userId: string | number): Promise<{ success: boolean; message: string }> => {
-    try {
-        console.log("Invoking manage-users to delete:", userId);
-        const { data, error } = await supabase.functions.invoke('manage-users', {
-            body: { action: 'delete', userId: userId }
-        });
+            if (error) {
+                console.error("Error invoking invite-user:", error);
+                // Fallback: Show error toast but maybe keep local optimistic update if needed?
+                // No, better to show error.
+                notify("Error al crear usuario", "No se pudo enviar la invitación. Intente nuevamente.");
+                return;
+            }
 
-        if (error) {
-            console.error("Delete user error invoke:", error);
-            return { success: false, message: error.message || "Error de conexión con el servidor." };
+            if (data?.success) {
+                // Optimistic UI update or fetch from profiles?
+                // Let's add to local state since profiles might take a split second.
+                // We use the ID returned by the function.
+                const newUser: User = {
+                    ...u,
+                    id: data.user.id,
+                    permissions: u.permissions || []
+                };
+                setUsers(prev => [...prev, newUser]);
+                notify("Usuario Invitado", `Se ha enviado un correo de invitación a ${u.email}.`);
+            } else {
+                notify("Error", data?.error || "Error desconocido al invitar usuario.");
+            }
+
+        } catch (err: any) {
+            console.error(err);
+            notify("Error Sistema", err.message);
         }
+    };
 
-        if (data?.error) {
-            console.error("Delete user error data:", data.error);
-            return { success: false, message: data.error };
+    const deleteUser = async (userId: string | number): Promise<{ success: boolean; message: string }> => {
+        try {
+            console.log("Invoking manage-users to delete:", userId);
+            const { data, error } = await supabase.functions.invoke('manage-users', {
+                body: { action: 'delete', userId: userId }
+            });
+
+            if (error) {
+                console.error("Delete user error invoke:", error);
+                return { success: false, message: error.message || "Error de conexión con el servidor." };
+            }
+
+            if (data?.error) {
+                console.error("Delete user error data:", data.error);
+                return { success: false, message: data.error };
+            }
+
+            // Success
+            setUsers(prev => prev.filter(u => u.id !== userId));
+            notify("Usuario Eliminado", "El usuario ha sido eliminado correctamente.");
+            return { success: true, message: "Eliminado correctamente" };
+        } catch (err: any) {
+            console.error("Delete user exception:", err);
+            return { success: false, message: err.message };
         }
+    };
 
-        // Success
-        setUsers(prev => prev.filter(u => u.id !== userId));
-        notify("Usuario Eliminado", "El usuario ha sido eliminado correctamente.");
-        return { success: true, message: "Eliminado correctamente" };
-    } catch (err: any) {
-        console.error("Delete user exception:", err);
-        return { success: false, message: err.message };
-    }
+    const updateProfile = (userId: string | number, updates: Partial<User>) => {
+        // Update Local State for immediate UI change
+        setUser(prev => prev && prev.id === userId ? { ...prev, ...updates } : prev);
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+
+        // Persist to localStorage to survive refresh (since DB column might be missing)
+        try {
+            const stored = localStorage.getItem('sikai_user_updates');
+            const data = stored ? JSON.parse(stored) : {};
+            // Use a consistent ID key. If user.id is mock (1), it might conflict if we don't handle it well.
+            // But for this session it works.
+            data[userId] = { ...(data[userId] || {}), ...updates };
+            localStorage.setItem('sikai_user_updates', JSON.stringify(data));
+        } catch (e) {
+            console.error("Failed to persist locally", e);
+        }
+    };
+
+
+    return (
+        <StoreContext.Provider value={{
+            user, loading, login, logout, users, addUser, deleteUser,
+            tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
+            documents, addDocument, deleteDocument,
+            properties, addProperty, updatePropertyStatus,
+            visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
+            financeRequests, addFinanceRequest, updateFinanceRequestStatus,
+            payments, addPayment,
+            requestNotificationPermission
+        }}>
+            {children}
+        </StoreContext.Provider>
+    );
 };
 
-const updateProfile = (userId: string | number, updates: Partial<User>) => {
-    // Update Local State for immediate UI change
-    setUser(prev => prev && prev.id === userId ? { ...prev, ...updates } : prev);
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
-
-    // Persist to localStorage to survive refresh (since DB column might be missing)
-    try {
-        const stored = localStorage.getItem('sikai_user_updates');
-        const data = stored ? JSON.parse(stored) : {};
-        // Use a consistent ID key. If user.id is mock (1), it might conflict if we don't handle it well.
-        // But for this session it works.
-        data[userId] = { ...(data[userId] || {}), ...updates };
-        localStorage.setItem('sikai_user_updates', JSON.stringify(data));
-    } catch (e) {
-        console.error("Failed to persist locally", e);
-    }
-};
-
-
-return (
-    <StoreContext.Provider value={{
-        user, loading, login, logout, users, addUser, deleteUser,
-        tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
-        documents, addDocument, deleteDocument,
-        properties, addProperty, updatePropertyStatus,
-        visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
-        financeRequests, addFinanceRequest, updateFinanceRequestStatus,
-        payments, addPayment,
-        requestNotificationPermission
-    }}>
-        {children}
-    </StoreContext.Provider>
-);
-};
 
 export const useStore = () => {
     const context = useContext(StoreContext);
