@@ -268,6 +268,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
   const { user, loading } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasPerformedInitialCheck = React.useRef(false);
 
   // --- SECURITY: Route Guard ---
   // Calculate Authorization synchronously during render to prevent content flash
@@ -297,7 +298,11 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
     // 1. Wait for loading to finish
     if (loading) return;
 
-    // 2. If not logged in after loading, redirect to Login
+    // 2. Only perform auth check once to avoid loops
+    if (hasPerformedInitialCheck.current) return;
+    hasPerformedInitialCheck.current = true;
+
+    // 3. If not logged in after loading, redirect to Login
     if (!user) {
       if (location.pathname !== '/') {
         navigate('/');
@@ -305,7 +310,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
       return;
     }
 
-    // 3. If logged in but unauthorized, redirect
+    // 4. If logged in but unauthorized, redirect
     if (!isAuthorized) {
       console.warn(`Unauthorized access attempt. Role: ${user.role} (Norm: ${currentUserRole}) -> Target: ${role}`);
       if (currentUserRole === 'ADMIN' || currentUserRole === 'COLLABORATOR') navigate('/admin/dashboard');
@@ -313,7 +318,7 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
       else if (currentUserRole === 'OWNER') navigate('/owner/dashboard');
       else navigate('/');
     }
-  }, [user, loading, role, navigate, location.pathname, isAuthorized, currentUserRole]);
+  }, [user, loading, isAuthorized]);
 
   // Prevent rendering if not authorized
   if (loading) {
