@@ -68,7 +68,11 @@ serve(async (req) => {
                 if (existingUser) {
                     const { error: updateError } = await supabaseClient.auth.admin.updateUserById(
                         existingUser.id,
-                        { password: defaultPassword, user_metadata: { full_name, role } }
+                        {
+                            password: defaultPassword,
+                            user_metadata: { full_name, role },
+                            email_confirm: true
+                        }
                     );
 
                     if (updateError) {
