@@ -340,14 +340,28 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     useEffect(() => {
         console.log("🔄 Initializing auth and data loading...");
         setIsInitializing(true);
+        setLoading(true);
+
+        // Safety timeout to prevent infinite loading
+        const safetyTimeout = setTimeout(() => {
+            if (loading) {
+                console.warn("⚠️ Initialization timed out. Forcing loading false.");
+                setLoading(false);
+                setIsInitializing(false);
+            }
+        }, 8000); // 8 seconds max
 
         // 1. Initial Session Check
         supabase.auth.getSession()
             .then(async ({ data: { session } }) => {
                 if (session?.user) {
                     console.log("✅ Existing session found for:", session.user.email);
-                    await fetchProfile(session.user.id);
-                    await fetchAllData();
+                    try {
+                        await fetchProfile(session.user.id);
+                        await fetchAllData();
+                    } catch (err) {
+                        console.error("Error fetching initial data:", err);
+                    }
                 } else {
                     console.log("ℹ️ No existing session found");
                 }
@@ -356,6 +370,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.error("❌ Error during initialization:", error);
             })
             .finally(() => {
+                clearTimeout(safetyTimeout);
                 setLoading(false);
                 setIsInitializing(false);
                 console.log("✅ Initialization complete");
