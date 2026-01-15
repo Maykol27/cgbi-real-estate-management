@@ -158,6 +158,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const [payments, setPayments] = useState<Payment[]>([]);
     const [isInitializing, setIsInitializing] = useState(false);
 
+    // Ref to track user without triggering re-renders in effects with stale closures
+    const userRef = React.useRef<User | null>(null);
+
+    // Keep ref in sync with state
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
+
     // --- CONSOLIDATED Data Fetching Function ---
     const fetchAllData = async () => {
         try {
@@ -376,7 +384,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("✅ Initialization complete");
             });
 
-        // 2. Auth State Listener (Optimized)
+        // 2. Auth State Listener (Optimized with useRef to avoid stale closures)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("🔔 Auth state changed:", event);
 
@@ -396,8 +404,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
 
             if (event === 'SIGNED_IN') {
-                if (session?.user?.id === user?.id) {
-                    console.log("✅ Same user session detected - Skipping full reload to prevent UI freeze.");
+                // FIX: Use ref to check current user, as 'user' state might be stale in this closure
+                if (session?.user?.id === userRef.current?.id) {
+                    console.log("✅ Same user session detected (Ref check) - Skipping full reload.");
                     return;
                 }
 
@@ -415,6 +424,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log('🔴 Sesión cerrada correctamente.');
                 // Cleanup Local State
                 setUser(null);
+                userRef.current = null; // Update Ref
                 setUsers([]);
                 setProperties([]);
                 setTickets([]);
