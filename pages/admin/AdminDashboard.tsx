@@ -73,7 +73,7 @@ const AdminDashboard: React.FC = () => {
               <p className="text-sm font-semibold leading-tight">{user?.name || 'Usuario'}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role || 'Rol Desconocido'}</p>
             </div>
-            <div className="size-9 rounded-full bg-primary/10 text-primary border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center font-bold text-sm">
+            <div className="size-9 rounded-full bg-primary/10 text-primary dark:text-white border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center font-bold text-sm">
               {user?.name ? user.name.substring(0, 2).toUpperCase() : 'US'}
             </div>
           </div>

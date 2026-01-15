@@ -165,11 +165,7 @@ const Login: React.FC = () => {
         </form>
 
         <div className="mt-16 text-center">
-          <a className="text-sm text-gray-400 hover:text-primary dark:hover:text-white transition-colors duration-200 flex items-center justify-center gap-2 group" href="#">
-            <span className="material-icons-round text-lg group-hover:text-accent transition-colors">help_outline</span>
-            ¿Necesita ayuda para ingresar?
-          </a>
-          <p className="text-xs text-gray-300 dark:text-gray-600 mt-6">© 2026 CGBI Real Estate - v1.3 (Fixed)</p>
+          <p className="text-xs text-gray-300 dark:text-gray-600 mt-6">© 2026 Tú CGBI</p>
           <a href="https://sikaiconsulting.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 mt-2 text-xs font-semibold text-gray-300 dark:text-gray-600 hover:text-primary dark:hover:text-blue-400 transition-colors group">
             <span>Desarrollado por SIKAI</span>
             <img src="/sikai-icon.png" alt="SIKAI" className="h-5 w-auto opacity-70 group-hover:opacity-100 transition-opacity" />
