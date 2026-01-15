@@ -445,11 +445,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const fetchProfile = async (userId: string): Promise<User | undefined> => {
         console.log("StoreContext: fetchProfile START", userId);
         try {
-            const { data, error } = await supabase
+            // Safety Timeout Promise
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout fetching profile")), 5000)
+            );
+
+            // Fetch Logic
+            const fetchPromise = supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)
                 .single();
+
+            const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
             console.log("StoreContext: fetchProfile DB Result", { data, error });
 
