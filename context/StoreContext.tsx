@@ -376,22 +376,41 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("✅ Initialization complete");
             });
 
-        // 2. Auth State Listener (only for subsequent changes, not initial load)
+        // 2. Auth State Listener (Optimized)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("🔔 Auth state changed:", event);
 
-            // Avoid reacting to INITIAL_SESSION as we handle it above
+            // IGNORE EVENTS:
+            // 1. INITIAL_SESSION: Already handled by the initial check above.
+            // 2. TOKEN_REFRESHED: Just a token update, no need to reload data.
+            // 3. SIGNED_IN (Redundant): If the user ID hasn't changed, don't reload.
+
             if (event === 'INITIAL_SESSION') {
-                console.log("ℹ️ Ignoring INITIAL_SESSION (already handled)");
                 return;
             }
 
-            if (event === 'SIGNED_IN' && session?.user) {
-                console.log(`🟢 Usuario logueado: ${session.user.email}`);
-                setLoading(true);
-                await fetchProfile(session.user.id);
-                await fetchAllData();
-                setLoading(false);
+            if (event === 'TOKEN_REFRESHED') {
+                // Just log, do nothing else. Session stays valid.
+                // console.log("♻️ Token refreshed silently."); 
+                return;
+            }
+
+            if (event === 'SIGNED_IN') {
+                if (session?.user?.id === user?.id) {
+                    console.log("✅ Same user session detected - Skipping full reload to prevent UI freeze.");
+                    return;
+                }
+
+                if (session?.user) {
+                    console.log(`🟢 Usuario nuevo logueado: ${session.user.email}`);
+                    setLoading(true);
+                    try {
+                        await fetchProfile(session.user.id);
+                        await fetchAllData();
+                    } finally {
+                        setLoading(false);
+                    }
+                }
             } else if (event === 'SIGNED_OUT') {
                 console.log('🔴 Sesión cerrada correctamente.');
                 // Cleanup Local State
