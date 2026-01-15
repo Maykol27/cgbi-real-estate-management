@@ -1164,9 +1164,11 @@ export const AdminTickets: React.FC = () => {
                 title="Centro de Soporte"
                 subtitle="Gestión de incidencias y solicitudes"
                 action={
-                    <button onClick={() => setIsCreateModalOpen(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md flex items-center gap-2">
-                        <span className="material-icons-round">add_task</span> Crear Ticket / Tarea
-                    </button>
+                    user?.role !== 'Colaborador' && (
+                        <button onClick={() => setIsCreateModalOpen(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md flex items-center gap-2">
+                            <span className="material-icons-round">add_task</span> Crear Ticket / Tarea
+                        </button>
+                    )
                 }
             />
 
