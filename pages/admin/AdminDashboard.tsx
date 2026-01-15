@@ -55,7 +55,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark px-6 lg:px-8 z-10">
-        <h1 className="text-xl font-bold text-primary dark:text-white">Panel de Control</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-white">Panel de Control</h1>
         <div className="flex items-center gap-4">
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-64 group">

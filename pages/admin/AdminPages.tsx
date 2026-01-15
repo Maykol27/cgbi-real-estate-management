@@ -10,7 +10,7 @@ import { formatCurrency } from '../../utils';
 const SectionHeader: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
     <header className="bg-white dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-4 md:py-0 md:h-24 gap-4 z-10 shadow-sm shrink-0 transition-colors">
         <div>
-            <h1 className="text-2xl font-bold text-primary dark:text-white tracking-tight">{title}</h1>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{title}</h1>
             {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto justify-end">
