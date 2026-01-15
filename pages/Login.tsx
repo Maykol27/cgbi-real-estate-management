@@ -50,26 +50,10 @@ const Login: React.FC = () => {
       const loggedInUser = await login(email, password);
 
       if (loggedInUser) {
-        // Navigation is handled by the useEffect above now, or we can keep explicit nav here too
-        // But purely relying on 'user' state update is safer for consistency.
-        // However, 'login' returns the user immediately, while 'user' state update might be batched.
-        // Let's keep the explicit navigation in handleLogin as a backup or for immediate feedback.
-
-        const roleLower = loggedInUser.role?.toLowerCase().trim();
-        console.log("CGBI Debug - Login Success Role:", roleLower);
-
-        if (['admin', 'administrador', 'administrator'].includes(roleLower)) {
-          navigate('/admin');
-        } else if (['owner', 'propietario', 'landlord'].includes(roleLower)) {
-          navigate('/owner');
-        } else if (['tenant', 'arrendatario', 'inquilino'].includes(roleLower)) {
-          navigate('/tenant');
-        } else {
-          // If role is missing/unknown but login succeeded, default to owner
-          console.warn("Role not recognized in handleLogin, defaulting to Owner dashboard");
-          navigate('/owner');
-        }
-
+        console.log("CGBI Debug - Login API Success:", loggedInUser.email);
+        // Do NOT navigate here manually.
+        // Let the useEffect hook handle redirection once 'user' state is updated.
+        // This prevents race conditions where we navigate before global state is ready.
       } else {
         setError('No se pudo iniciar sesión. Verifique sus credenciales.');
         setIsLoading(false);
