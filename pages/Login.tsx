@@ -87,8 +87,8 @@ const Login: React.FC = () => {
       <main className="w-full max-w-5xl mx-auto flex flex-col items-center">
         <div className="mb-10 text-center">
           <div className="inline-flex flex-col items-center justify-center">
-            <div className="h-32 w-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg bg-white flex items-center justify-center">
-              <img src="/sikai-logo.png" alt="CGBI Logo" className="h-full w-full object-cover transition-transform hover:scale-105" />
+            <div className="h-32 w-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg bg-white flex items-center justify-center p-4">
+              <img src="/sikai-logo.png" alt="CGBI Logo" className="h-full w-full object-contain transition-transform hover:scale-105" />
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary dark:text-white mt-2 tracking-tight">

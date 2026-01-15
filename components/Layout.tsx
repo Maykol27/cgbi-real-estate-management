@@ -6,10 +6,10 @@ import { LOGO_BASE64 } from '../constants/logo';
 import { ChangePasswordModal } from './ChangePasswordModal';
 
 export const Logo = ({ className }: { className?: string }) => (
-  <div className={`flex items-center justify-center rounded-full overflow-hidden aspect-square border border-white/20 bg-white shadow-sm ${className}`}>
+  <div className={`flex items-center justify-center rounded-full overflow-hidden aspect-square border border-white/20 bg-white shadow-sm p-2 ${className}`}>
     <img
       alt="CGBI Logo"
-      className="object-cover h-full w-full transform hover:scale-105 transition-transform"
+      className="object-contain h-full w-full transform hover:scale-105 transition-transform"
       src="/sikai-logo.png"
       onError={(e) => {
         const target = e.currentTarget;
