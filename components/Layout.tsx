@@ -275,10 +275,10 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
 
   const normalizeRole = (r: string) => {
     const lower = (r || '').toLowerCase();
-    if (lower === 'admin' || lower === 'administrador') return 'ADMIN';
-    if (lower === 'owner' || lower === 'propietario') return 'OWNER';
-    if (lower === 'tenant' || lower === 'inquilino') return 'TENANT';
-    if (lower === 'collaborator' || lower === 'colaborador') return 'COLLABORATOR';
+    if (['admin', 'administrador', 'administrator'].includes(lower)) return 'ADMIN';
+    if (['owner', 'propietario', 'landlord'].includes(lower)) return 'OWNER';
+    if (['tenant', 'inquilino', 'arrendatario'].includes(lower)) return 'TENANT';
+    if (['collaborator', 'colaborador'].includes(lower)) return 'COLLABORATOR';
     return 'UNKNOWN';
   };
 

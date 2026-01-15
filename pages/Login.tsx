@@ -19,11 +19,15 @@ const Login: React.FC = () => {
       console.log("CGBI Debug - Auto Redirecting user:", user.email, "Role:", user.role);
       const roleLower = user.role?.toLowerCase().trim() || '';
 
-      if (['admin', 'administrador', 'administrator'].includes(roleLower)) {
+      const isAdmin = ['admin', 'administrador', 'administrator', 'colaborador', 'collaborator'].includes(roleLower);
+      const isOwner = ['owner', 'propietario', 'landlord'].includes(roleLower);
+      const isTenant = ['tenant', 'arrendatario', 'inquilino'].includes(roleLower);
+
+      if (isAdmin) {
         navigate('/admin/dashboard');
-      } else if (['owner', 'propietario', 'landlord'].includes(roleLower)) {
+      } else if (isOwner) {
         navigate('/owner/dashboard');
-      } else if (['tenant', 'arrendatario', 'inquilino'].includes(roleLower)) {
+      } else if (isTenant) {
         navigate('/tenant/dashboard');
       } else {
         // Fallback for unknown roles - maybe go to owner for now or show error
