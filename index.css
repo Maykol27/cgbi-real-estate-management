@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1A88FF;
-  /* SIKAI Brand Blue */
+  --color-primary: #D62C5E;
+  /* CGBI Pink/Magenta */
   --color-primary-foreground: #FFFFFF;
-  --color-primary-dark: #0066CC;
+  --color-primary-dark: #A01B44;
+
+  --color-navy: #1B2240;
+  /* CGBI Navy */
 
   --color-secondary: #D62C5E;
-  /* CGBI Magenta */
+  /* CGBI Magenta (Same as Primary now) */
   --color-secondary-foreground: #FFFFFF;
 
   --color-background-light: #F8FAFC;

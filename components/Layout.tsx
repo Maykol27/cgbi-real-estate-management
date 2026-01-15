@@ -122,8 +122,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
     ${isCollapsed ? 'lg:w-24' : 'lg:w-72'}
   `;
 
-  // UNIFIED THEME: CGBI Navy (Primary)
-  const themeClasses = "bg-primary text-white border-white/5";
+  // UNIFIED THEME: CGBI Navy (Sidebar Background)
+  const themeClasses = "bg-[#1B2240] text-white border-white/5";
 
   // Override collapse state on mobile (when isOpen is true, labels must show)
   const showLabels = !isCollapsed || isOpen;
