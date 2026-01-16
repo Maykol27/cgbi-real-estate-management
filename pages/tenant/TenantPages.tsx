@@ -88,26 +88,28 @@ export const TenantDashboard: React.FC = () => {
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-icons-round text-primary text-xl">account_balance_wallet</span>
                                     <span className="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wide">
-                                        {nextPayment ? 'Próximo Pago' : 'Estado de Cuenta'}
+                                        Estado de Cuenta
                                     </span>
                                 </div>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-4xl sm:text-5xl font-bold dark:text-white">
-                                        {nextPayment ? formatCurrency(amountToShow) : "Al día"}
+                                        {user?.financialStatus || (nextPayment ? formatCurrency(amountToShow) : "Al día")}
                                     </span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-2 font-medium">
-                                    {nextPayment ? `Vence el ${dateToShow}` : 'No tienes pagos pendientes'}
+                                    {nextPayment ? `Vence el ${dateToShow}` : 'Estado de cuenta actualizado'}
                                 </p>
                             </div>
                             <div className={`
                                 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider self-start sm:self-center
-                                ${nextPayment
-                                    ? (nextPayment.status === 2 ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400')
-                                    : 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                                ${user?.financialStatus === 'En Mora' || (nextPayment && nextPayment.status === 2)
+                                    ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+                                    : user?.financialStatus === 'Pendiente de Pago' || (nextPayment && nextPayment.status === 0)
+                                        ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400'
+                                        : 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
                                 }
                             `}>
-                                {nextPayment ? (nextPayment.status === 2 ? 'En Mora' : 'Pendiente') : 'Paz y Salvo'}
+                                {user?.financialStatus || (nextPayment ? (nextPayment.status === 2 ? 'En Mora' : 'Pendiente') : 'Paz y Salvo')}
                             </div>
                         </div>
                         <button onClick={() => window.open('https://checkout.wompi.co/l/VPOS_jEk4cb', '_blank')} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
@@ -123,7 +125,11 @@ export const TenantDashboard: React.FC = () => {
 // --- Payments ---
 export const TenantPayments: React.FC = () => {
     const { showToast } = useToast();
-    const { payments, addPayment } = useStore();
+    const { payments, user } = useStore();
+
+    // Filter payments for the current tenant
+    const myPayments = payments.filter(p => p.tenant_id === user?.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
     const handleDownload = (docName: string) => {
         if (window.confirm(`¿Desea descargar "${docName}"?`)) {
             showToast("Descarga iniciada...", "info");
@@ -145,8 +151,8 @@ export const TenantPayments: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                {payments.length > 0 ? (
-                                    payments.map((pay) => (
+                                {myPayments.length > 0 ? (
+                                    myPayments.map((pay) => (
                                         <tr key={pay.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                                             <td className="px-6 py-4 text-sm font-medium dark:text-white">{pay.period}</td>
                                             <td className={`px-6 py-4 text-sm font-mono ${pay.status === 'Pagado' ? 'text-emerald-600' : 'text-amber-500'}`}>{pay.status}</td>
