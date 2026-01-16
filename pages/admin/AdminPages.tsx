@@ -844,16 +844,21 @@ export const AdminTenants: React.FC = () => {
                                 <div>
                                     <p className="text-xs font-bold text-gray-500 uppercase">Estado de Cuenta</p>
                                     <select
-                                        className={`text-lg font-bold border-none bg-transparent focus:ring-0 p-0 cursor-pointer ${(users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'En Mora' ? 'text-red-500' :
-                                            (users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'Pendiente de Pago' ? 'text-orange-500' :
-                                                'text-emerald-500'
+                                        className={`text-sm font-bold border rounded-lg px-3 py-1.5 cursor-pointer outline-none focus:ring-2 focus:ring-offset-1 transition-all ${(users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'En Mora'
+                                                ? 'bg-red-100 text-red-700 border-red-200 focus:ring-red-500 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900'
+                                                : (users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'Pendiente de Pago'
+                                                    ? 'bg-orange-100 text-orange-800 border-orange-200 focus:ring-orange-500 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-900'
+                                                    : 'bg-emerald-100 text-emerald-800 border-emerald-200 focus:ring-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-900'
                                             }`}
                                         value={users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día'}
-                                        onChange={(e) => updateUserStatus(selectedTenantHistory!, e.target.value as any)}
+                                        onChange={(e) => {
+                                            const newStatus = e.target.value as any;
+                                            updateUserStatus(selectedTenantHistory!, newStatus);
+                                        }}
                                     >
-                                        <option value="Al Día" className="text-gray-800">Al día</option>
-                                        <option value="Pendiente de Pago" className="text-gray-800">Pendiente de Pago</option>
-                                        <option value="En Mora" className="text-gray-800">En Mora</option>
+                                        <option value="Al Día" className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white">✅ Al día</option>
+                                        <option value="Pendiente de Pago" className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white">⚠️ Pendiente de Pago</option>
+                                        <option value="En Mora" className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white">⛔ En Mora</option>
                                     </select>
                                 </div>
                             </div>

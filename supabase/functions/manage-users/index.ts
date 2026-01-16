@@ -32,7 +32,12 @@ serve(async (req) => {
             return new Response(JSON.stringify({ error: "Unauthorized", details: authError }), { status: 401, headers: corsHeaders })
         }
 
-        const callerRole = caller.user_metadata?.role || '';
+        // Check role in profiles table for reliability
+        const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', caller.id).single();
+        const callerRole = profile?.role || caller.user_metadata?.role || '';
+
+        console.log("Caller Role Resolved:", callerRole); // Debug log
+
         // Allow 'Admin', 'Administrador', 'Administrator' (case insensitive check done below)
         const normalizedRole = String(callerRole).toLowerCase().trim();
         const isAdmin = ['admin', 'administrador', 'administrator'].includes(normalizedRole);

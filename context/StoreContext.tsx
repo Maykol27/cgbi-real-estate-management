@@ -186,7 +186,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     name: p.full_name || p.email,
                     email: p.email,
                     role: p.role,
-                    permissions: p.permissions || []
+                    permissions: p.permissions || [],
+                    financialStatus: p.financial_status || 'Al Día'
                 })) as unknown as User[];
                 setUsers(mappedUsers);
                 console.log("✅ Loaded", mappedUsers.length, "users");
