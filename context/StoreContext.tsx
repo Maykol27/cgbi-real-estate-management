@@ -477,9 +477,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("StoreContext: Setting User State", loadedUser);
                 setUser(loadedUser);
 
-                // Fetch User Payments - ENABLED
                 let paymentsQuery = supabase.from('payments').select('*');
-                if (data.role !== 'Administrador' && data.role !== 'Colaborador') {
+                // Ensure Admin (role 'Admin' or 'Administrador') and Colaborador see ALL payments
+                if (data.role !== 'Administrador' && data.role !== 'Admin' && data.role !== 'Colaborador') {
                     paymentsQuery = paymentsQuery.eq('tenant_id', data.id);
                 }
                 const { data: paymentsData } = await paymentsQuery;

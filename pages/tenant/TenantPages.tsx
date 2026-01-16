@@ -155,13 +155,15 @@ export const TenantPayments: React.FC = () => {
                                     myPayments.map((pay) => (
                                         <tr key={pay.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                                             <td className="px-6 py-4 text-sm font-medium dark:text-white">{pay.period}</td>
-                                            <td className={`px-6 py-4 text-sm font-mono ${pay.status === 'Pagado' ? 'text-emerald-600' : 'text-amber-500'}`}>{pay.status}</td>
+                                            <td className={`px-6 py-4 text-sm font-bold ${pay.status === 1 || pay.status === 'Pagado' ? 'text-emerald-600' : 'text-amber-500'}`}>
+                                                {pay.status === 1 || pay.status === 'Pagado' ? 'Pagado' : 'Pendiente'}
+                                            </td>
                                             <td className="px-6 py-4 text-sm font-bold text-right dark:text-white">{formatCurrency(pay.amount)}</td>
                                             <td className="px-6 py-4 text-right">
-                                                {pay.status === 'Pagado' && (
+                                                {(pay.status === 1 || pay.status === 'Pagado') && (
                                                     <button onClick={() => handleDownload(`Recibo_${pay.period}.pdf`)} className="text-primary text-xs font-bold hover:underline">Recibo</button>
                                                 )}
-                                                {pay.status === 'Pendiente' && (
+                                                {(pay.status === 0 || pay.status === 'Pendiente') && (
                                                     <button onClick={() => window.open('https://checkout.wompi.co/l/VPOS_jEk4cb', '_blank')} className="bg-primary text-white px-3 py-1 rounded text-xs font-bold hover:bg-primary-dark">Pagar</button>
                                                 )}
                                             </td>
