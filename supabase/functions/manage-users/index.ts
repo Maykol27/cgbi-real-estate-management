@@ -28,7 +28,8 @@ serve(async (req) => {
         const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token)
 
         if (authError || !caller) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders })
+            console.error("Manage-Users Auth Error:", authError);
+            return new Response(JSON.stringify({ error: "Unauthorized", details: authError }), { status: 401, headers: corsHeaders })
         }
 
         const callerRole = caller.user_metadata?.role || '';

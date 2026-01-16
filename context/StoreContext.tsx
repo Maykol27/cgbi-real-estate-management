@@ -10,6 +10,7 @@ export interface User {
     permissions?: string[];
     policyNumber?: string;
     photoUrl?: string; // Nuevo campo para foto
+    financialStatus?: 'Al Día' | 'Pendiente de Pago' | 'En Mora';
 }
 
 export interface Ticket {
@@ -137,6 +138,7 @@ interface StoreContextType {
     // Users
     addUser: (u: Omit<User, 'id'>) => void;
     updateProfile: (userId: string | number, updates: Partial<User>) => void; // New method for generic profile updates
+    updateUserStatus: (userId: string | number, status: 'Al Día' | 'Pendiente de Pago' | 'En Mora') => Promise<void>;
     deleteUser: (userId: string | number) => Promise<{ success: boolean; message: string }>; // New method for deleting users
 
     // Notification Helper
@@ -467,7 +469,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     name: data.full_name,
                     role: data.role as any,
                     email: data.email,
-                    permissions: data.permissions
+                    permissions: data.permissions,
+                    financialStatus: data.financial_status || 'Al Día'
                 };
 
                 console.log("StoreContext: Setting User State", loadedUser);
@@ -1080,6 +1083,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
+
+    const updateUserStatus = async (userId: string | number, status: 'Al Día' | 'Pendiente de Pago' | 'En Mora') => {
+        try {
+            const { error } = await supabase.from('profiles').update({ financial_status: status }).eq('id', userId);
+            if (error) {
+                console.error("Error updating user status:", error);
+                notify("Error", "No se pudo actualizar el estado del usuario.");
+                return;
+            }
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, financialStatus: status } : u));
+            notify("Estado Actualizado", `El estado del usuario ahora es: ${status}`);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     return (
         <StoreContext.Provider value={{

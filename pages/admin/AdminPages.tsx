@@ -727,7 +727,7 @@ export const AdminProperties: React.FC = () => {
 
 // --- Tenants Page (Admin) ---
 export const AdminTenants: React.FC = () => {
-    const { user, users, addUser, payments, addPayment, properties } = useStore();
+    const { user, users, addUser, payments, addPayment, properties, updateUserStatus } = useStore();
     const { showToast } = useToast();
 
     // Permission Check (Grouped with Properties)
@@ -843,9 +843,18 @@ export const AdminTenants: React.FC = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-500 uppercase">Estado de Cuenta</p>
-                                    <p className="text-lg font-bold text-gray-800 dark:text-white">
-                                        {tenantPayments.some(p => p.status === 2 || p.status === 0) ? "Pendiente" : "Al día"}
-                                    </p>
+                                    <select
+                                        className={`text-lg font-bold border-none bg-transparent focus:ring-0 p-0 cursor-pointer ${(users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'En Mora' ? 'text-red-500' :
+                                            (users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'Pendiente de Pago' ? 'text-orange-500' :
+                                                'text-emerald-500'
+                                            }`}
+                                        value={users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día'}
+                                        onChange={(e) => updateUserStatus(selectedTenantHistory!, e.target.value as any)}
+                                    >
+                                        <option value="Al Día" className="text-gray-800">Al día</option>
+                                        <option value="Pendiente de Pago" className="text-gray-800">Pendiente de Pago</option>
+                                        <option value="En Mora" className="text-gray-800">En Mora</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
