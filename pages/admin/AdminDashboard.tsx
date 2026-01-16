@@ -44,10 +44,10 @@ const AdminDashboard: React.FC = () => {
   const urgentTickets = tickets.filter(t => t.priority === 'Alta' && t.status !== 'Cerrado').length;
   const openTicketsPercentage = tickets.length > 0 ? (openTickets / tickets.length) * 100 : 0;
 
-  const occupiedProperties = properties.filter(p => p.status === 'Alquilada' || p.status === 'Vendida').length; // Adjust status logic as needed
+
   // Let's assume 'Ocupado' or 'Alquilada' based on previous context.
   // Checking StoreContext logic, Property status can be 'Disponible', 'Alquilada', 'Vendida', 'Mantenimiento'.
-  const rentedProperties = properties.filter(p => p.status === 'Alquilada').length;
+  const rentedProperties = properties.filter(p => p.status === 'Arrendado').length;
   const occupancyRate = totalProperties > 0 ? Math.round((rentedProperties / totalProperties) * 100) : 0;
 
   /* Removed AI Summary Logic */
