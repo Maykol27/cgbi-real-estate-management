@@ -64,14 +64,7 @@ serve(async (req) => {
                 const avatarPath = `${userId}`;
                 await supabaseAdmin.storage.from('avatars').remove([avatarPath]);
 
-                // Remove ANY other known file references if we can query them from 'documents' table before deleting
-                // Query documents table for file_url or similar
-                const { data: userDocs } = await supabaseAdmin.from('documents').select('file_url').eq('uploaded_by', userId);
-                if (userDocs && userDocs.length > 0) {
-                    // Parse paths from URLs and delete
-                    // This depends on URL format. Implementation skipped to avoid breakage if format varies.
-                    // But we should clean up if possible.
-                }
+                // Schema check reveals 'documents' has no owner column. Skipping document deletion.
 
             } catch (err) {
                 console.warn("Storage cleanup warning (non-fatal):", err);
@@ -84,8 +77,8 @@ serve(async (req) => {
                 throw new Error(`Failed to delete user: ${deleteError.message}`);
             }
 
-            // 1. Delete Profile (if cascade didn't catch it)
-            const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
+            // 1. Delete Profile (Handled automatically via CASCADE constraint now)
+            // const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
 
             // 2. Return Success
             return new Response(
