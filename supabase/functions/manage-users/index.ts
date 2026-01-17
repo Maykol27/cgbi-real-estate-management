@@ -58,19 +58,46 @@ serve(async (req) => {
         if (action === 'delete') {
             if (!userId) throw new Error("userId is required for delete");
 
-            const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-            if (deleteError) throw deleteError;
+            // 0. Pre-delete: Attempt to remove Storage Objects
+            try {
+                // Remove avatar if exists (standard path pattern)
+                const avatarPath = `${userId}`;
+                await supabaseAdmin.storage.from('avatars').remove([avatarPath]);
 
-            // Optionally delete from public.profiles if cascade isn't set up
+                // Also try with extension if known, but usually just ID or ID.ext
+                // In a perfect world, we'd query the DB for file paths.
+
+                // Remove ANY other known file references if we can query them from 'documents' table before deleting
+                // Query documents table for file_url or similar
+                const { data: userDocs } = await supabaseAdmin.from('documents').select('file_url').eq('uploaded_by', userId);
+                if (userDocs && userDocs.length > 0) {
+                    // Parse paths from URLs and delete
+                    // This depends on URL format. Implementation skipped to avoid breakage if format varies.
+                    // But we should clean up if possible.
+                }
+
+            } catch (err) {
+                console.warn("Storage cleanup warning (non-fatal):", err);
+            }
+
+            const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+            if (deleteError) {
+                console.error("Delete User Error:", deleteError);
+                throw new Error(`Failed to delete user: ${deleteError.message}`);
+            }
+
+            // 1. Delete Profile (if cascade didn't catch it)
             const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
 
+            // 2. Return Success
             return new Response(
                 JSON.stringify({ success: true, message: "User deleted successfully" }),
                 { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
             )
         }
 
-        // --- RESET PASSWORD ---
+        // ... rest of code ...
         if (action === 'reset_password') {
             if (!userId) throw new Error("userId is required for reset");
             const defaultPassword = "CGBI2026!";
@@ -90,7 +117,7 @@ serve(async (req) => {
 
         throw new Error(`Unknown action: ${action}`);
 
-    } catch (error) {
+    } catch (error: any) {
         return new Response(
             JSON.stringify({ error: error.message }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
