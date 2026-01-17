@@ -64,9 +64,6 @@ serve(async (req) => {
                 const avatarPath = `${userId}`;
                 await supabaseAdmin.storage.from('avatars').remove([avatarPath]);
 
-                // Also try with extension if known, but usually just ID or ID.ext
-                // In a perfect world, we'd query the DB for file paths.
-
                 // Remove ANY other known file references if we can query them from 'documents' table before deleting
                 // Query documents table for file_url or similar
                 const { data: userDocs } = await supabaseAdmin.from('documents').select('file_url').eq('uploaded_by', userId);
