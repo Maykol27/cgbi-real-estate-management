@@ -408,7 +408,7 @@ export const OwnerRequests: React.FC = () => {
 
     // Derived State: Find the first pending request FOR THIS OWNER
     const myPropertyIds = properties.map(p => p.id);
-    const requestToApprove = financeRequests.find(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.includes(r.propertyId));
+    const requestToApprove = financeRequests.find(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.some(id => String(id) === String(r.propertyId)));
 
     // UI State
     const [showCreateModal, setShowCreateModal] = useState(false);

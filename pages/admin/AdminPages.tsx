@@ -1155,7 +1155,7 @@ export const AdminOwners: React.FC = () => {
 
 // --- Tickets Page (Admin) ---
 export const AdminTickets: React.FC = () => {
-    const { tickets, updateTicketStatus, updateTicketPriority, financeRequests, addMessageToTicket, users, assignTicket } = useStore();
+    const { tickets, updateTicketStatus, updateTicketPriority, financeRequests, addMessageToTicket, users, assignTicket, properties } = useStore();
     const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState<'tickets' | 'financial'>('tickets');
     const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -1559,52 +1559,57 @@ export const AdminTickets: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                    {financeRequests.map((req) => (
-                                        <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="py-4 px-6">
-                                                <p className="font-bold text-sm text-gray-800 dark:text-white">{req.title}</p>
-                                                <p className="text-xs text-gray-400">{req.date}</p>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <p className="text-sm font-medium dark:text-gray-200">{req.requester}</p>
-                                            </td>
-                                            <td className="py-4 px-6 text-sm font-bold text-gray-700 dark:text-gray-300">
-                                                {formatCurrency(Number(req.cost))}
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                {req.status === 'Pendiente' && (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                                                        <span className="material-icons-round text-[14px]">hourglass_empty</span> Pendiente
-                                                    </span>
-                                                )}
-                                                {req.status === 'Aprobado' && (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                                        <span className="material-icons-round text-[14px]">check_circle</span> Aprobado
-                                                    </span>
-                                                )}
-                                                {req.status === 'Rechazado' && (
-                                                    <div className="flex flex-col items-start">
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                                                            <span className="material-icons-round text-[14px]">cancel</span> Rechazado
+                                    {financeRequests.map((req) => {
+                                        const prop = properties.find(p => String(p.id) === String(req.propertyId));
+                                        return (
+                                            <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="py-4 px-6">
+                                                    <p className="font-bold text-sm text-gray-800 dark:text-white">{req.title}</p>
+                                                    <p className="text-xs text-gray-400">{req.date}</p>
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    {prop && <p className="font-bold text-xs text-primary mb-1">{prop.name}</p>}
+                                                    <p className="text-sm font-medium dark:text-gray-200">{req.requester}</p>
+                                                </td>
+                                                <td className="py-4 px-6 text-sm font-bold text-gray-700 dark:text-gray-300">
+                                                    {formatCurrency(Number(req.cost))}
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    {req.status === 'Pendiente' && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                                                            <span className="material-icons-round text-[14px]">hourglass_empty</span> Pendiente
                                                         </span>
-                                                        {req.rejectionReason && (
-                                                            <span className="text-[10px] text-red-500 mt-1 max-w-xs italic">
-                                                                "{req.rejectionReason}"
+                                                    )}
+                                                    {req.status === 'Aprobado' && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                                            <span className="material-icons-round text-[14px]">check_circle</span> Aprobado
+                                                        </span>
+                                                    )}
+                                                    {req.status === 'Rechazado' && (
+                                                        <div className="flex flex-col items-start">
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                                                                <span className="material-icons-round text-[14px]">cancel</span> Rechazado
                                                             </span>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="py-4 px-6 text-right">
-                                                <button className="text-gray-400 hover:text-primary transition-colors">
-                                                    <span className="material-icons-round">visibility</span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                            {req.rejectionReason && (
+                                                                <span className="text-[10px] text-red-500 mt-1 max-w-xs italic">
+                                                                    "{req.rejectionReason}"
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="py-4 px-6 text-right">
+                                                    <button className="text-gray-400 hover:text-primary transition-colors">
+                                                        <span className="material-icons-round">visibility</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
+                        {showFinanceModal && <AdminFinanceRequestModal onClose={() => setShowFinanceModal(false)} />}
                     </div>
                 )}
             </div>
