@@ -71,6 +71,8 @@ export const AdminDocuments: React.FC = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [docToDelete, setDocToDelete] = useState<number | string | null>(null);
 
+    const [showUserSuggestions, setShowUserSuggestions] = useState(false); // Fix: State to control suggestions visibility
+
     // Handlers
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -129,6 +131,7 @@ export const AdminDocuments: React.FC = () => {
         setSpecificClient("");
         setCost("");
         setDesc("");
+        setShowUserSuggestions(false); // Reset suggestions
         if (fileInputRef.current) fileInputRef.current.value = "";
 
         showToast("Documento subido y notificado exitosamente.", "success");
@@ -179,7 +182,7 @@ export const AdminDocuments: React.FC = () => {
                 {/* Upload Card */}
                 <div className="bg-white dark:bg-card-dark rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 p-8 max-w-5xl mx-auto">
                     <div
-                        className={`border - 2 border - dashed rounded - 2xl p - 10 flex flex - col items - center justify - center text - center transition - all cursor - pointer mb - 8 ${isDragOver ? 'border-primary bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-slate-800'} `}
+                        className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer mb-8 ${isDragOver ? 'border-primary bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-slate-800'} `}
                         onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                         onDragLeave={() => setIsDragOver(false)}
                         onDrop={handleDrop}
@@ -267,22 +270,29 @@ export const AdminDocuments: React.FC = () => {
                     )}
 
                     {/* Specific Client Input - Conditional with Autocomplete */}
-                    <div className={`transition - all duration - 300 overflow - visible ${recipient === 'Cliente Específico' ? 'opacity-100 mb-6' : 'opacity-0 max-h-0 overflow-hidden'} `}>
+                    <div className={`transition-all duration-300 overflow-visible ${recipient === 'Cliente Específico' ? 'opacity-100 mb-6' : 'opacity-0 max-h-0 overflow-hidden'} `}>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Cliente Específico</label>
                         <div className="relative">
                             <input
                                 type="text"
                                 value={specificClient}
-                                onChange={(e) => setSpecificClient(e.target.value)}
+                                onChange={(e) => {
+                                    setSpecificClient(e.target.value);
+                                    setShowUserSuggestions(true);
+                                }}
+                                onFocus={() => setShowUserSuggestions(true)}
                                 placeholder="Buscar por nombre..."
                                 className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 py-2.5 dark:text-white"
                             />
-                            {specificClient && users.filter(u => u.name.toLowerCase().includes(specificClient.toLowerCase())).length > 0 && (
+                            {showUserSuggestions && specificClient && users.filter(u => u.name.toLowerCase().includes(specificClient.toLowerCase())).length > 0 && (
                                 <div className="absolute z-50 w-full bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-700 rounded-xl mt-1 shadow-xl max-h-48 overflow-y-auto">
                                     {users.filter(u => u.name.toLowerCase().includes(specificClient.toLowerCase())).map(u => (
                                         <button
                                             key={u.id}
-                                            onClick={() => setSpecificClient(u.name)}
+                                            onClick={() => {
+                                                setSpecificClient(u.name);
+                                                setShowUserSuggestions(false); // Close dropdown on selection
+                                            }}
                                             className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-50 dark:border-gray-800 last:border-0"
                                         >
                                             <span className="font-bold">{u.name}</span> <span className="text-xs text-gray-400">({u.role})</span>
