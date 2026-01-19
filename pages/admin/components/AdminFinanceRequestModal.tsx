@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
-import { Modal } from "../../components/Modal";
-import { useStore } from "../../context/StoreContext";
-import { useToast } from "../../context/ToastContext";
+import { Modal } from "../../../components/Modal";
+import { useStore } from "../../../context/StoreContext";
+import { useToast } from "../../../context/ToastContext";
 
 interface AdminFinanceRequestModalProps {
     onClose: () => void;
