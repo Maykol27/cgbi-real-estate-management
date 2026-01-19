@@ -72,13 +72,14 @@ export const NotificationButton = () => {
 };
 
 // --- Sidebar Link Component ---
-const SidebarLink = ({ to, icon, label, isCollapsed }: { to: string; icon: string; label: string; isCollapsed: boolean }) => {
+const SidebarLink = ({ to, icon, label, isCollapsed, onClick }: { to: string; icon: string; label: string; isCollapsed: boolean, onClick?: () => void }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
       to={to}
+      onClick={onClick}
       title={isCollapsed ? label : undefined}
       className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-3 px-4'} py-3 cursor-pointer rounded-xl transition-all duration-200 ${isActive
         ? 'bg-secondary/10 text-secondary font-bold shadow-sm border border-secondary/20'
@@ -129,6 +130,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
   // We pass 'effectiveCollapsed' to links to control label rendering
   const effectiveCollapsed = !showLabels;
 
+  // Handler to close sidebar on modile when a link is clicked
+  const handleLinkClick = () => {
+    onClose();
+  };
+
   return (
     <>
       <aside className={`${baseClasses} ${themeClasses}`}>
@@ -162,50 +168,50 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
 
           {role === UserRole.ADMIN && (
             <>
-              <SidebarLink to="/admin/dashboard" icon="dashboard" label="Panel General" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/admin/dashboard" icon="dashboard" label="Panel General" isCollapsed={effectiveCollapsed} />
 
               {/* Properties Group (Properties, Tenants, Owners) */}
               {(user?.role === 'Admin' || user?.permissions?.includes('propiedades')) && (
                 <>
-                  <SidebarLink to="/admin/properties" icon="apartment" label="Inmuebles" isCollapsed={effectiveCollapsed} />
-                  <SidebarLink to="/admin/tenants" icon="group" label="Inquilinos" isCollapsed={effectiveCollapsed} />
+                  <SidebarLink onClick={handleLinkClick} to="/admin/properties" icon="apartment" label="Inmuebles" isCollapsed={effectiveCollapsed} />
+                  <SidebarLink onClick={handleLinkClick} to="/admin/tenants" icon="group" label="Inquilinos" isCollapsed={effectiveCollapsed} />
                 </>
               )}
 
               {(user?.role === 'Admin' || user?.permissions?.includes('tickets')) && (
-                <SidebarLink to="/admin/tickets" icon="confirmation_number" label="Tickets" isCollapsed={effectiveCollapsed} />
+                <SidebarLink onClick={handleLinkClick} to="/admin/tickets" icon="confirmation_number" label="Tickets" isCollapsed={effectiveCollapsed} />
               )}
 
               {(user?.role === 'Admin' || user?.permissions?.includes('documentos')) && (
-                <SidebarLink to="/admin/documents" icon="folder_shared" label="Documentos" isCollapsed={effectiveCollapsed} />
+                <SidebarLink onClick={handleLinkClick} to="/admin/documents" icon="folder_shared" label="Documentos" isCollapsed={effectiveCollapsed} />
               )}
 
               {(user?.role === 'Admin' || user?.permissions?.includes('calendario')) && (
-                <SidebarLink to="/admin/calendar" icon="event" label="Calendario" isCollapsed={effectiveCollapsed} />
+                <SidebarLink onClick={handleLinkClick} to="/admin/calendar" icon="event" label="Calendario" isCollapsed={effectiveCollapsed} />
               )}
 
               {user?.role === 'Admin' && (
-                <SidebarLink to="/admin/settings" icon="settings" label="Configuración" isCollapsed={effectiveCollapsed} />
+                <SidebarLink onClick={handleLinkClick} to="/admin/settings" icon="settings" label="Configuración" isCollapsed={effectiveCollapsed} />
               )}
             </>
           )}
 
           {role === UserRole.TENANT && (
             <>
-              <SidebarLink to="/tenant/dashboard" icon="dashboard" label="Inicio" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/tenant/payments" icon="receipt_long" label="Pagos y Facturas" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/tenant/contracts" icon="description" label="Mis Contratos" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/tenant/requests" icon="home_repair_service" label="Solicitudes" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/tenant/profile" icon="person" label="Perfil" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/tenant/dashboard" icon="dashboard" label="Inicio" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/tenant/payments" icon="receipt_long" label="Pagos y Facturas" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/tenant/contracts" icon="description" label="Mis Contratos" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/tenant/requests" icon="home_repair_service" label="Solicitudes" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/tenant/profile" icon="person" label="Perfil" isCollapsed={effectiveCollapsed} />
             </>
           )}
 
           {role === UserRole.OWNER && (
             <>
-              <SidebarLink to="/owner/dashboard" icon="dashboard" label="Finanzas y Docs" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/owner/properties" icon="domain" label="Mis Propiedades" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/owner/calendar" icon="event" label="Calendario" isCollapsed={effectiveCollapsed} />
-              <SidebarLink to="/owner/requests" icon="home_repair_service" label="Solicitudes" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/owner/dashboard" icon="dashboard" label="Finanzas y Docs" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/owner/properties" icon="domain" label="Mis Propiedades" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/owner/calendar" icon="event" label="Calendario" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/owner/requests" icon="home_repair_service" label="Solicitudes" isCollapsed={effectiveCollapsed} />
             </>
           )}
         </nav>
