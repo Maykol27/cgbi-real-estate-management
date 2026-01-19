@@ -47,7 +47,7 @@ const Badge: React.FC<{ color: string; text: string; icon?: string }> = ({ color
 // --- Admin Documents Page ---
 export const AdminDocuments: React.FC = () => {
     // State from Store
-    const { documents, addDocument, deleteDocument, addFinanceRequest, user, users } = useStore();
+    const { documents, addDocument, deleteDocument, addFinanceRequest, user, users, properties } = useStore();
     const { showToast } = useToast();
 
     // Permission Check
@@ -71,7 +71,8 @@ export const AdminDocuments: React.FC = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [docToDelete, setDocToDelete] = useState<number | string | null>(null);
 
-    const [showUserSuggestions, setShowUserSuggestions] = useState(false); // Fix: State to control suggestions visibility
+    const [showUserSuggestions, setShowUserSuggestions] = useState(false);
+    const [selectedPropertyId, setSelectedPropertyId] = useState(""); // State for property selection
 
     // Handlers
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,12 +106,21 @@ export const AdminDocuments: React.FC = () => {
                 showToast("Para solicitudes de aprobación, el costo y la descripción son obligatorios.", "error");
                 return;
             }
+            if (!selectedPropertyId) {
+                showToast("Debes asociar la solicitud a una propiedad.", "error");
+                return;
+            }
+
+            // Find property name for better context if needed, though ID is main link
+            const prop = properties.find(p => String(p.id) === String(selectedPropertyId));
+
             addFinanceRequest({
-                title: "Solicitud de Aprobación: " + selectedFile.name,
+                title: "Solicitud: " + selectedFile.name,
                 desc: desc,
                 cost: cost,
                 requester: "Admin CGBI",
-                attachmentUrl: fileUrl
+                attachmentUrl: fileUrl,
+                propertyId: selectedPropertyId // FIX: Link to property
             });
             showToast("Solicitud de aprobación enviada al propietario.", "success");
         }
@@ -131,10 +141,16 @@ export const AdminDocuments: React.FC = () => {
         setSpecificClient("");
         setCost("");
         setDesc("");
+        setSelectedPropertyId(""); // Reset
         setShowUserSuggestions(false); // Reset suggestions
         if (fileInputRef.current) fileInputRef.current.value = "";
 
-        showToast("Documento subido y notificado exitosamente.", "success");
+        // If it was just a request, we might not strictly need the 'addDocument' call above 
+        // if the request itself handles the attachment logic, but purely for the "Documents" tab view we keep it.
+        // However, standard flow implies we uploaded it.
+        if (docType !== 'Solicitud') { // Avoid double notification if handled above
+            showToast("Documento subido y notificado exitosamente.", "success");
+        }
     };
 
     const confirmDelete = (id: number) => {
@@ -152,6 +168,8 @@ export const AdminDocuments: React.FC = () => {
     };
 
     const filteredFiles = documents.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark">
@@ -246,6 +264,21 @@ export const AdminDocuments: React.FC = () => {
                     {/* Conditional Fields for Approval Request */}
                     {docType === 'Solicitud' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-in fade-in slide-in-from-top-2">
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Propiedad Asociada</label>
+                                <select
+                                    value={selectedPropertyId}
+                                    onChange={(e) => setSelectedPropertyId(e.target.value)}
+                                    className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 transition-all py-2.5 dark:text-white"
+                                >
+                                    <option value="">Seleccionar Propiedad...</option>
+                                    {properties.map(p => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.name} - {p.owner}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Costo Estimado (COP)</label>
                                 <input
