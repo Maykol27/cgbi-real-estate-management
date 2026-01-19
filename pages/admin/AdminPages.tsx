@@ -1612,12 +1612,14 @@ export const AdminCalendar: React.FC = () => {
         const visit = visits.find(v => String(v.id) === String(id));
         if (visit) {
             setEditingVisit(visit);
-            // Populate form for editing (if needed specifically for edit mode, though simplified here)
+            const visitDate = new Date(visit.date); // Ensure it's a Date object
+            setSelectedDate(visitDate); // Fix: Set selectedDate so the date input is populated
+
             setNewVisitData({
                 propertyId: visit.propertyId.toString(),
                 visitorName: visit.visitorName,
                 advisor: visit.advisor || '',
-                time: visit.date.toTimeString().substring(0, 5),
+                time: visitDate.toTimeString().substring(0, 5),
                 status: visit.status,
                 feedback: visit.feedback || ''
             });
