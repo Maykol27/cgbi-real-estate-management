@@ -375,41 +375,38 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setLoading(false);
                 setIsInitializing(false);
             }
-        }, 15000); // Increased to 15 seconds
+        }, 15000);
 
         // 1. Initial Session Check
         supabase.auth.getSession()
             .then(async ({ data: { session } }) => {
                 if (session?.user) {
                     console.log("✅ Existing session found for:", session.user.email);
-                    try {
-                        const profile = await fetchProfile(session.user.id);
-                        if (!profile) {
-                            console.warn("⚠️ Context: Profile fetch failed during init. Using Fallback.");
-                            // Fallback to avoid logout loop
-                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
-                            setUser({
-                                id: session.user.id,
-                                email: session.user.email || '',
-                                name: session.user.user_metadata?.full_name || "Usuario (Fallback)",
-                                role: isMainAdmin ? 'Admin' : 'Propietario',
-                                permissions: isMainAdmin ? ['all'] : []
-                            });
+
+                    // --- SWR PATTERN: Try to load from Cache first ---
+                    const cachedProfileStr = localStorage.getItem('cgbi_user_profile');
+                    if (cachedProfileStr) {
+                        try {
+                            const cachedProfile = JSON.parse(cachedProfileStr);
+                            if (cachedProfile.id === session.user.id) {
+                                console.log("⚡ Hydrating User from Cache (Instant Load)");
+                                setUser(cachedProfile);
+                                // Don't set loading false yet if you want to show spinner until "fresh" data, 
+                                // BUT the user wants F5 to be seamless. So:
+                                setLoading(false);
+                            }
+                        } catch (e) {
+                            console.error("Error parsing cached profile", e);
+                            localStorage.removeItem('cgbi_user_profile');
                         }
+                    }
+
+                    // Background Revalidate / Fetch Fresh Data
+                    try {
+                        await fetchProfile(session.user.id);
                         await fetchAllData();
                     } catch (err) {
-                        console.error("Error fetching initial data:", err);
-                        // Emergency Fallback
-                        if (!userRef.current) {
-                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
-                            setUser({
-                                id: session.user.id,
-                                email: session.user.email || '',
-                                name: "Usuario (Error Recovery)",
-                                role: isMainAdmin ? 'Admin' : 'Propietario',
-                                permissions: []
-                            });
-                        }
+                        console.error("Error fetching initial data (Background):", err);
                     }
                 } else {
                     console.log("ℹ️ No existing session found");
@@ -444,21 +441,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     console.log(`🟢 Usuario nuevo logueado: ${session.user.email}`);
                     setLoading(true);
                     try {
-                        const profile = await fetchProfile(session.user.id);
-                        if (!profile) {
-                            console.warn("⚠️ Context: Profile fetch failed during sign-in. Using Fallback.");
-                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
-                            setUser({
-                                id: session.user.id,
-                                email: session.user.email || '',
-                                name: session.user.user_metadata?.full_name || "Usuario (Fallback)",
-                                role: isMainAdmin ? 'Admin' : 'Propietario',
-                                permissions: isMainAdmin ? ['all'] : []
-                            });
-                        }
+                        await fetchProfile(session.user.id);
                         await fetchAllData();
-                    } catch (e) {
-                        console.error("Sign-in data fetch error", e);
                     } finally {
                         setLoading(false);
                     }
@@ -475,6 +459,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setVisits([]);
                 setFinanceRequests([]);
                 setPayments([]);
+                localStorage.removeItem('cgbi_user_profile'); // Clear Cache
                 setLoading(false);
             }
         });
@@ -514,8 +499,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     financialStatus: data.financial_status || 'Al Día'
                 };
 
-                console.log("StoreContext: Setting User State", loadedUser);
+                console.log("StoreContext: Setting User State & Caching", loadedUser);
                 setUser(loadedUser);
+                localStorage.setItem('cgbi_user_profile', JSON.stringify(loadedUser)); // CACHE UPDATE
 
                 let paymentsQuery = supabase.from('payments').select('*');
                 // Ensure Admin (role 'Admin' or 'Administrador') and Colaborador see ALL payments
@@ -540,6 +526,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         } catch (error: any) {
             console.error("Fetch profile exception:", error.message || error);
         }
+
+        // If we are here, fetch failed.
+        // If we have a user in state (from cache), return THAT instead of undefined to pretend success
+        if (userRef.current && userRef.current.id === userId) {
+            console.warn("Using cached user state due to fetch failure.");
+            return userRef.current;
+        }
+
         console.log("StoreContext: fetchProfile END (Returning undefined)");
         return undefined;
     };
@@ -566,21 +560,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     if (profile) {
                         return profile;
                     }
-
-                    // Fallback if profile fetch fails (though it shouldn't for valid users)
-                    console.log("StoreContext: Using Fallback User");
-
-                    // CRITICAL FIX: Specific fallback for the Main Admin to prevent lockout if DB fetch fails
-                    const isMainAdmin = email.toLowerCase().includes('maykol'); // Or specific email
-                    const fallbackRole = isMainAdmin ? 'Admin' : 'Propietario';
-
-                    return {
-                        id: authData.user.id,
-                        email: authData.user.email,
-                        name: "Usuario (Fallback)",
-                        role: fallbackRole as any,
-                        permissions: isMainAdmin ? ['all'] : []
-                    };
                 }
             }
         } catch (error: any) {
@@ -621,6 +600,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.error("Logout Exception:", error);
             setUser(null);
         }
+        localStorage.removeItem('cgbi_user_profile'); // Ensure cache is cleared
     };
 
     const addTicket = async (t: Omit<Ticket, 'id' | 'date' | 'status'>): Promise<{ success: boolean; message: string }> => {
