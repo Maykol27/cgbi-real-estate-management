@@ -1162,7 +1162,8 @@ export const AdminTickets: React.FC = () => {
     const [filterStatus, setFilterStatus] = useState("Todos");
     const [replyText, setReplyText] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [showFinanceModal, setShowFinanceModal] = useState(false); // State for Finance Modal
+    const [showFinanceModal, setShowFinanceModal] = useState(false);
+    const [selectedFinanceRequest, setSelectedFinanceRequest] = useState<any>(null); // State for Finance Modal
     const { addTicket } = useStore();
 
     // Get Collaborators
@@ -1599,7 +1600,13 @@ export const AdminTickets: React.FC = () => {
                                                     )}
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
-                                                    <button className="text-gray-400 hover:text-primary transition-colors">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedFinanceRequest(req);
+                                                            setShowFinanceModal(true);
+                                                        }}
+                                                        className="text-gray-400 hover:text-primary transition-colors"
+                                                    >
                                                         <span className="material-icons-round">visibility</span>
                                                     </button>
                                                 </td>
@@ -1609,7 +1616,15 @@ export const AdminTickets: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
-                        {showFinanceModal && <AdminFinanceRequestModal onClose={() => setShowFinanceModal(false)} />}
+                        {showFinanceModal && (
+                            <AdminFinanceRequestModal
+                                onClose={() => {
+                                    setShowFinanceModal(false);
+                                    setSelectedFinanceRequest(null);
+                                }}
+                                request={selectedFinanceRequest}
+                            />
+                        )}
                     </div>
                 )}
             </div>

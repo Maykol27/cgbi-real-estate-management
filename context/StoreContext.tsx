@@ -304,12 +304,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
             if (finData) {
                 const mappedFin = finData.map((f: any) => {
-                    const requester = allUsers.find(u => u.id === f.user_id); // Assuming user_id field
+                    const requester = allUsers.find(u => u.id === f.requester_id); // Corrected foreign key
                     return {
                         id: f.id,
                         title: f.title,
                         desc: f.description,
-                        cost: f.amount,
+                        cost: f.cost, // Corrected column name
                         status: f.status,
                         requester: requester ? requester.name : 'Unknown',
                         date: new Date(f.created_at).toLocaleDateString(),
