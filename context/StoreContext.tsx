@@ -971,7 +971,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const { data, error } = await supabase.from('finance_requests').insert({
                 title: r.title,
                 description: r.desc,
-                amount: r.cost,
+                cost: r.cost,
                 status: 'Pendiente',
                 requester_id: user?.id,
                 property_id: r.propertyId // Insert property_id
