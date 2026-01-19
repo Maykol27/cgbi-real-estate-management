@@ -439,12 +439,44 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                 if (session?.user) {
                     console.log(`🟢 Usuario nuevo logueado: ${session.user.email}`);
-                    setLoading(true);
-                    try {
-                        await fetchProfile(session.user.id);
-                        await fetchAllData();
-                    } finally {
-                        setLoading(false);
+
+                    // --- SWR LOGIC FOR SIGNED_IN EVENT ---
+                    const cachedProfileStr = localStorage.getItem('cgbi_user_profile');
+                    let isCached = false;
+
+                    if (cachedProfileStr) {
+                        try {
+                            const cached = JSON.parse(cachedProfileStr);
+                            if (cached.id === session.user.id) {
+                                console.log("⚡ (SIGNED_IN) Hydrating from Cache");
+                                setUser(cached);
+                                userRef.current = cached; // Update ref immediately
+                                setLoading(false); // UI Ready immediately
+                                isCached = true;
+                            }
+                        } catch (e) { console.error("Cache parse error", e); }
+                    }
+
+                    if (!isCached) {
+                        setLoading(true); // Only block UI if no cache
+                    }
+
+                    // Background or Foreground Fetch
+                    const loadFreshData = async () => {
+                        try {
+                            await fetchProfile(session.user.id);
+                            await fetchAllData();
+                        } catch (e) {
+                            console.error("Sign-in data fetch error", e);
+                        } finally {
+                            if (!isCached) setLoading(false);
+                        }
+                    };
+
+                    if (isCached) {
+                        loadFreshData(); // Background
+                    } else {
+                        await loadFreshData(); // Foreground
                     }
                 }
             } else if (event === 'SIGNED_OUT') {
