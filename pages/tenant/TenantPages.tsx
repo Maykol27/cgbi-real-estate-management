@@ -330,7 +330,7 @@ export const TenantRequests: React.FC = () => {
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Asunto</label>
-                                                <input name="title" type="text" required className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-primary dark:text-white" placeholder="Ej: Fuga de Agua" />
+                                                <input name="title" type="text" required className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-primary dark:text-white" placeholder="Ej: Solicitud" />
                                             </div>
                                         </div>
                                     </div>
