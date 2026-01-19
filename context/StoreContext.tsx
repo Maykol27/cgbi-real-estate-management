@@ -375,7 +375,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setLoading(false);
                 setIsInitializing(false);
             }
-        }, 8000); // 8 seconds max
+        }, 15000); // Increased to 15 seconds
 
         // 1. Initial Session Check
         supabase.auth.getSession()
@@ -383,10 +383,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 if (session?.user) {
                     console.log("✅ Existing session found for:", session.user.email);
                     try {
-                        await fetchProfile(session.user.id);
+                        const profile = await fetchProfile(session.user.id);
+                        if (!profile) {
+                            console.warn("⚠️ Context: Profile fetch failed during init. Using Fallback.");
+                            // Fallback to avoid logout loop
+                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
+                            setUser({
+                                id: session.user.id,
+                                email: session.user.email || '',
+                                name: session.user.user_metadata?.full_name || "Usuario (Fallback)",
+                                role: isMainAdmin ? 'Admin' : 'Propietario',
+                                permissions: isMainAdmin ? ['all'] : []
+                            });
+                        }
                         await fetchAllData();
                     } catch (err) {
                         console.error("Error fetching initial data:", err);
+                        // Emergency Fallback
+                        if (!userRef.current) {
+                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
+                            setUser({
+                                id: session.user.id,
+                                email: session.user.email || '',
+                                name: "Usuario (Error Recovery)",
+                                role: isMainAdmin ? 'Admin' : 'Propietario',
+                                permissions: []
+                            });
+                        }
                     }
                 } else {
                     console.log("ℹ️ No existing session found");
@@ -407,22 +430,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.log("🔔 Auth state changed:", event);
 
             // IGNORE EVENTS:
-            // 1. INITIAL_SESSION: Already handled by the initial check above.
-            // 2. TOKEN_REFRESHED: Just a token update, no need to reload data.
-            // 3. SIGNED_IN (Redundant): If the user ID hasn't changed, don't reload.
-
-            if (event === 'INITIAL_SESSION') {
-                return;
-            }
-
-            if (event === 'TOKEN_REFRESHED') {
-                // Just log, do nothing else. Session stays valid.
-                // console.log("♻️ Token refreshed silently."); 
-                return;
-            }
+            if (event === 'INITIAL_SESSION') return;
+            if (event === 'TOKEN_REFRESHED') return;
 
             if (event === 'SIGNED_IN') {
-                // FIX: Use ref to check current user, as 'user' state might be stale in this closure
+                // FIX: Use ref to check current user
                 if (session?.user?.id === userRef.current?.id) {
                     console.log("✅ Same user session detected (Ref check) - Skipping full reload.");
                     return;
@@ -432,8 +444,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     console.log(`🟢 Usuario nuevo logueado: ${session.user.email}`);
                     setLoading(true);
                     try {
-                        await fetchProfile(session.user.id);
+                        const profile = await fetchProfile(session.user.id);
+                        if (!profile) {
+                            console.warn("⚠️ Context: Profile fetch failed during sign-in. Using Fallback.");
+                            const isMainAdmin = session.user.email?.toLowerCase().includes('maykol');
+                            setUser({
+                                id: session.user.id,
+                                email: session.user.email || '',
+                                name: session.user.user_metadata?.full_name || "Usuario (Fallback)",
+                                role: isMainAdmin ? 'Admin' : 'Propietario',
+                                permissions: isMainAdmin ? ['all'] : []
+                            });
+                        }
                         await fetchAllData();
+                    } catch (e) {
+                        console.error("Sign-in data fetch error", e);
                     } finally {
                         setLoading(false);
                     }
@@ -465,7 +490,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
             // Safety Timeout Promise
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Timeout fetching profile")), 12000)
+                setTimeout(() => reject(new Error("Timeout fetching profile")), 15000)
             );
 
             // Fetch Logic
