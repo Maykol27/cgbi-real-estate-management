@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ThemeToggle, NotificationButton } from '../../components/Layout';
+import { HeaderProfile } from '../../components/HeaderProfile';
 import { useStore } from '../../context/StoreContext';
 import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
@@ -11,6 +12,8 @@ const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
         <div className="flex items-center gap-2">
             <NotificationButton />
             <ThemeToggle />
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <HeaderProfile />
         </div>
     </header>
 );

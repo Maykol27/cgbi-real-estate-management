@@ -89,6 +89,7 @@ export interface FinanceRequest {
     date: string;
     rejectionReason?: string;
     attachmentUrl?: string;
+    propertyId?: string | number; // Added propertyId
 }
 
 export interface Payment {
@@ -173,15 +174,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
             console.log("📥 Fetching all data from Supabase...");
 
+            // Shared data containers for cross-referencing
+            let allUsers: User[] = [];
+            let allProperties: Property[] = [];
+
             // 1. Fetch Profiles
             const { data: profilesData, error: profilesError } = await supabase.from('profiles').select('*');
             if (profilesError) {
                 console.error("Error fetching profiles:", profilesError);
             }
 
-            let mappedUsers: User[] = [];
             if (profilesData) {
-                mappedUsers = profilesData.map((p: any) => ({
+                allUsers = profilesData.map((p: any) => ({
                     id: p.id,
                     name: p.full_name || p.email,
                     email: p.email,
@@ -189,8 +193,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     permissions: p.permissions || [],
                     financialStatus: p.financial_status || 'Al Día'
                 })) as unknown as User[];
-                setUsers(mappedUsers);
-                console.log("✅ Loaded", mappedUsers.length, "users");
+                setUsers(allUsers);
+                console.log("✅ Loaded", allUsers.length, "users");
             }
 
             // 2. Fetch Properties
@@ -200,7 +204,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
             if (propsData) {
                 const mappedProps = propsData.map((p: any) => {
-                    const ownerUser = mappedUsers.find(u => u.id === p.owner_id);
+                    const ownerUser = allUsers.find(u => u.id === p.owner_id);
                     return {
                         id: p.id,
                         name: p.name,
@@ -218,6 +222,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         description: p.description
                     };
                 }) as Property[];
+                allProperties = mappedProps;
                 setProperties(mappedProps);
                 console.log("✅ Loaded", mappedProps.length, "properties");
             }
@@ -229,7 +234,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
             if (ticketsData) {
                 const mappedTickets = ticketsData.map((t: any) => {
-                    const requester = mappedUsers.find(u => u.id === t.requester_id);
+                    const requester = allUsers.find(u => u.id === t.requester_id);
+                    const prop = allProperties.find(p => p.id === t.property_id);
                     return {
                         id: t.id,
                         title: t.title,
@@ -240,6 +246,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         requesterRole: requester ? requester.role : 'Usuario',
                         date: new Date(t.created_at).toLocaleDateString(),
                         propertyId: t.property_id,
+                        propertyName: prop ? prop.name : undefined,
                         messages: t.messages || []
                     };
                 }) as Ticket[];
@@ -272,16 +279,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.error("Error fetching visits:", visitsError);
             }
             if (visitsData) {
-                const mappedVisits = visitsData.map((v: any) => ({
-                    id: v.id,
-                    propertyId: v.property_id,
-                    propertyName: 'Unknown',
-                    visitorName: v.visitor_name,
-                    advisor: v.advisor,
-                    date: new Date(v.date),
-                    status: v.status,
-                    feedback: v.feedback
-                })) as Visit[];
+                const mappedVisits = visitsData.map((v: any) => {
+                    // Try to find property name from loaded properties
+                    const prop = allProperties.find(p => p.id == v.property_id); // Loose equality for string/number safety
+                    return {
+                        id: v.id,
+                        propertyId: v.property_id,
+                        propertyName: prop ? prop.name : 'Propiedad Desconocida',
+                        visitorName: v.visitor_name,
+                        advisor: v.advisor,
+                        date: new Date(v.date),
+                        status: v.status,
+                        feedback: v.feedback
+                    };
+                }) as Visit[];
                 setVisits(mappedVisits);
                 console.log("✅ Loaded", mappedVisits.length, "visits");
             }
@@ -292,16 +303,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.error("Error fetching finance requests:", finError);
             }
             if (finData) {
-                const mappedFin = finData.map((f: any) => ({
-                    id: f.id,
-                    title: f.title,
-                    desc: f.description,
-                    cost: f.amount,
-                    status: f.status,
-                    requester: 'Unknown',
-                    date: new Date(f.created_at).toLocaleDateString(),
-                    rejectionReason: f.rejection_reason
-                })) as FinanceRequest[];
+                const mappedFin = finData.map((f: any) => {
+                    const requester = allUsers.find(u => u.id === f.user_id); // Assuming user_id field
+                    return {
+                        id: f.id,
+                        title: f.title,
+                        desc: f.description,
+                        cost: f.amount,
+                        status: f.status,
+                        requester: requester ? requester.name : 'Unknown',
+                        date: new Date(f.created_at).toLocaleDateString(),
+                        rejectionReason: f.rejection_reason,
+                        propertyId: f.property_id
+                    };
+                }) as FinanceRequest[];
                 setFinanceRequests(mappedFin);
                 console.log("✅ Loaded", mappedFin.length, "finance requests");
             }
@@ -450,7 +465,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
             // Safety Timeout Promise
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Timeout fetching profile")), 5000)
+                setTimeout(() => reject(new Error("Timeout fetching profile")), 12000)
             );
 
             // Fetch Logic
@@ -921,7 +936,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 description: r.desc,
                 amount: r.cost,
                 status: 'Pendiente',
-                requester_id: user?.id
+                requester_id: user?.id,
+                property_id: r.propertyId // Insert property_id
             }).select().single();
 
             if (error) {

@@ -5,7 +5,7 @@
   - complementary [ref=e4]:
     - generic [ref=e5]:
       - img "CGBI Logo" [ref=e8]
-      - button "chevron_left" [ref=e9] [cursor=pointer]:
+      - button "chevron_left" [ref=e9]:
         - generic [ref=e10]: chevron_left
     - navigation [ref=e11]:
       - link "dashboard Panel General" [ref=e12] [cursor=pointer]:
@@ -37,53 +37,57 @@
         - generic [ref=e31]: settings
         - generic [ref=e32]: Configuración
     - generic [ref=e33]:
-      - button "logout Salir" [ref=e34] [cursor=pointer]:
-        - generic [ref=e35]: logout
-        - generic [ref=e36]: Salir
-      - generic [ref=e37]:
-        - link "Facebook" [ref=e38] [cursor=pointer]:
+      - button "lock_reset Cambiar Clave" [ref=e34]:
+        - generic [ref=e35]: lock_reset
+        - generic [ref=e36]: Cambiar Clave
+      - button "logout Salir" [ref=e37]:
+        - generic [ref=e38]: logout
+        - generic [ref=e39]: Salir
+      - generic [ref=e40]:
+        - link "Facebook" [ref=e41] [cursor=pointer]:
           - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
-          - img [ref=e39]
-        - link "Instagram" [ref=e41] [cursor=pointer]:
-          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
           - img [ref=e42]
-        - link "TikTok" [ref=e44] [cursor=pointer]:
-          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+        - link "Instagram" [ref=e44] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
           - img [ref=e45]
-      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e48] [cursor=pointer]:
+        - link "TikTok" [ref=e47] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e48]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e51] [cursor=pointer]:
         - /url: https://sikaiconsulting.com
-        - generic [ref=e49]: Desarrollado por SIKAI
-        - img "SIKAI Consulting" [ref=e50]
-  - main [ref=e51]:
-    - generic [ref=e52]:
-      - generic [ref=e53]:
-        - generic [ref=e54]:
-          - heading "Configuración" [level=1] [ref=e55]
-          - paragraph [ref=e56]: Parámetros generales y gestión de usuarios
+        - generic [ref=e52]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e53]
+  - main [ref=e54]:
+    - generic [ref=e55]:
+      - generic [ref=e56]:
         - generic [ref=e57]:
-          - button "notifications" [ref=e58] [cursor=pointer]:
-            - generic [ref=e59]: notifications
-          - button "dark_mode" [ref=e60] [cursor=pointer]:
-            - generic [ref=e61]: dark_mode
-      - generic [ref=e62]:
-        - generic [ref=e63]:
-          - button "General" [ref=e64] [cursor=pointer]: General
-          - button "Gestión de Usuarios" [ref=e66] [cursor=pointer]
+          - heading "Configuración" [level=1] [ref=e58]
+          - paragraph [ref=e59]: Parámetros generales y gestión de usuarios
+        - generic [ref=e61]:
+          - button "notifications" [ref=e62]:
+            - generic [ref=e63]: notifications
+          - button "Alternar Tema" [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]: dark_mode
+            - generic [ref=e66]: light_mode
+      - generic [ref=e67]:
         - generic [ref=e68]:
-          - generic [ref=e69]:
-            - heading "Perfil de Empresa" [level=3] [ref=e70]
-            - paragraph [ref=e71]: Información visible para inquilinos y propietarios.
-            - generic [ref=e72]:
-              - generic [ref=e73]:
-                - generic [ref=e74]: Nombre Comercial
-                - textbox [ref=e75]: Camila Gutiérrez Brokers
-              - generic [ref=e76]:
-                - generic [ref=e77]: Email de Contacto
-                - textbox [ref=e78]: admin@cgbi.com
-          - generic [ref=e79]:
-            - generic [ref=e80]:
-              - heading "Notificaciones por Email" [level=3] [ref=e81]
-              - paragraph [ref=e82]: Recibir alertas cuando se creen nuevos tickets.
-            - checkbox [checked] [ref=e84]
-          - button "Guardar Cambios" [ref=e87] [cursor=pointer]
+          - button "General" [ref=e69]: General
+          - button "Gestión de Usuarios" [ref=e71]
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - heading "Perfil de Empresa" [level=3] [ref=e75]
+            - paragraph [ref=e76]: Información visible para inquilinos y propietarios.
+            - generic [ref=e77]:
+              - generic [ref=e78]:
+                - generic [ref=e79]: Nombre Comercial
+                - textbox [ref=e80]: Inmobiliaria CGBI
+              - generic [ref=e81]:
+                - generic [ref=e82]: Email de Contacto
+                - textbox [ref=e83]: admin@cgbi.com
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - heading "Notificaciones por Email" [level=3] [ref=e86]
+              - paragraph [ref=e87]: Recibir alertas cuando se creen nuevos tickets.
+            - checkbox [checked] [ref=e89]
+          - button "Guardar Cambios" [ref=e92]
 ```

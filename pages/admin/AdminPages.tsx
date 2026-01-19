@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { AdminFinanceRequestModal } from './components/AdminFinanceRequestModal';
 import { ThemeToggle, Logo, NotificationButton } from '../../components/Layout';
+import { HeaderProfile } from '../../components/HeaderProfile';
 import { useStore } from '../../context/StoreContext';
 import { Calendar } from '../../components/Calendar';
 import { Modal } from '../../components/Modal';
@@ -18,6 +20,8 @@ const SectionHeader: React.FC<{ title: string; subtitle?: string; action?: React
             <div className="flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-4 ml-2">
                 <NotificationButton />
                 <ThemeToggle />
+                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                <HeaderProfile />
             </div>
         </div>
     </header>
@@ -33,7 +37,7 @@ const Badge: React.FC<{ color: string; text: string; icon?: string }> = ({ color
         purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-200 dark:border-purple-900',
     };
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${bgMap[color] || bgMap.gray}`}>
+        <span className={`inline - flex items - center gap - 1.5 px - 2.5 py - 0.5 rounded - full text - xs font - bold uppercase tracking - wider border ${bgMap[color] || bgMap.gray} `}>
             {icon && <span className="material-icons-round text-[14px]">{icon}</span>}
             {text}
         </span>
@@ -175,7 +179,7 @@ export const AdminDocuments: React.FC = () => {
                 {/* Upload Card */}
                 <div className="bg-white dark:bg-card-dark rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 p-8 max-w-5xl mx-auto">
                     <div
-                        className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer mb-8 ${isDragOver ? 'border-primary bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+                        className={`border - 2 border - dashed rounded - 2xl p - 10 flex flex - col items - center justify - center text - center transition - all cursor - pointer mb - 8 ${isDragOver ? 'border-primary bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-slate-800'} `}
                         onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                         onDragLeave={() => setIsDragOver(false)}
                         onDrop={handleDrop}
@@ -189,7 +193,7 @@ export const AdminDocuments: React.FC = () => {
                         />
 
                         <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
-                            <span className="material-icons-round text-3xl">cloud_upload</span>
+                            <span className="material-icons-round">cloud_upload</span>
                         </div>
 
                         {selectedFile ? (
@@ -263,7 +267,7 @@ export const AdminDocuments: React.FC = () => {
                     )}
 
                     {/* Specific Client Input - Conditional with Autocomplete */}
-                    <div className={`transition-all duration-300 overflow-visible ${recipient === 'Cliente Específico' ? 'opacity-100 mb-6' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <div className={`transition - all duration - 300 overflow - visible ${recipient === 'Cliente Específico' ? 'opacity-100 mb-6' : 'opacity-0 max-h-0 overflow-hidden'} `}>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Cliente Específico</label>
                         <div className="relative">
                             <input
@@ -338,7 +342,7 @@ export const AdminDocuments: React.FC = () => {
                                         <tr key={file.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${file.type === 'Factura / Recibo' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                                                    <div className={`w - 8 h - 8 rounded - lg flex items - center justify - center shrink - 0 ${file.type === 'Factura / Recibo' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} `}>
                                                         <span className="material-icons-round text-lg">
                                                             {file.type === 'Factura / Recibo' ? 'receipt' : file.type === 'Contrato' ? 'gavel' : 'description'}
                                                         </span>
@@ -499,13 +503,13 @@ export const AdminProperties: React.FC = () => {
                 <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
                     <button
                         onClick={() => setListingFilter('Arriendo')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'}`}
+                        className={`px - 4 py - 2 text - sm font - bold rounded - lg transition - all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Arriendo
                     </button>
                     <button
                         onClick={() => setListingFilter('Venta')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'}`}
+                        className={`px - 4 py - 2 text - sm font - bold rounded - lg transition - all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Venta
                     </button>
@@ -766,7 +770,7 @@ export const AdminTenants: React.FC = () => {
         }
 
         await addUser({
-            name: `${firstName} ${lastName}`,
+            name: `${firstName} ${lastName} `,
             role: 'Inquilino',
             email: email,
             policyNumber: policyNumber
@@ -844,12 +848,12 @@ export const AdminTenants: React.FC = () => {
                                 <div>
                                     <p className="text-xs font-bold text-gray-500 uppercase">Estado de Cuenta</p>
                                     <select
-                                        className={`text-sm font-bold border rounded-lg px-3 py-1.5 cursor-pointer outline-none focus:ring-2 focus:ring-offset-1 transition-all ${(users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'En Mora'
-                                                ? 'bg-red-100 text-red-700 border-red-200 focus:ring-red-500 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900'
-                                                : (users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'Pendiente de Pago'
-                                                    ? 'bg-orange-100 text-orange-800 border-orange-200 focus:ring-orange-500 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-900'
-                                                    : 'bg-emerald-100 text-emerald-800 border-emerald-200 focus:ring-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-900'
-                                            }`}
+                                        className={`text - sm font - bold border rounded - lg px - 3 py - 1.5 cursor - pointer outline - none focus: ring - 2 focus: ring - offset - 1 transition - all ${(users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'En Mora'
+                                            ? 'bg-red-100 text-red-700 border-red-200 focus:ring-red-500 dark:bg-red-900/30 dark:text-red-400 dark:border-red-900'
+                                            : (users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día') === 'Pendiente de Pago'
+                                                ? 'bg-orange-100 text-orange-800 border-orange-200 focus:ring-orange-500 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-900'
+                                                : 'bg-emerald-100 text-emerald-800 border-emerald-200 focus:ring-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-900'
+                                            } `}
                                         value={users.find(u => u.id === selectedTenantHistory)?.financialStatus || 'Al Día'}
                                         onChange={(e) => {
                                             const newStatus = e.target.value as any;
@@ -926,11 +930,12 @@ export const AdminTenants: React.FC = () => {
                                                 <td className="py-3 px-4 text-sm font-bold dark:text-white">{formatCurrency(item.amount)}</td>
                                                 <td className="py-3 px-4 text-center">
                                                     <span className={`
-                                                        text-xs font-bold py-1 px-2 rounded-full border-none 
+text - xs font - bold py - 1 px - 2 rounded - full border - none 
                                                         ${item.status === 1 ? 'bg-emerald-100 text-emerald-700' :
                                                             item.status === 2 ? 'bg-red-100 text-red-700' :
-                                                                'bg-blue-100 text-blue-700'}
-                                                    `}>
+                                                                'bg-blue-100 text-blue-700'
+                                                        }
+`}>
                                                         {item.status === 1 ? 'Pagado' : item.status === 2 ? 'Mora' : 'Pendiente'}
                                                     </span>
                                                 </td>
@@ -954,7 +959,7 @@ export const AdminTenants: React.FC = () => {
 
                         <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-700 shadow-lg overflow-hidden mb-4">
                             <img src={`https://i.pravatar.cc/150?u=${selectedTenantProfile.id}`} alt="Profile" className="w-full h-full object-cover" />
-                        </div>
+                        </div >
                         <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-1">{selectedTenantProfile.name}</h2>
                         <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-6">Contrato Vigente</span>
 
@@ -977,8 +982,8 @@ export const AdminTenants: React.FC = () => {
                                 <span className="material-icons-round text-lg">history</span> Ver Historial de Pagos
                             </button>
                         </div>
-                    </div>
-                </Modal>
+                    </div >
+                </Modal >
             )}
 
             <div className="flex-1 overflow-auto p-6 lg:p-10">
@@ -1003,7 +1008,7 @@ export const AdminTenants: React.FC = () => {
                     ))}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -1114,6 +1119,7 @@ export const AdminTickets: React.FC = () => {
     const [filterStatus, setFilterStatus] = useState("Todos");
     const [replyText, setReplyText] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [showFinanceModal, setShowFinanceModal] = useState(false); // State for Finance Modal
     const { addTicket } = useStore();
 
     // Get Collaborators
@@ -1131,10 +1137,11 @@ export const AdminTickets: React.FC = () => {
         }
     }, [selectedTicket]);
 
-    const handleCreateTicket = (e: React.FormEvent) => {
+    const handleCreateTicket = async (e: React.FormEvent) => {
         e.preventDefault();
         const form = e.target as HTMLFormElement;
-        addTicket({
+
+        const result = await addTicket({
             title: (form.elements.namedItem('title') as HTMLInputElement).value,
             desc: (form.elements.namedItem('desc') as HTMLTextAreaElement).value,
             type: (form.elements.namedItem('type') as HTMLSelectElement).value as any,
@@ -1142,10 +1149,15 @@ export const AdminTickets: React.FC = () => {
             assignedTo: (form.elements.namedItem('assignedTo') as HTMLSelectElement).value || undefined,
             requester: `Admin (${user?.name})`,
             requesterRole: 'Admin',
-            propertyId: 'AdminTask' // or generic
+            propertyId: undefined // Global admin task
         });
-        setIsCreateModalOpen(false);
-        showToast("Ticket/Tarea creada exitosamente.", "success");
+
+        if (result.success) {
+            setIsCreateModalOpen(false);
+            showToast("Ticket/Tarea creada exitosamente.", "success");
+        } else {
+            showToast(result.message || "Error al crear ticket", "error");
+        }
     };
 
     const handleUpdateStatus = (newStatus: string) => {
@@ -1493,7 +1505,14 @@ export const AdminTickets: React.FC = () => {
                                         <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Inmueble / Solicitante</th>
                                         <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Costo Estimado</th>
                                         <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Estado de Aprobación</th>
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">Detalles</th>
+                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">
+                                            <button
+                                                onClick={() => setShowFinanceModal(true)}
+                                                className="bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded text-xs font-bold transition-colors"
+                                            >
+                                                + Nueva
+                                            </button>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1590,7 +1609,7 @@ export const AdminCalendar: React.FC = () => {
     };
 
     const handleEventClick = (id: any) => {
-        const visit = visits.find(v => v.id === id);
+        const visit = visits.find(v => String(v.id) === String(id));
         if (visit) {
             setEditingVisit(visit);
             // Populate form for editing (if needed specifically for edit mode, though simplified here)

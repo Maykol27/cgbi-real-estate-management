@@ -3,6 +3,7 @@ import { ThemeToggle, NotificationButton } from '../../components/Layout';
 import { useStore } from '../../context/StoreContext';
 import { Calendar } from '../../components/Calendar';
 import { Modal } from '../../components/Modal';
+import { HeaderProfile } from '../../components/HeaderProfile';
 import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
 
@@ -12,6 +13,8 @@ const OwnerHeader: React.FC<{ title: string }> = ({ title }) => (
         <div className="flex items-center gap-2">
             <NotificationButton />
             <ThemeToggle />
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <HeaderProfile />
         </div>
     </header>
 );
@@ -44,8 +47,8 @@ export const OwnerDashboard: React.FC = () => {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     // Derived Expenses (Approved Finance Requests)
-    // Assuming 'financeRequests' are relevant to owner if they are approved OR requested by them
-    const myExpenses = financeRequests.filter(r => r.status === 'Aprobado')
+    // Filter by my properties
+    const myExpenses = financeRequests.filter(r => r.status === 'Aprobado' && r.propertyId && myPropertyIds.includes(r.propertyId))
         .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
     return (
@@ -403,8 +406,9 @@ export const OwnerRequests: React.FC = () => {
     const { tickets, addTicket, financeRequests, updateFinanceRequestStatus, user, properties } = useStore();
     const { showToast } = useToast();
 
-    // Derived State: Find the first pending request
-    const requestToApprove = financeRequests.find(r => r.status === 'Pendiente');
+    // Derived State: Find the first pending request FOR THIS OWNER
+    const myPropertyIds = properties.map(p => p.id);
+    const requestToApprove = financeRequests.find(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.includes(r.propertyId));
 
     // UI State
     const [showCreateModal, setShowCreateModal] = useState(false);

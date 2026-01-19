@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserRole } from '../types';
 import { useStore } from '../context/StoreContext';
 import { LOGO_BASE64 } from '../constants/logo';
-import { ChangePasswordModal } from './ChangePasswordModal';
+
 
 export const Logo = ({ className }: { className?: string }) => (
   <div className={`flex items-center justify-center rounded-full overflow-hidden aspect-square border border-white/20 bg-white shadow-sm p-2 ${className}`}>
@@ -102,7 +102,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, toggleCollapse }) => {
   const { requestNotificationPermission, user, logout } = useStore();
   const navigate = useNavigate();
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -212,18 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
         </nav>
 
         <div className="p-4 border-t border-white/10 space-y-2">
-          <button
-            onClick={() => setIsPasswordModalOpen(true)}
-            className={`flex items-center w-full ${effectiveCollapsed ? 'justify-center' : 'px-4'} py-2 rounded-xl transition-colors text-slate-300 hover:text-white hover:bg-white/10 group`}
-          >
-            <span className={`material-icons-round text-xl ${!effectiveCollapsed && 'mr-3'} group-hover:scale-110 transition-transform`}>lock_reset</span>
-            {!effectiveCollapsed && <span className="font-medium text-sm">Cambiar Clave</span>}
-          </button>
 
-          <button onClick={handleLogout} className={`flex items-center w-full ${effectiveCollapsed ? 'justify-center' : 'px-4'} py-2 rounded-xl transition-colors text-red-200 hover:text-white hover:bg-white/10 group`}>
-            <span className={`material-icons-round text-xl ${!effectiveCollapsed && 'mr-3'} group-hover:scale-110 transition-transform`}>logout</span>
-            {!effectiveCollapsed && <span className="font-medium text-sm">Salir</span>}
-          </button>
 
           {/* Social Links */}
           {!effectiveCollapsed && (
@@ -256,8 +244,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
             </div>
           )}
         </div>
+
       </aside>
-      <ChangePasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} />
     </>
   );
 };
@@ -334,9 +322,9 @@ export const Layout: React.FC<{ children: React.ReactNode; role: UserRole }> = (
   // FIX: This useEffect causes infinite loop (Error #310). Disabling for now.
   /*
   useEffect(() => {
-    setIsSidebarOpen(false);
+        setIsSidebarOpen(false);
   }, [location.pathname]);
-  */
+      */
 
   return (
     <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans overflow-hidden">

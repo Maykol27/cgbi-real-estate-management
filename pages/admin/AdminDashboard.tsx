@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle, NotificationButton } from '../../components/Layout';
+import { HeaderProfile } from '../../components/HeaderProfile';
 import { useStore } from '../../context/StoreContext';
 
 const RecentActivityList: React.FC = () => {
@@ -18,7 +19,7 @@ const RecentActivityList: React.FC = () => {
   return (
     <>
       {recentDocs.map((doc, idx) => (
-        <div key={idx} onClick={() => navigate('/admin/documents')} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer group">
+        <div key={idx} onClick={() => doc.fileUrl && window.open(doc.fileUrl, '_blank')} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer group">
           <div className="flex-shrink-0 size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center">
             <span className="material-icons-round text-[24px]">description</span>
           </div>
@@ -40,7 +41,7 @@ const AdminDashboard: React.FC = () => {
   const totalProperties = properties.length;
   // Calculate percentage growth (mock logic for now as we lack historical data) or just hide percentage if not available
 
-  const openTickets = tickets.filter(t => t.status === 'Abierto' || t.status === 'En Progreso').length;
+  const openTickets = tickets.filter(t => t.status === 'Pendiente' || t.status === 'En Progreso').length;
   const urgentTickets = tickets.filter(t => t.priority === 'Alta' && t.status !== 'Cerrado').length;
   const openTicketsPercentage = tickets.length > 0 ? (openTickets / tickets.length) * 100 : 0;
 
@@ -68,15 +69,7 @@ const AdminDashboard: React.FC = () => {
           <NotificationButton />
           <ThemeToggle />
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
-          <div className="flex items-center gap-3 pl-2 cursor-pointer group">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold leading-tight">{user?.name || 'Usuario'}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role || 'Rol Desconocido'}</p>
-            </div>
-            <div className="size-9 rounded-full bg-primary/10 text-primary dark:text-white border-2 border-white dark:border-slate-700 shadow-sm flex items-center justify-center font-bold text-sm">
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'US'}
-            </div>
-          </div>
+          <HeaderProfile />
         </div>
       </header>
 
@@ -163,7 +156,7 @@ const AdminDashboard: React.FC = () => {
                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{ticket.propertyName || 'N/A'}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            ${ticket.status === 'Abierto' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            ${ticket.status === 'Pendiente' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
                               ticket.status === 'En Progreso' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' :
                                 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`}>
                             {ticket.status}

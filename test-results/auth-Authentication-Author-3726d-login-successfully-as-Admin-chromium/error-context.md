@@ -5,7 +5,7 @@
   - complementary [ref=e4]:
     - generic [ref=e5]:
       - img "CGBI Logo" [ref=e8]
-      - button "chevron_left" [ref=e9] [cursor=pointer]:
+      - button "chevron_left" [ref=e9]:
         - generic [ref=e10]: chevron_left
     - navigation [ref=e11]:
       - link "dashboard Panel General" [ref=e12] [cursor=pointer]:
@@ -37,99 +37,111 @@
         - generic [ref=e31]: settings
         - generic [ref=e32]: Configuración
     - generic [ref=e33]:
-      - button "logout Salir" [ref=e34] [cursor=pointer]:
-        - generic [ref=e35]: logout
-        - generic [ref=e36]: Salir
-      - generic [ref=e37]:
-        - link "Facebook" [ref=e38] [cursor=pointer]:
+      - button "lock_reset Cambiar Clave" [ref=e34]:
+        - generic [ref=e35]: lock_reset
+        - generic [ref=e36]: Cambiar Clave
+      - button "logout Salir" [ref=e37]:
+        - generic [ref=e38]: logout
+        - generic [ref=e39]: Salir
+      - generic [ref=e40]:
+        - link "Facebook" [ref=e41] [cursor=pointer]:
           - /url: https://www.facebook.com/share/1a7zfXytUE/?mibextid=wwXIfr
-          - img [ref=e39]
-        - link "Instagram" [ref=e41] [cursor=pointer]:
-          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
           - img [ref=e42]
-        - link "TikTok" [ref=e44] [cursor=pointer]:
-          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+        - link "Instagram" [ref=e44] [cursor=pointer]:
+          - /url: https://www.instagram.com/camilagutierrez.bi?igsh=bzFybTE5MGdvYmFr&utm_source=qr
           - img [ref=e45]
-      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e48] [cursor=pointer]:
+        - link "TikTok" [ref=e47] [cursor=pointer]:
+          - /url: https://www.tiktok.com/@camilagutierrez.bi?_r=1&_t=ZS-92pUHWMRQFs
+          - img [ref=e48]
+      - link "Desarrollado por SIKAI SIKAI Consulting" [ref=e51] [cursor=pointer]:
         - /url: https://sikaiconsulting.com
-        - generic [ref=e49]: Desarrollado por SIKAI
-        - img "SIKAI Consulting" [ref=e50]
-  - main [ref=e51]:
-    - generic [ref=e52]:
-      - heading "Panel de Control" [level=1] [ref=e53]
-      - generic [ref=e54]:
-        - generic [ref=e56]:
+        - generic [ref=e52]: Desarrollado por SIKAI
+        - img "SIKAI Consulting" [ref=e53]
+  - main [ref=e54]:
+    - generic [ref=e55]:
+      - heading "Panel de Control" [level=1] [ref=e56]
+      - generic [ref=e57]:
+        - generic [ref=e59]:
           - generic:
             - generic: search
-          - textbox "Buscar..." [ref=e57]
-        - button "notifications" [ref=e58] [cursor=pointer]:
-          - generic [ref=e59]: notifications
-        - button "dark_mode" [ref=e60] [cursor=pointer]:
-          - generic [ref=e61]: dark_mode
-        - generic [ref=e64] [cursor=pointer]:
-          - paragraph [ref=e65]: Camila Gutiérrez
-          - paragraph [ref=e66]: Administrador
-    - generic [ref=e69]:
-      - generic [ref=e70]:
-        - generic [ref=e71]:
-          - generic [ref=e72]:
-            - paragraph [ref=e73]: Total de Inmuebles
-            - generic [ref=e75]: domain
+          - textbox "Buscar..." [ref=e60]
+        - button "notifications" [ref=e61]:
+          - generic [ref=e62]: notifications
+        - button "Alternar Tema" [ref=e63] [cursor=pointer]:
+          - generic [ref=e64]: dark_mode
+          - generic [ref=e65]: light_mode
+        - generic [ref=e67] [cursor=pointer]:
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Maykol Sicard
+            - paragraph [ref=e70]: Admin
+          - generic [ref=e71]: MA
+    - generic [ref=e73]:
+      - generic [ref=e74]:
+        - generic [ref=e75]:
           - generic [ref=e76]:
-            - heading "3" [level=3] [ref=e77]
-            - generic [ref=e78]:
-              - generic [ref=e79]: trending_up
+            - paragraph [ref=e77]: Total de Inmuebles
+            - generic [ref=e79]: domain
+          - generic [ref=e80]:
+            - heading "1" [level=3] [ref=e81]
+            - generic [ref=e82]:
+              - generic [ref=e83]: trending_up
               - text: "--"
-        - generic [ref=e80]:
-          - generic [ref=e81]:
-            - paragraph [ref=e82]: Tickets Activos
-            - generic [ref=e84]: confirmation_number
+        - generic [ref=e84]:
           - generic [ref=e85]:
-            - heading "0" [level=3] [ref=e86]
-            - generic [ref=e87]: 2 urgentes
-        - generic [ref=e89]:
-          - generic [ref=e90]:
-            - paragraph [ref=e91]: Tasa de Ocupación
-            - generic [ref=e93]: vpn_key
-          - generic [ref=e94]:
-            - heading "0%" [level=3] [ref=e95]
-            - generic [ref=e96]: 0 alquilados
-      - generic [ref=e98]:
-        - generic [ref=e99]:
-          - generic [ref=e100]:
-            - heading "Estado de Tickets" [level=3] [ref=e101]
-            - button "Ver Todo" [ref=e102] [cursor=pointer]
-          - table [ref=e104]:
-            - rowgroup [ref=e105]:
-              - row "ID Ticket Asunto Propiedad Estado" [ref=e106]:
-                - columnheader "ID Ticket" [ref=e107]
-                - columnheader "Asunto" [ref=e108]
-                - columnheader "Propiedad" [ref=e109]
-                - columnheader "Estado" [ref=e110]
+            - paragraph [ref=e86]: Tickets Activos
+            - generic [ref=e88]: confirmation_number
+          - generic [ref=e89]:
+            - heading "3" [level=3] [ref=e90]
+            - generic [ref=e91]: 0 urgentes
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - paragraph [ref=e96]: Tasa de Ocupación
+            - generic [ref=e98]: vpn_key
+          - generic [ref=e99]:
+            - heading "100%" [level=3] [ref=e100]
+            - generic [ref=e101]: 1 alquilados
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - heading "Estado de Tickets" [level=3] [ref=e107]
+            - button "Ver Todo" [ref=e108]
+          - table [ref=e110]:
             - rowgroup [ref=e111]:
-              - row "#TR-8832 Mantenimiento AA Sunset Blvd, Unidad 4B En Progreso" [ref=e112]:
-                - cell "#TR-8832" [ref=e113]
-                - cell "Mantenimiento AA" [ref=e114]
-                - cell "Sunset Blvd, Unidad 4B" [ref=e115]
-                - cell "En Progreso" [ref=e116]:
-                  - generic [ref=e117]: En Progreso
-              - row "#TR-8831 Fuga en Vestíbulo Downtown Lofts Pendiente Prov." [ref=e118]:
-                - cell "#TR-8831" [ref=e119]
-                - cell "Fuga en Vestíbulo" [ref=e120]
-                - cell "Downtown Lofts" [ref=e121]
-                - cell "Pendiente Prov." [ref=e122]:
-                  - generic [ref=e123]: Pendiente Prov.
-        - generic [ref=e124]:
-          - heading "Actividad Reciente" [level=3] [ref=e126]
-          - generic [ref=e127]:
-            - generic [ref=e128] [cursor=pointer]:
-              - generic [ref=e130]: description
-              - generic [ref=e131]:
-                - paragraph [ref=e132]: Contrato de Alquiler - Unidad 402
-                - paragraph [ref=e133]: Subido por Sistema • hace 2m
-            - generic [ref=e134] [cursor=pointer]:
-              - generic [ref=e136]: contract
-              - generic [ref=e137]:
-                - paragraph [ref=e138]: "Contrato Prov.: Jardinería Verde"
-                - paragraph [ref=e139]: Subido por Camila G. • hace 2h
+              - row "ID Ticket Asunto Propiedad Estado" [ref=e112]:
+                - columnheader "ID Ticket" [ref=e113]
+                - columnheader "Asunto" [ref=e114]
+                - columnheader "Propiedad" [ref=e115]
+                - columnheader "Estado" [ref=e116]
+            - rowgroup [ref=e117]:
+              - row "#20 prueba N/A Pendiente" [ref=e118]:
+                - cell "#20" [ref=e119]
+                - cell "prueba" [ref=e120]
+                - cell "N/A" [ref=e121]
+                - cell "Pendiente" [ref=e122]:
+                  - generic [ref=e123]: Pendiente
+              - row "#21 la rompieron N/A Pendiente" [ref=e124]:
+                - cell "#21" [ref=e125]
+                - cell "la rompieron" [ref=e126]
+                - cell "N/A" [ref=e127]
+                - cell "Pendiente" [ref=e128]:
+                  - generic [ref=e129]: Pendiente
+              - row "#22 Taratatata N/A Pendiente" [ref=e130]:
+                - cell "#22" [ref=e131]
+                - cell "Taratatata" [ref=e132]
+                - cell "N/A" [ref=e133]
+                - cell "Pendiente" [ref=e134]:
+                  - generic [ref=e135]: Pendiente
+        - generic [ref=e136]:
+          - heading "Actividad Reciente" [level=3] [ref=e138]
+          - generic [ref=e139]:
+            - generic [ref=e140] [cursor=pointer]:
+              - generic [ref=e142]: description
+              - generic [ref=e143]:
+                - paragraph [ref=e144]: WhatsApp Image 2026-01-09 at 2.47.22 PM (1).jpeg
+                - paragraph [ref=e145]: "Tipo: Factura / Recibo • 1/14/2026"
+            - generic [ref=e146] [cursor=pointer]:
+              - generic [ref=e148]: description
+              - generic [ref=e149]:
+                - paragraph [ref=e150]: retiro..png
+                - paragraph [ref=e151]: "Tipo: Solicitud • 1/16/2026"
 ```
