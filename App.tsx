@@ -11,10 +11,13 @@ import { UserRole } from './types';
 import { StoreProvider } from './context/StoreContext';
 import { ToastProvider } from './context/ToastContext';
 
+import { LoadingScreen } from './components/LoadingScreen';
+
 const App: React.FC = () => {
   return (
     <StoreProvider>
       <ToastProvider>
+        <LoadingScreen />
         <HashRouter>
           <Routes>
             <Route path="/" element={<Login />} />

@@ -67,3 +67,53 @@ body {
   /* Modern font */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* --- Loading Animation Keyframes --- */
+@keyframes breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 15px rgba(214, 44, 94, 0.3));
+    /* Primary Color Glow Low */
+  }
+
+  50% {
+    transform: scale(1.08);
+    /* Subtle zoom */
+    filter: drop-shadow(0 0 30px rgba(214, 44, 94, 0.6));
+    /* Primary Color Glow High */
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+    border-color: rgba(214, 44, 94, 0.8);
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+    border-color: rgba(214, 44, 94, 0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
