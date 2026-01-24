@@ -121,8 +121,9 @@ interface StoreContextType {
     deleteDocument: (id: string | number) => void;
 
     properties: Property[];
-    addProperty: (p: Omit<Property, 'id'>) => void;
+    addProperty: (p: Omit<Property, 'id'> & { imageFile?: File }) => void;
     updatePropertyStatus: (id: string | number, status: Property['status']) => void;
+    updateProperty: (id: string | number, updates: Partial<Property> & { imageFile?: File }) => void;
 
     visits: Visit[];
     addVisit: (v: Omit<Visit, 'id'>) => Promise<{ success: boolean; message: string }>;
@@ -169,23 +170,34 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         userRef.current = user;
     }, [user]);
 
-    // --- CONSOLIDATED Data Fetching Function ---
+    // --- CONSOLIDATED Data Fetching Function (Refactored for Stability) ---
     const fetchAllData = async () => {
         try {
-            console.log("📥 Fetching all data from Supabase...");
+            console.log("📥 Fetching all data from Supabase (Parallel)...");
 
-            // Shared data containers for cross-referencing
+            // Independent Fetches using Promise.allSettled to prevent one failure (e.g. 403 RLS) from stopping others
+            const results = await Promise.allSettled([
+                supabase.from('profiles').select('*'),
+                supabase.from('properties').select('*'),
+                supabase.from('tickets').select('*'),
+                supabase.from('documents').select('*'),
+                supabase.from('visits').select('*'),
+                supabase.from('finance_requests').select('*')
+            ]);
+
+            const [
+                profilesResult,
+                propsResult,
+                ticketsResult,
+                docsResult,
+                visitsResult,
+                financeResult
+            ] = results;
+
+            // 1. Process Profiles
             let allUsers: User[] = [];
-            let allProperties: Property[] = [];
-
-            // 1. Fetch Profiles
-            const { data: profilesData, error: profilesError } = await supabase.from('profiles').select('*');
-            if (profilesError) {
-                console.error("Error fetching profiles:", profilesError);
-            }
-
-            if (profilesData) {
-                allUsers = profilesData.map((p: any) => ({
+            if (profilesResult.status === 'fulfilled' && profilesResult.value.data) {
+                allUsers = profilesResult.value.data.map((p: any) => ({
                     id: p.id,
                     name: p.full_name || p.email,
                     email: p.email,
@@ -195,15 +207,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 })) as unknown as User[];
                 setUsers(allUsers);
                 console.log("✅ Loaded", allUsers.length, "users");
+            } else if (profilesResult.status === 'rejected' || profilesResult.value.error) {
+                console.warn("⚠️ Failed to load profiles (RLS or Network):", profilesResult.status === 'rejected' ? profilesResult.reason : profilesResult.value.error);
+                // Keep empty or previous state? Empty for safety.
             }
 
-            // 2. Fetch Properties
-            const { data: propsData, error: propsError } = await supabase.from('properties').select('*');
-            if (propsError) {
-                console.error("Error fetching properties:", propsError);
-            }
-            if (propsData) {
-                const mappedProps = propsData.map((p: any) => {
+            // 2. Process Properties
+            let allProperties: Property[] = [];
+            if (propsResult.status === 'fulfilled' && propsResult.value.data) {
+                const mappedProps = propsResult.value.data.map((p: any) => {
                     const ownerUser = allUsers.find(u => u.id === p.owner_id);
                     return {
                         id: p.id,
@@ -219,21 +231,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         rooms: p.rooms,
                         bathrooms: p.bathrooms,
                         parking: p.parking,
-                        description: p.description
+                        description: p.description,
+                        image: p.image // Ensure image URL is loaded
                     };
                 }) as Property[];
                 allProperties = mappedProps;
                 setProperties(mappedProps);
                 console.log("✅ Loaded", mappedProps.length, "properties");
+            } else {
+                console.warn("⚠️ Failed to load properties");
             }
 
-            // 3. Fetch Tickets
-            const { data: ticketsData, error: ticketsError } = await supabase.from('tickets').select('*');
-            if (ticketsError) {
-                console.error("Error fetching tickets:", ticketsError);
-            }
-            if (ticketsData) {
-                const mappedTickets = ticketsData.map((t: any) => {
+            // 3. Process Tickets
+            if (ticketsResult.status === 'fulfilled' && ticketsResult.value.data) {
+                const mappedTickets = ticketsResult.value.data.map((t: any) => {
                     const requester = allUsers.find(u => u.id === t.requester_id);
                     const prop = allProperties.find(p => p.id === t.property_id);
                     return {
@@ -254,13 +265,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("✅ Loaded", mappedTickets.length, "tickets");
             }
 
-            // 4. Fetch Documents
-            const { data: docsData, error: docsError } = await supabase.from('documents').select('*');
-            if (docsError) {
-                console.error("Error fetching documents:", docsError);
-            }
-            if (docsData) {
-                const mappedDocs = docsData.map((d: any) => ({
+            // 4. Process Documents
+            if (docsResult.status === 'fulfilled' && docsResult.value.data) {
+                const mappedDocs = docsResult.value.data.map((d: any) => ({
                     id: d.id,
                     name: d.name,
                     type: d.type,
@@ -273,15 +280,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("✅ Loaded", mappedDocs.length, "documents");
             }
 
-            // 5. Fetch Visits
-            const { data: visitsData, error: visitsError } = await supabase.from('visits').select('*');
-            if (visitsError) {
-                console.error("Error fetching visits:", visitsError);
-            }
-            if (visitsData) {
-                const mappedVisits = visitsData.map((v: any) => {
-                    // Try to find property name from loaded properties
-                    const prop = allProperties.find(p => p.id == v.property_id); // Loose equality for string/number safety
+            // 5. Process Visits
+            if (visitsResult.status === 'fulfilled' && visitsResult.value.data) {
+                const mappedVisits = visitsResult.value.data.map((v: any) => {
+                    const prop = allProperties.find(p => p.id == v.property_id);
                     return {
                         id: v.id,
                         propertyId: v.property_id,
@@ -297,19 +299,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 console.log("✅ Loaded", mappedVisits.length, "visits");
             }
 
-            // 6. Fetch Finance Requests
-            const { data: finData, error: finError } = await supabase.from('finance_requests').select('*');
-            if (finError) {
-                console.error("Error fetching finance requests:", finError);
-            }
-            if (finData) {
-                const mappedFin = finData.map((f: any) => {
-                    const requester = allUsers.find(u => u.id === f.requester_id); // Corrected foreign key
+            // 6. Process Finance (Critical Fix: If this fails, app should not crash)
+            if (financeResult.status === 'fulfilled' && financeResult.value.data) {
+                const mappedFin = financeResult.value.data.map((f: any) => {
+                    const requester = allUsers.find(u => u.id === f.requester_id);
                     return {
                         id: f.id,
                         title: f.title,
                         desc: f.description,
-                        cost: f.cost, // Corrected column name
+                        cost: f.cost,
                         status: f.status,
                         requester: requester ? requester.name : 'Unknown',
                         date: new Date(f.created_at).toLocaleDateString(),
@@ -319,14 +317,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }) as FinanceRequest[];
                 setFinanceRequests(mappedFin);
                 console.log("✅ Loaded", mappedFin.length, "finance requests");
+            } else {
+                console.warn("ℹ️ Finance data could not be loaded (likely 403 RLS or empty). Setting empty.");
+                setFinanceRequests([]); // Safe fallback for Colaborador
             }
 
-            console.log("✅ All data fetched successfully");
+            console.log("✅ All data fetch attempts completed.");
         } catch (error) {
             console.error("❌ Critical error in fetchAllData:", error);
         }
     };
-
     // --- Actions ---
     const notify = (title: string, body: string) => {
         if (!("Notification" in window)) return;
@@ -585,7 +585,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     return null;
                 }
 
+
                 if (authData?.user) {
+                    // Request notifications on successful login
+                    requestNotificationPermission();
+
                     // Fetch profile immediately to get the role
                     const profile = await fetchProfile(authData.user.id);
                     console.log("StoreContext: Profile Fetched in Login", profile);
@@ -602,6 +606,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (session?.user) {
                 console.log("⚠️ Timeout captured, but Session IS VALID. Recovering...");
                 const profile = await fetchProfile(session.user.id);
+                // Request notifications on successful login
+                requestNotificationPermission();
                 return profile || null;
             }
 
@@ -674,12 +680,32 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
 
-    const updateTicketStatus = (id: number, status: Ticket['status']) => {
+    const updateTicketStatus = async (id: number, status: Ticket['status']) => {
+        // 1. DB Call FIRST (Critical Fix for Zombie Tickets)
+        const { error } = await supabase.from('tickets').update({ status }).eq('id', id);
+
+        if (error) {
+            console.error("Error updating ticket status:", error);
+            alert("Error al actualizar ticket: " + error.message);
+            notify("Error", "No se pudo actualizar el ticket.");
+            return;
+        }
+
+        // 2. Local State Update ONLY if success
         setTickets(prev => prev.map(t => t.id === id ? { ...t, status } : t));
         notify("Actualización de Ticket", `El ticket #${id} cambió a estado: ${status}`);
     };
 
-    const updateTicketPriority = (id: number, priority: Ticket['priority']) => {
+    const updateTicketPriority = async (id: number, priority: Ticket['priority']) => {
+        // 1. DB Call FIRST
+        const { error } = await supabase.from('tickets').update({ priority }).eq('id', id);
+
+        if (error) {
+            console.error("Error updating ticket priority:", error);
+            alert("Error al actualizar prioridad: " + error.message);
+            return;
+        }
+
         setTickets(prev => prev.map(t => t.id === id ? { ...t, priority } : t));
         notify("Prioridad Actualizada", `El ticket #${id} ahora tiene prioridad: ${priority}`);
     };
@@ -801,9 +827,32 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const addProperty = async (p: Omit<Property, 'id'>) => {
+    const addProperty = async (p: Omit<Property, 'id'> & { imageFile?: File }) => {
         try {
             console.log("🏠 Creating property:", p.name);
+            let publicUrl = p.image; // Use blob URL or empty initially if no file
+
+            // 1. Upload logic (New)
+            if (p.imageFile) {
+                const file = p.imageFile;
+                console.log('Iniciando subida para propiedad (nueva):', p.name);
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `properties/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('project_files')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) {
+                    console.log('Error de subida:', uploadError);
+                    notify("Error de Imagen", "La propiedad se creará, pero falló la subida de la imagen.");
+                } else {
+                    const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
+                    publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // Cache Busting
+                    console.log('URL generada:', publicUrl);
+                }
+            }
 
             if (!p.owner_id) {
                 notify("Error", "Debe seleccionar un propietario para la propiedad.");
@@ -822,7 +871,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 bathrooms: p.bathrooms,
                 parking: p.parking,
                 description: p.description,
-                owner_id: p.owner_id
+                owner_id: p.owner_id,
+                image: publicUrl // Store the real URL
             }).select().single();
 
             if (error) {
@@ -833,7 +883,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             if (data) {
                 console.log("✅ Property created successfully:", data.id);
-                const newProp: Property = { ...p, id: data.id };
+                const newProp: Property = { ...p, id: data.id, image: publicUrl };
                 setProperties(prev => [newProp, ...prev]);
                 // Refetch to ensure data appears for all users
                 await fetchAllData();
@@ -844,6 +894,103 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             notify("Error", err.message || "Error inesperado al agregar propiedad.");
         }
     };
+
+    const updateProperty = async (id: string | number, updates: Partial<Property> & { imageFile?: File }) => {
+        try {
+            console.log("🏠 Updating property:", id);
+            let publicUrl = updates.image;
+
+            // 1. Upload logic (Update)
+            if (updates.imageFile) {
+                const file = updates.imageFile;
+                console.log('Iniciando subida para propiedad (update):', id);
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `properties/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('project_files')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) {
+                    console.log('Error de subida:', uploadError);
+                    notify("Error de Imagen", "No se pudo actualizar la imagen.");
+                    // We keep the old URL if upload fails? Or just don't update it.
+                    // The updates.image might contain a blob URL that is useless for DB.
+                    // If upload fails, we should NOT save the blob URL to DB.
+                    // So we revert `publicUrl` to undefined or keep it as matches current state?
+                    // Ideally we check if we have an old image.
+                } else {
+                    const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
+                    publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // Cache Busting
+                    console.log('URL generada:', publicUrl);
+                }
+            }
+
+            // Convert to DB Columns
+            // We need to map camelCase (frontend) to snake_case (DB) if necessary, 
+            // BUT looking at 'addProperty', it seems DB columns are:
+            // name, address, type, status, listing_type, rent, sq_meters, rooms, bathrooms, parking, description, owner_id, image
+            // We need to construct the update object carefully.
+
+            const dbUpdates: any = {};
+            if (updates.name !== undefined) dbUpdates.name = updates.name;
+            if (updates.address !== undefined) dbUpdates.address = updates.address;
+            if (updates.type !== undefined) dbUpdates.type = updates.type;
+            if (updates.status !== undefined) dbUpdates.status = updates.status;
+            if (updates.listingType !== undefined) dbUpdates.listing_type = updates.listingType;
+            if (updates.rent !== undefined) dbUpdates.rent = updates.rent;
+            if (updates.sqMeters !== undefined) dbUpdates.sq_meters = updates.sqMeters;
+            if (updates.rooms !== undefined) dbUpdates.rooms = updates.rooms;
+            if (updates.bathrooms !== undefined) dbUpdates.bathrooms = updates.bathrooms;
+            if (updates.parking !== undefined) dbUpdates.parking = updates.parking;
+            if (updates.description !== undefined) dbUpdates.description = updates.description;
+            if (updates.owner_id !== undefined) dbUpdates.owner_id = updates.owner_id;
+
+            // Only update image if we have a valid publicUrl (from successful upload) OR if explicitly clearing it (passing null?)
+            // Usually we pass 'undefined' if NO change.
+            if (publicUrl && publicUrl.startsWith('http')) {
+                dbUpdates.image = publicUrl;
+            }
+
+
+            console.log('Datos enviados a Supabase:', dbUpdates); // DIAGNOSTIC LOG
+
+            const { data, error } = await supabase.from('properties').update(dbUpdates).eq('id', id).select(); // Added select() to see response
+
+            console.log('Respuesta DB:', data, 'Error DB:', error); // DIAGNOSTIC LOG
+
+            if (error) {
+                console.error("❌ Error updating property:", error);
+                alert('Error al guardar en BD: ' + error.message); // VISIBLE ALERT
+                notify("Error", `No se pudo actualizar: ${error.message}`);
+                return;
+            }
+
+            // Optimistic Update / State Update
+            setProperties(prev => prev.map(p => {
+                if (p.id === id) {
+                    return {
+                        ...p,
+                        ...updates,
+                        image: (publicUrl && publicUrl.startsWith('http')) ? publicUrl : (p.image || publicUrl)
+                        // Fallback logic: If new URL is valid (http), use it. 
+                        // If not (e.g. upload failed), stick to old image. 
+                        // Note: updates.image might be a blob URL for optimistic preview, but here we want the REAL one for state if confirmed,
+                        // BUT `fetchAllData` will fix it eventually.
+                    };
+                }
+                return p;
+            }));
+
+            notify("Propiedad Actualizada", "Los cambios han sido guardados.");
+
+        } catch (err: any) {
+            console.error("❌ Exception in updateProperty:", err);
+            notify("Error", err.message || "Error inesperado al actualizar.");
+        }
+    };
+
 
     // ... addProperty (ya implementado) -> Remove duplicate comment/stub if any
 
@@ -1009,6 +1156,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }).eq('id', id);
 
         if (error) {
+            console.error("Error updating finance status:", error);
+            alert("Error al actualizar solicitud: " + error.message);
             notify("Error", "No se pudo actualizar la solicitud.");
             return;
         }
@@ -1158,7 +1307,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             user, loading, login, logout, users, addUser, deleteUser,
             tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
             documents, addDocument, deleteDocument,
-            properties, addProperty, updatePropertyStatus,
+            properties, addProperty, updatePropertyStatus, updateProperty,
             visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
             financeRequests, addFinanceRequest, updateFinanceRequestStatus,
             payments, addPayment, updateUserStatus,

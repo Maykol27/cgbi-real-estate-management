@@ -60,8 +60,9 @@ export const AdminDocuments: React.FC = () => {
 
     // Form State
     const [docType, setDocType] = useState("");
-    const [recipient, setRecipient] = useState("General (Todos)");
+    const [recipient, setRecipient] = useState<string>("Todos");
     const [specificClient, setSpecificClient] = useState("");
+    const [specificClientId, setSpecificClientId] = useState<string>(""); // Added for RLS
     const [cost, setCost] = useState("");
     const [desc, setDesc] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -130,7 +131,7 @@ export const AdminDocuments: React.FC = () => {
             name: selectedFile.name,
             size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
             type: docType as any, // Use the selected type
-            target: recipient === "Cliente Específico" ? specificClient : recipient,
+            target: recipient === "Cliente Específico" ? (specificClientId || specificClient) : recipient, // Use UUID if available
             fileUrl: fileUrl,
             file: selectedFile // Pass the File object for upload
         });
@@ -324,6 +325,7 @@ export const AdminDocuments: React.FC = () => {
                                             key={u.id}
                                             onClick={() => {
                                                 setSpecificClient(u.name);
+                                                setSpecificClientId(u.id as string); // Save UUID
                                                 setShowUserSuggestions(false); // Close dropdown on selection
                                             }}
                                             className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-50 dark:border-gray-800 last:border-0"
@@ -442,7 +444,7 @@ export const AdminDocuments: React.FC = () => {
 
 // --- Properties Page (Admin) ---
 export const AdminProperties: React.FC = () => {
-    const { user, properties, updatePropertyStatus, addProperty, users } = useStore();
+    const { user, properties, updatePropertyStatus, updateProperty, addProperty, users } = useStore();
     const { showToast } = useToast();
 
     // Permission Check
@@ -486,12 +488,15 @@ export const AdminProperties: React.FC = () => {
             bathrooms: Number((form.elements.namedItem('bathrooms') as HTMLInputElement).value),
             parking: Number((form.elements.namedItem('parking') as HTMLInputElement).value),
             description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
-            image: imageUrl
+            description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
+            image: imageUrl, // Optimistic preview
+            imageFile: propertyImage || undefined // The actual file
         };
 
         if (editingProp) {
-            updatePropertyStatus(editingProp.id, formData.status as any);
-            showToast("Estatus de propiedad actualizado.", "success");
+            // @ts-ignore
+            updateProperty(editingProp.id, formData);
+            showToast("Propiedad actualizada exitosamente.", "success");
         } else {
             // @ts-ignore
             addProperty(formData);
