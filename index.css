@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1A88FF;
-  /* Sikai CX Blue */
+  --color-primary: #D62C5E;
+  /* CGBI Pink/Magenta */
   --color-primary-foreground: #FFFFFF;
-  --color-primary-dark: #0066CC;
+  --color-primary-dark: #A01B44;
 
-  --color-navy: #0F172A;
-  /* Sikai Deep Navy */
+  --color-navy: #1B2240;
+  /* CGBI Navy */
 
-  --color-secondary: #26D8C4;
-  /* Sikai Teal */
-  --color-secondary-foreground: #0F172A;
+  --color-secondary: #D62C5E;
+  /* CGBI Magenta (Same as Primary now) */
+  --color-secondary-foreground: #FFFFFF;
 
-  --color-background-light: #F3F4F6;
+  --color-background-light: #F8FAFC;
   --color-background-dark: #0F172A;
   /* Deep Navy */
 
   --color-card-light: #FFFFFF;
   --color-card-dark: #1E293B;
 
-  --color-text-light: #111827;
-  --color-text-dark: #F9FAFB;
+  --color-text-light: #1E293B;
+  --color-text-dark: #F8FAFC;
 }
 
 /* Custom Utilities */
@@ -74,14 +74,14 @@ body {
   0%,
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 15px rgba(26, 136, 255, 0.3));
+    filter: drop-shadow(0 0 15px rgba(214, 44, 94, 0.3));
     /* Primary Color Glow Low */
   }
 
   50% {
     transform: scale(1.08);
     /* Subtle zoom */
-    filter: drop-shadow(0 0 30px rgba(26, 136, 255, 0.6));
+    filter: drop-shadow(0 0 30px rgba(214, 44, 94, 0.6));
     /* Primary Color Glow High */
   }
 }
@@ -90,13 +90,13 @@ body {
   0% {
     transform: scale(0.8);
     opacity: 0.5;
-    border-color: rgba(26, 136, 255, 0.8);
+    border-color: rgba(214, 44, 94, 0.8);
   }
 
   100% {
     transform: scale(1.5);
     opacity: 0;
-    border-color: rgba(26, 136, 255, 0);
+    border-color: rgba(214, 44, 94, 0);
   }
 }
 

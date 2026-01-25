@@ -13,13 +13,13 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: "#1A88FF", // SIKAI Brand Blue
-                    dark: "#0066CC",
+                    DEFAULT: "#D62C5E", // CGBI Pink/Magenta
+                    dark: "#A01B44",
                     foreground: "#FFFFFF"
                 },
                 secondary: {
-                    DEFAULT: "#26D8C4", // SIKAI Teal
-                    foreground: "#0F172A"
+                    DEFAULT: "#D62C5E", // CGBI Pink/Magenta (Same as Primary)
+                    foreground: "#FFFFFF"
                 },
                 accent: {
                     DEFAULT: "#6C757D", // Grey
