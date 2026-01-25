@@ -31,6 +31,10 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
     const { users, user } = useStore();
     const collaborators = users.filter(u => u.role === 'Colaborador');
 
+    React.useEffect(() => {
+        if (isOpen) console.log('📦 [MODAL] Abriendo Crear Ticket');
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -97,6 +101,11 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     replyText,
     setReplyText
 }) => {
+
+    React.useEffect(() => {
+        if (ticket) console.log('📦 [MODAL] Detalle Ticket Abierto:', ticket.id, ticket);
+    }, [ticket]);
+
     if (!ticket) return null;
 
     return (

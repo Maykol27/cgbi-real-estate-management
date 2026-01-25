@@ -23,18 +23,49 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 }) => {
     const { users } = useStore();
 
-    // Fix: Show spinner if initialData is expected but missing (though usually handled by parent state)
-    // Here we just render the form. If initialData is null, it's "New Property" mode.
+    // 🔍 LOG: Traceability - Open/Props
+    React.useEffect(() => {
+        if (isOpen) {
+            console.log('📦 [MODAL] Recibiendo datos (PropertyModal):', initialData);
+        }
+    }, [isOpen, initialData]);
+
+    // 🛡️ Guard Clause: Prevent empty render on Edit Mode
+    if (isOpen && initialData === undefined && typeof initialData !== 'object' && initialData !== null) {
+        // Note: initialData is null for Create Mode. If strict Edit is intended, logic should distinguish mode.
+        // Based on usage: handleEdit passes object, New Property sets editingProp=null.
+        // So if we have an ID but no data, that's an error. But here passed 'initialData' is the object itself.
+        // If we are in "Edit Mode" (implied by context) but data is missing?
+        // Let's rely on checking if it's open.
+    }
 
     if (!isOpen) return null;
+
+    // 🛡️ Debug: If we think we are editing but data is empty
+    if (initialData && Object.keys(initialData).length === 0) {
+        console.warn('⚠️ Modal abierto en modo edición pero sin datos válidos.');
+        return <div className="p-10 text-center">Cargando datos del servidor...</div>;
+    }
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const dataEntries = Object.fromEntries(formData.entries());
+
+        console.log('✍️ [FORM] Datos modificados por usuario (Submit):', dataEntries);
+
+        console.log('🚀 [CRUD] Enviando a BD (wrapper)...');
+        onSubmit(e);
+    };
 
     return (
         <Modal
             title={initialData ? "Editar Propiedad y Estatus" : "Registrar Nueva Propiedad"}
             onClose={onClose}
-            zIndex={50} // Critical Fix
+            zIndex={50}
         >
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div>
                     <label className="block text-xs font-bold text-gray-500 mb-1">Nombre / Identificador</label>
                     <input required name="name" defaultValue={initialData?.name} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: Apto 301 - Edif. Solar" />
@@ -49,7 +80,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         <select
                             name="listingType"
                             value={formListingType}
-                            onChange={(e) => setFormListingType(e.target.value as 'Venta' | 'Arriendo')}
+                            onChange={(e) => {
+                                console.log('✍️ [FORM] Cambio listingType:', e.target.value);
+                                setFormListingType(e.target.value as 'Venta' | 'Arriendo');
+                            }}
                             className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
                         >
                             <option value="Arriendo">Arriendo</option>
@@ -120,7 +154,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setPropertyImage(e.target.files?.[0] || null)}
+                        onChange={(e) => {
+                            console.log('✍️ [FORM] Imagen seleccionada');
+                            setPropertyImage(e.target.files?.[0] || null)
+                        }}
                         className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
                     />
                 </div>

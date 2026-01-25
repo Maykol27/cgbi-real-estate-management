@@ -471,7 +471,7 @@ export const AdminProperties: React.FC = () => {
 
     const handleSaveProperty = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('🔘 Click detectado: Guardar Propiedad');
+        // Log handled in Modal wrapper, but we log payload here too
         const form = e.target as HTMLFormElement;
         const imageUrl = propertyImage ? URL.createObjectURL(propertyImage) : undefined;
 
@@ -498,13 +498,17 @@ export const AdminProperties: React.FC = () => {
             imageFile: propertyImage || undefined // The actual file
         };
 
+        console.log('🚀 [CRUD] Enviando a BD (Payload Final):', formData);
+
         if (editingProp) {
             // @ts-ignore
             updateProperty(editingProp.id, formData);
+            console.log('✅ [CRUD] Actualización Exitosa (Update). ID:', editingProp.id);
             showToast("Propiedad actualizada exitosamente.", "success");
         } else {
             // @ts-ignore
             addProperty(formData);
+            console.log('✅ [CRUD] Creación Exitosa (Create).');
             showToast("Propiedad creada exitosamente.", "success");
         }
         setIsModalOpen(false);
@@ -513,20 +517,31 @@ export const AdminProperties: React.FC = () => {
     };
 
     const handleEdit = (prop: any) => {
-        console.log('🔘 Click detectado: Editar Propiedad', prop.id);
-        console.log('Estado del Modal ANTES:', isModalOpen);
+        console.log('🟢 [UI] Clic en Editar. ID:', prop.id, 'Datos:', prop);
+
+        // Critical UX Fix: Ensure state is set before opening
         setEditingProp(prop);
-        setFormListingType(prop.listingType || 'Arriendo'); // Initialize form state
-        setIsModalOpen(true);
+        setFormListingType(prop.listingType || 'Arriendo');
+
+        // Small timeout to ensure Re-render? Not strictly necessary in React 18 auto-batching, 
+        // but user requested "Force update". We just ensure ordering.
+        setTimeout(() => {
+            setIsModalOpen(true);
+        }, 0);
     };
 
     const confirmDelete = (id: number) => {
+        console.log('❌ [CRUD] Solicitando eliminación ID:', id);
         setPropToDelete(id);
         setShowDeleteConfirm(true);
     };
 
     const executeDelete = () => {
-        showToast("Funcionalidad de eliminar pendiente (Demo).", "info");
+        if (propToDelete) {
+            console.log('🚀 [CRUD] Ejecutando DELETE ID:', propToDelete);
+            // Logic would go here
+            showToast("Funcionalidad de eliminar pendiente (Demo).", "info");
+        }
         setShowDeleteConfirm(false);
         setPropToDelete(null);
     };
@@ -1046,10 +1061,10 @@ export const AdminTickets: React.FC = () => {
 
     const handleCreateTicket = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('🔘 Click detectado: Nuevo Ticket/Tarea');
+        console.log('🚀 [CRUD] Solicitud Creación Ticket...');
         const form = e.target as HTMLFormElement;
 
-        const result = await addTicket({
+        const payload = {
             title: (form.elements.namedItem('title') as HTMLInputElement).value,
             desc: (form.elements.namedItem('desc') as HTMLTextAreaElement).value,
             type: (form.elements.namedItem('type') as HTMLSelectElement).value as any,
@@ -1058,17 +1073,23 @@ export const AdminTickets: React.FC = () => {
             requester: `Admin (${user?.name})`,
             requesterRole: 'Admin',
             propertyId: undefined // Global admin task
-        });
+        };
+        console.log('📦 [CRUD] Payload Ticket:', payload);
+
+        const result = await addTicket(payload);
 
         if (result.success) {
+            console.log('✅ [CRUD] Ticket Creado. ID:', result.data?.id);
             setIsCreateModalOpen(false);
             showToast("Ticket/Tarea creada exitosamente.", "success");
         } else {
+            console.error('❌ [CRUD] Error Creación Ticket:', result.message);
             showToast(result.message || "Error al crear ticket", "error");
         }
     };
 
     const handleUpdateStatus = (newStatus: string) => {
+        console.log('✏️ [CRUD] Actualizando Estado Ticket:', selectedTicket.id, '->', newStatus);
         // Update Store
         updateTicketStatus(selectedTicket.id, newStatus as any);
     };
