@@ -57,7 +57,7 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
 
     // NO EARLY RETURN - Let Modal.tsx handle visibility
     return (
-        <Modal title="Crear Nuevo Ticket / Tarea" onClose={onClose} zIndex={50}>
+        <Modal isOpen={isOpen} title="Crear Nuevo Ticket / Tarea" onClose={onClose} zIndex={50}>
             <form onSubmit={onSubmit} className="space-y-4">
                 {/* REGLA 2 & 3: IDs + Safe Values */}
                 <div>
@@ -182,7 +182,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     if (!ticket) return null;
 
     return (
-        <Modal title={`Ticket #${ticket?.id || 'N/A'}`} onClose={onClose} maxWidth="max-w-2xl" zIndex={50}>
+        <Modal isOpen={!!ticket} title={`Ticket #${ticket?.id || 'N/A'}`} onClose={onClose} maxWidth="max-w-2xl" zIndex={50}>
             <div className="flex flex-col h-[500px]">
                 {/* Info Header */}
                 <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">

@@ -77,6 +77,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 
     return (
         <Modal
+            isOpen={isOpen}
             title={initialData ? "Editar Propiedad y Estatus" : "Registrar Nueva Propiedad"}
             onClose={onClose}
             zIndex={50}

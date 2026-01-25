@@ -66,6 +66,7 @@ export const UserModal: React.FC<UserModalProps> = ({
     // NO EARLY RETURN - Let Modal.tsx handle visibility
     return (
         <Modal
+            isOpen={isOpen}
             title={initialData ? `Editar ${userType}` : `Registrar ${userType}`}
             onClose={onClose}
             zIndex={50}
