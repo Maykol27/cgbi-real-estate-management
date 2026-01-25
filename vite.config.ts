@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'node', // Use 'jsdom' if testing components
+      exclude: ['tests/**', 'node_modules/**'], // Ignore Playwright E2E tests
     }
   };
 });
