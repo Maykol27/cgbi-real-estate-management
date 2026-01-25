@@ -23,6 +23,10 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       emptyOutDir: true,
       sourcemap: true
+    },
+    test: {
+      globals: true,
+      environment: 'node', // Use 'jsdom' if testing components
     }
   };
 });

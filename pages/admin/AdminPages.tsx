@@ -4,7 +4,7 @@ import { ThemeToggle, Logo, NotificationButton } from '../../components/Layout';
 import { HeaderProfile } from '../../components/HeaderProfile';
 import { useStore } from '../../context/StoreContext';
 import { Calendar } from '../../components/Calendar';
-import { Modal } from '../../components/Modal';
+import { Modal } from '../../src/components/ui/Modal';
 import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
 
@@ -487,7 +487,6 @@ export const AdminProperties: React.FC = () => {
             rooms: Number((form.elements.namedItem('rooms') as HTMLInputElement).value),
             bathrooms: Number((form.elements.namedItem('bathrooms') as HTMLInputElement).value),
             parking: Number((form.elements.namedItem('parking') as HTMLInputElement).value),
-            description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
             description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
             image: imageUrl, // Optimistic preview
             imageFile: propertyImage || undefined // The actual file
@@ -1781,7 +1780,12 @@ export const AdminCalendar: React.FC = () => {
             </div>
 
             {isModalOpen && (
-                <Modal title={editingVisit ? "Detalles de Visita" : "Agendar Nueva Visita"} onClose={() => setIsModalOpen(false)}>
+                <Modal
+                    title={editingVisit ? "Detalles de Visita" : "Agendar Nueva Visita"}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    size="lg"
+                >
                     <form onSubmit={handleSaveVisit} className="space-y-4">
                         {/* Fields for both Create and Edit */}
                         <div className="grid grid-cols-2 gap-4">
@@ -2005,7 +2009,7 @@ export const AdminSettings: React.FC = () => {
 
             {/* User Creation Modal */}
             {showUserModal && (
-                <Modal title="Crear Nuevo Usuario" onClose={() => setShowUserModal(false)}>
+                <Modal title="Crear Nuevo Usuario" isOpen={showUserModal} onClose={() => setShowUserModal(false)}>
                     <form onSubmit={handleCreateUser} className="space-y-4">
                         <div>
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre Completo</label>

@@ -1,107 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { TicketService } from '../src/services/ticketService';
 
 // --- Types ---
-export interface User {
-    id: string | number;
-    name: string;
-    role: 'Admin' | 'Propietario' | 'Inquilino' | 'Colaborador';
-    email: string;
-    permissions?: string[];
-    policyNumber?: string;
-    photoUrl?: string; // Nuevo campo para foto
-    financialStatus?: 'Al Día' | 'Pendiente de Pago' | 'En Mora';
-}
-
-export interface Ticket {
-    id: string | number;
-    title: string;
-    desc: string;
-    status: 'Pendiente' | 'En Progreso' | 'Cerrado';
-    type?: 'Mantenimiento' | 'Administrativo' | 'PQRS / Felicitaciones' | 'Tareas CGBI'; // Added type
-    priority?: 'Alta' | 'Media' | 'Baja';
-    requester: string;
-    requesterRole: 'Propietario' | 'Inquilino' | 'Admin';
-    date: string;
-    propertyId?: string | number;
-    propertyName?: string;
-    assignedTo?: string | number;
-    attachment?: string;
-    attachmentUrl?: string;
-    messages: {
-        id: number;
-        sender: string;
-        role: string;
-        text: string;
-        time: string;
-    }[];
-}
-
-export interface Document {
-    id: string | number;
-    name: string;
-    type: 'Factura / Recibo' | 'Contrato' | 'Comunicación' | 'Solicitud' | 'Documento Personal';
-    target: string;
-    targetIds?: (string | number)[];
-    targetId?: string;
-    date: string;
-    size: string;
-    fileUrl?: string;
-}
-
-export interface Property {
-    id: string | number;
-    name: string;
-    address: string;
-    type: string;
-    image?: string;
-    // Status depends on listingType, but we keep a union of all possible values here
-    status: 'Disponible' | 'Vendido' | 'Arrendado' | 'Desistido' | 'Ocupado' | 'Mantenimiento';
-    listingType: 'Venta' | 'Arriendo';
-    rent: string;
-    owner: string;
-    owner_id?: string; // Added owner_id from Supabase
-    sqMeters: number;
-    rooms: number;
-    bathrooms: number;
-    parking: number;
-    description: string;
-}
-
-export interface Visit {
-    id: string | number;
-    propertyId: string | number;
-    propertyName: string;
-    visitorName: string; // Nombre del cliente
-    advisor?: string; // Nuevo campo: Asesor
-    date: Date;
-    status: 'Programada' | 'Realizada' | 'Cancelada' | 'Reprogramada';
-    feedback?: string;
-}
-
-export interface FinanceRequest {
-    id: string | number;
-    title: string;
-    desc: string;
-    cost: string;
-    status: 'Pendiente' | 'Aprobado' | 'Rechazado';
-    requester: string;
-    date: string;
-    rejectionReason?: string;
-    attachmentUrl?: string;
-    propertyId?: string | number; // Added propertyId
-}
-
-export interface Payment {
-    id: string | number;
-    amount: number;
-    status: number; // 0=Pendiente, 1=Pagado, 2=Vencido
-    date: string;
-    period: string;
-    tenant_id?: string | number;
-    property_id?: string | number;
-    fileUrl?: string;
-}
+import { User, Ticket, Document, Property, Visit, FinanceRequest, Payment } from '../src/types';
 
 interface StoreContextType {
     user: User | null;
@@ -681,12 +583,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
 
     const updateTicketStatus = async (id: number, status: Ticket['status']) => {
-        // 1. DB Call FIRST (Critical Fix for Zombie Tickets)
-        const { error } = await supabase.from('tickets').update({ status }).eq('id', id);
+        // 1. Service Call
+        const [success, error] = await TicketService.updateStatus(id, status);
 
-        if (error) {
+        if (!success) {
             console.error("Error updating ticket status:", error);
-            alert("Error al actualizar ticket: " + error.message);
+            alert("Error al actualizar ticket: " + error?.message);
             notify("Error", "No se pudo actualizar el ticket.");
             return;
         }
@@ -697,12 +599,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const updateTicketPriority = async (id: number, priority: Ticket['priority']) => {
-        // 1. DB Call FIRST
-        const { error } = await supabase.from('tickets').update({ priority }).eq('id', id);
+        // 1. Service Call
+        const [success, error] = await TicketService.updatePriority(id, priority);
 
-        if (error) {
+        if (!success) {
             console.error("Error updating ticket priority:", error);
-            alert("Error al actualizar prioridad: " + error.message);
+            alert("Error al actualizar prioridad: " + error?.message);
             return;
         }
 
