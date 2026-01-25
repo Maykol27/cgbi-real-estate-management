@@ -130,19 +130,6 @@ export const Modal: React.FC<ModalProps> = ({
                 <div style={{ color: '#000' }}>
                     {children || <p style={{ color: '#ff0000', fontWeight: 'bold' }}>NO CHILDREN PROVIDED</p>}
                 </div>
-
-                {/* Debug Info */}
-                <div style={{
-                    marginTop: '20px',
-                    padding: '12px',
-                    backgroundColor: '#fef3c7',
-                    border: '2px solid #f59e0b',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontFamily: 'monospace'
-                }}>
-                    <strong>DEBUG:</strong> isOpen={String(isOpen)} | zIndex={zIndex} | size={size}
-                </div>
             </div>
         </div>,
         document.body

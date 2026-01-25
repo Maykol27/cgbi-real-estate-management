@@ -19,7 +19,7 @@ export const UserModal: React.FC<UserModalProps> = ({
 }) => {
     const { properties } = useStore();
 
-    // Controlled State - REGLA 3: Safe Rendering
+    // Controlled State
     const [formData, setFormData] = React.useState({
         firstName: '',
         lastName: '',
@@ -32,7 +32,6 @@ export const UserModal: React.FC<UserModalProps> = ({
     React.useEffect(() => {
         if (isOpen) {
             console.log('📦 [MODAL] Recibiendo datos (UserModal):', initialData, 'Type:', userType);
-            // REGLA 3: Safe Rendering with Optional Chaining
             if (initialData) {
                 const parts = (initialData?.name || '').split(' ');
                 setFormData({
@@ -44,7 +43,6 @@ export const UserModal: React.FC<UserModalProps> = ({
                     policyNumber: initialData?.policyNumber || ''
                 });
             } else {
-                // Reset for creation
                 setFormData({
                     firstName: '',
                     lastName: '',
@@ -57,25 +55,23 @@ export const UserModal: React.FC<UserModalProps> = ({
         }
     }, [isOpen, initialData, userType]);
 
-    // REGLA 2: Inputs have matching name/id
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // NO EARLY RETURN - Let Modal.tsx handle visibility
     return (
         <Modal
             isOpen={isOpen}
-            title={initialData ? `Editar ${userType}` : `Registrar ${userType}`}
+            title={initialData ? `Editar ${userType}` : `Crear Nuevo ${userType}`}
             onClose={onClose}
             zIndex={50}
         >
             <form onSubmit={onSubmit} className="space-y-4">
-                {/* REGLA 2 & 3: IDs + Safe Values */}
+                {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="firstName" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="firstName" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Nombre
                         </label>
                         <input
@@ -85,12 +81,12 @@ export const UserModal: React.FC<UserModalProps> = ({
                             type="text"
                             value={formData?.firstName || ''}
                             onChange={handleChange}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Nombre"
                         />
                     </div>
                     <div>
-                        <label htmlFor="lastName" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="lastName" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Apellido
                         </label>
                         <input
@@ -100,14 +96,15 @@ export const UserModal: React.FC<UserModalProps> = ({
                             type="text"
                             value={formData?.lastName || ''}
                             onChange={handleChange}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Apellido"
                         />
                     </div>
                 </div>
 
+                {/* Email */}
                 <div>
-                    <label htmlFor="email" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Correo Electrónico
                     </label>
                     <input
@@ -117,15 +114,18 @@ export const UserModal: React.FC<UserModalProps> = ({
                         type="email"
                         value={formData?.email || ''}
                         onChange={handleChange}
-                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                         placeholder="correo@ejemplo.com"
                     />
+                    <p className="mt-1.5 text-xs text-blue-600 dark:text-blue-400">
+                        Al crear el usuario, se enviará automáticamente un enlace para configurar su contraseña.
+                    </p>
                 </div>
 
-                {/* REGLA 4: Conditional for Propietario - EXPLICIT CHECK */}
+                {/* Role-Specific Fields */}
                 {userType === 'Propietario' && (
                     <div>
-                        <label htmlFor="phone" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="phone" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Teléfono
                         </label>
                         <input
@@ -135,17 +135,16 @@ export const UserModal: React.FC<UserModalProps> = ({
                             type="tel"
                             value={formData?.phone || ''}
                             onChange={handleChange}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="+57 300 123 4567"
                         />
                     </div>
                 )}
 
-                {/* REGLA 4: Conditional for Inquilino - EXPLICIT CHECK - No Hidden Classes */}
                 {userType === 'Inquilino' && (
                     <>
                         <div>
-                            <label htmlFor="propertyId" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                            <label htmlFor="propertyId" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                                 Propiedad Asignada
                             </label>
                             <select
@@ -153,7 +152,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                                 name="propertyId"
                                 value={formData?.propertyId || ''}
                                 onChange={handleChange}
-                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             >
                                 <option value="">Seleccionar propiedad...</option>
                                 {properties?.map(p => (
@@ -162,7 +161,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                             </select>
                         </div>
                         <div>
-                            <label htmlFor="policyNumber" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                            <label htmlFor="policyNumber" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                                 Número de Póliza Asignado
                             </label>
                             <input
@@ -173,15 +172,28 @@ export const UserModal: React.FC<UserModalProps> = ({
                                 value={formData?.policyNumber || ''}
                                 onChange={handleChange}
                                 placeholder="Ej: POL-123456"
-                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             />
                         </div>
                     </>
                 )}
 
-                <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark transition-colors">
-                    {initialData ? "Actualizar Usuario" : `Registrar ${userType}`}
-                </button>
+                {/* CGBI Branded Submit Button */}
+                <div className="flex gap-3 pt-2">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-md font-bold text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        className="flex-1 bg-[#D62C5E] hover:bg-[#A01B44] text-white py-2.5 rounded-md font-bold text-sm shadow-md transition-all"
+                    >
+                        {initialData ? "Actualizar Usuario" : `Crear Usuario`}
+                    </button>
+                </div>
             </form>
         </Modal>
     );
