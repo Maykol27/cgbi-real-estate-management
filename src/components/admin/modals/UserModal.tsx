@@ -63,9 +63,7 @@ export const UserModal: React.FC<UserModalProps> = ({
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Early return but SAFE
-    if (!isOpen) return null;
-
+    // NO EARLY RETURN - Let Modal.tsx handle visibility
     return (
         <Modal
             title={initialData ? `Editar ${userType}` : `Registrar ${userType}`}

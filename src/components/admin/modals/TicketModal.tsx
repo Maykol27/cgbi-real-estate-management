@@ -55,9 +55,7 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Early return but SAFE
-    if (!isOpen) return null;
-
+    // NO EARLY RETURN - Let Modal.tsx handle visibility
     return (
         <Modal title="Crear Nuevo Ticket / Tarea" onClose={onClose} zIndex={50}>
             <form onSubmit={onSubmit} className="space-y-4">

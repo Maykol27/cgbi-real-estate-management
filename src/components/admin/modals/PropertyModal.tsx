@@ -67,8 +67,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Early return but SAFE
-    if (!isOpen) return null;
+    // NO EARLY RETURN - Let Modal.tsx handle visibility
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
