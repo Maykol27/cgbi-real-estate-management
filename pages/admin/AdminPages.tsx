@@ -705,6 +705,11 @@ export const AdminTenants: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [messageModalOpen, setMessageModalOpen] = useState(false);
 
+    // DEBUG: Track modal state changes
+    React.useEffect(() => {
+        console.log('🟡 [TENANT] isModalOpen cambió a:', isModalOpen);
+    }, [isModalOpen]);
+
     // Derived state from store
     const tenants = users.filter(u => u.role === 'Inquilino');
 
@@ -757,7 +762,14 @@ export const AdminTenants: React.FC = () => {
                 subtitle="Directorio y control de acceso de arrendatarios"
                 action={
                     !isCollaborator && (
-                        <button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold shadow-md transition-all">
+                        <button
+                            onClick={() => {
+                                console.log('🔵 [TENANT] Botón "Registrar Inquilino" clickeado - Abriendo modal');
+                                setIsModalOpen(true);
+                                console.log('🔵 [TENANT] setIsModalOpen(true) ejecutado');
+                            }}
+                            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold shadow-md transition-all"
+                        >
                             <span className="material-icons-round">person_add</span> Registrar Inquilino
                         </button>
                     )
@@ -775,7 +787,7 @@ export const AdminTenants: React.FC = () => {
 
             {/* Payment History Modal */}
             {selectedTenantHistory && (
-                <Modal title={`Historial de Pagos`} onClose={() => setSelectedTenantHistory(null)} maxWidth="max-w-2xl">
+                <Modal isOpen={!!selectedTenantHistory} title={`Historial de Pagos`} onClose={() => setSelectedTenantHistory(null)} maxWidth="max-w-2xl">
                     <div className="flex flex-col h-[600px]">
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -888,7 +900,7 @@ text - xs font - bold py - 1 px - 2 rounded - full border - none
 
             {/* Tenant Profile Modal */}
             {selectedTenantProfile && (
-                <Modal title="Perfil de Inquilino" onClose={() => setSelectedTenantProfile(null)} maxWidth="max-w-xl">
+                <Modal isOpen={!!selectedTenantProfile} title="Perfil de Inquilino" onClose={() => setSelectedTenantProfile(null)} maxWidth="max-w-xl">
                     <div className="flex flex-col items-center">
                         <div className="mb-6 h-20 w-32 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 flex items-center justify-center">
                             <Logo className="h-full w-full" />
