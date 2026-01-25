@@ -23,7 +23,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 }) => {
     const { users } = useStore();
 
-    // Local State for Controlled Inputs - REGLA 3: Safe Rendering
+    // Local State for Controlled Inputs
     const [formData, setFormData] = React.useState({
         name: '',
         address: '',
@@ -39,11 +39,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         status: 'Disponible'
     });
 
-    // 🔍 LOG: Traceability - Open/Props & Sync State
+    // Sync with initialData when modal opens
     React.useEffect(() => {
         if (isOpen) {
             console.log('📦 [MODAL] Recibiendo datos (PropertyModal):', initialData);
-            // REGLA 3: Safe Rendering with Optional Chaining
             setFormData({
                 name: initialData?.name || '',
                 address: initialData?.address || '',
@@ -61,13 +60,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         }
     }, [isOpen, initialData]);
 
-    // Handle generic change - REGLA 2: Inputs have matching name/id
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
-    // NO EARLY RETURN - Let Modal.tsx handle visibility
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,9 +79,9 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
             zIndex={50}
         >
             <form onSubmit={handleFormSubmit} className="space-y-4">
-                {/* REGLA 2 & 3: IDs + Safe Values */}
+                {/* Property Name */}
                 <div>
-                    <label htmlFor="name" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="name" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Nombre / Identificador
                     </label>
                     <input
@@ -95,13 +91,14 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         value={formData?.name || ''}
                         onChange={handleChange}
                         type="text"
-                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                         placeholder="Ej: Apto 301 - Edif. Solar"
                     />
                 </div>
 
+                {/* Address */}
                 <div>
-                    <label htmlFor="address" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="address" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Dirección
                     </label>
                     <input
@@ -111,13 +108,15 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         value={formData?.address || ''}
                         onChange={handleChange}
                         type="text"
-                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
+                        placeholder="Ej: Calle 123 #45-67"
                     />
                 </div>
 
+                {/* Listing Type & Property Type */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="listingType" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="listingType" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Tipo de Operación
                         </label>
                         <select
@@ -128,14 +127,14 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                                 console.log('✍️ [FORM] Cambio listingType:', e.target.value);
                                 setFormListingType(e.target.value as 'Venta' | 'Arriendo');
                             }}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                         >
                             <option value="Arriendo">Arriendo</option>
                             <option value="Venta">Venta</option>
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="type" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="type" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Tipo Inmueble
                         </label>
                         <select
@@ -143,7 +142,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             name="type"
                             value={formData?.type || 'Apartamento'}
                             onChange={handleChange}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                         >
                             <option>Apartamento</option>
                             <option>Casa</option>
@@ -153,9 +152,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     </div>
                 </div>
 
+                {/* Rent/Price & Owner */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="rent" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="rent" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             {formListingType === 'Venta' ? 'Precio Venta (COP)' : 'Canon (COP)'}
                         </label>
                         <input
@@ -165,12 +165,12 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             value={formData?.rent || ''}
                             onChange={handleChange}
                             type="number"
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="0"
                         />
                     </div>
                     <div>
-                        <label htmlFor="owner" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="owner" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Propietario Asignado
                         </label>
                         <select
@@ -179,7 +179,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             name="owner"
                             value={formData?.owner || ''}
                             onChange={handleChange}
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                         >
                             <option value="" disabled>Seleccionar Propietario</option>
                             {users?.filter(u => u.role === 'Propietario' || u.role === 'Owner').map(u => (
@@ -191,9 +191,10 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     </div>
                 </div>
 
+                {/* Square Meters & Parking */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="sqMeters" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="sqMeters" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Metraje (m²)
                         </label>
                         <input
@@ -203,12 +204,12 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             value={formData?.sqMeters || ''}
                             onChange={handleChange}
                             type="number"
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Ej: 85"
                         />
                     </div>
                     <div>
-                        <label htmlFor="parking" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="parking" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Estacionamientos
                         </label>
                         <input
@@ -218,15 +219,16 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             value={formData?.parking || ''}
                             onChange={handleChange}
                             type="number"
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Ej: 1"
                         />
                     </div>
                 </div>
 
+                {/* Rooms & Bathrooms */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="rooms" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="rooms" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Habitaciones
                         </label>
                         <input
@@ -236,12 +238,12 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             value={formData?.rooms || ''}
                             onChange={handleChange}
                             type="number"
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Ej: 3"
                         />
                     </div>
                     <div>
-                        <label htmlFor="bathrooms" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                        <label htmlFor="bathrooms" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Baños
                         </label>
                         <input
@@ -251,14 +253,15 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             value={formData?.bathrooms || ''}
                             onChange={handleChange}
                             type="number"
-                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             placeholder="Ej: 2"
                         />
                     </div>
                 </div>
 
+                {/* Description */}
                 <div>
-                    <label htmlFor="description" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="description" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Descripción / Notas
                     </label>
                     <textarea
@@ -267,13 +270,14 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         value={formData?.description || ''}
                         onChange={handleChange}
                         rows={3}
-                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all resize-none"
                         placeholder="Detalles adicionales del inmueble..."
                     ></textarea>
                 </div>
 
+                {/* Image Upload */}
                 <div>
-                    <label htmlFor="image" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="image" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Foto Principal
                     </label>
                     <input
@@ -285,21 +289,21 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                             console.log('✍️ [FORM] Imagen seleccionada');
                             setPropertyImage(e.target.files?.[0] || null)
                         }}
-                        className="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
+                        className="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-[#D62C5E] file:text-white hover:file:bg-[#A01B44] file:cursor-pointer file:transition-all"
                     />
                 </div>
 
-                {/* Status Change Section */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50">
-                    <label htmlFor="status" className="block text-xs font-bold text-primary dark:text-blue-300 uppercase mb-2 flex items-center gap-2">
-                        <span className="material-icons-round text-sm">info</span> Estatus Actual
+                {/* Status Change Section - CGBI Branded */}
+                <div className="bg-[#D62C5E]/5 dark:bg-[#D62C5E]/10 p-4 rounded-xl border border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                    <label htmlFor="status" className="block text-sm font-bold text-[#D62C5E] uppercase mb-2 flex items-center gap-2">
+                        <span className="material-icons-round text-base">info</span> Estatus Actual
                     </label>
                     <select
                         id="status"
                         name="status"
                         value={formData?.status || 'Disponible'}
                         onChange={handleChange}
-                        className="w-full rounded-lg border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 dark:text-white text-sm font-medium px-3 py-2"
+                        className="w-full rounded-md border border-[#D62C5E]/20 dark:border-[#D62C5E]/40 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm font-semibold px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                     >
                         <option value="Disponible">Disponible</option>
                         <option value="Desistido">Desistido</option>
@@ -308,9 +312,22 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     </select>
                 </div>
 
-                <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 hover:bg-primary-dark shadow-lg transition-colors">
-                    {initialData ? "Actualizar Propiedad" : "Guardar Propiedad"}
-                </button>
+                {/* Action Buttons - CGBI Branded */}
+                <div className="flex gap-3 pt-2">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-md font-bold text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        className="flex-1 bg-[#D62C5E] hover:bg-[#A01B44] text-white py-2.5 rounded-md font-bold text-sm shadow-md transition-all"
+                    >
+                        {initialData ? "Actualizar Propiedad" : "Guardar Propiedad"}
+                    </button>
+                </div>
             </form>
         </Modal>
     );

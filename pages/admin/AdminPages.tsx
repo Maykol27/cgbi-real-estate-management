@@ -629,33 +629,33 @@ export const AdminProperties: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-card-dark rounded-xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-[#1E293B] rounded-xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                    <th className="p-5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Propiedad</th>
-                                    <th className="p-5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo / Dueño</th>
-                                    <th className="p-5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{listingFilter === 'Venta' ? 'Precio' : 'Canon'}</th>
-                                    <th className="p-5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                    <th className="p-5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right"></th>
+                                <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                    <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Propiedad</th>
+                                    <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Tipo / Dueño</th>
+                                    <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">{listingFilter === 'Venta' ? 'Precio' : 'Canon'}</th>
+                                    <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Estado</th>
+                                    <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                 {filteredProps.map(prop => (
-                                    <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                    <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-[#1E293B]/70 transition-colors">
                                         <td className="p-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary dark:text-blue-400 shrink-0">
+                                                <div className="h-12 w-12 rounded-lg bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 flex items-center justify-center text-[#D62C5E] shrink-0">
                                                     <span className="material-icons-round">
                                                         {prop.type === 'Apartamento' ? 'apartment' : prop.type === 'Casa' ? 'house' : 'storefront'}
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-gray-800 dark:text-white text-sm">{prop.name}</p>
+                                                    <p className="font-bold text-[#111827] dark:text-[#F9FAFB] text-sm">{prop.name}</p>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{prop.address}</p>
                                                     {prop.listingType && (
-                                                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 mt-1">
+                                                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#D62C5E]/10 text-[#D62C5E] dark:bg-[#D62C5E]/20 dark:text-[#F9FAFB] border border-[#D62C5E]/20 mt-1">
                                                             {prop.listingType}
                                                         </span>
                                                     )}
@@ -663,22 +663,35 @@ export const AdminProperties: React.FC = () => {
                                             </div>
                                         </td>
                                         <td className="p-5">
-                                            <p className="text-sm font-medium dark:text-gray-200">{prop.type}</p>
-                                            <p className="text-xs text-gray-400">{prop.owner}</p>
+                                            <p className="text-sm font-medium text-[#111827] dark:text-[#F9FAFB]">{prop.type}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{prop.owner}</p>
                                         </td>
-                                        <td className="p-5 text-sm font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(Number(prop.rent))}</td>
+                                        <td className="p-5 text-sm font-semibold text-[#111827] dark:text-[#F9FAFB]">{formatCurrency(Number(prop.rent))}</td>
                                         <td className="p-5">
-                                            <Badge
-                                                color={prop.status === 'Arrendado' || prop.status === 'Vendido' || prop.status === 'Ocupado' ? 'green' : prop.status === 'Disponible' ? 'blue' : 'red'}
-                                                text={prop.status}
-                                            />
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${prop.status === 'Arrendado' || prop.status === 'Vendido' || prop.status === 'Ocupado'
+                                                    ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900'
+                                                    : prop.status === 'Disponible'
+                                                        ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900'
+                                                        : 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/20 dark:bg-[#D62C5E]/30 dark:text-[#F9FAFB] dark:border-[#D62C5E]/40'
+                                                }`}>
+                                                {prop.status}
+                                            </span>
                                         </td>
                                         <td className="p-5 text-right">
-                                            <button onClick={() => handleEdit(prop)} className="px-3 py-1.5 bg-gray-100 hover:bg-primary hover:text-white dark:bg-slate-700 dark:hover:bg-blue-600 text-gray-600 dark:text-gray-300 rounded-lg transition-colors mr-2 text-xs font-bold">
+                                            <button
+                                                onClick={() => handleEdit(prop)}
+                                                className="px-4 py-2 bg-[#D62C5E] hover:bg-[#A01B44] text-white rounded-md shadow-md transition-all mr-2 text-xs font-bold"
+                                            >
                                                 Editar / Estatus
                                             </button>
                                             {!isCollaborator && (
-                                                <button onClick={() => confirmDelete(prop.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Eliminar"><span className="material-icons-round">delete</span></button>
+                                                <button
+                                                    onClick={() => confirmDelete(prop.id)}
+                                                    className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                                    title="Eliminar"
+                                                >
+                                                    <span className="material-icons-round">delete</span>
+                                                </button>
                                             )}
                                         </td>
                                     </tr>
