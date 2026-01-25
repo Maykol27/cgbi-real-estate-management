@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ModalProps {
@@ -20,61 +20,128 @@ export const Modal: React.FC<ModalProps> = ({
     zIndex = 50,
     maxWidth
 }) => {
-    if (!isOpen) return null;
+    // 🔍 DEBUGGING: Log every render
+    useEffect(() => {
+        console.log('🎭 [MODAL.TSX] Component Rendered', { isOpen, title, zIndex });
+        console.log('🎭 [MODAL.TSX] document.body exists?', !!document.body);
+    });
 
-    // Allow overriding maxWidth or map size to classes
-    const sizeClasses = {
-        sm: 'max-w-md',
-        md: 'max-w-xl',
-        lg: 'max-w-3xl',
-        xl: 'max-w-5xl'
+    useEffect(() => {
+        if (isOpen) {
+            console.log('🟢 [MODAL.TSX] MODAL SHOULD BE VISIBLE NOW', { title });
+            // Debug: Check if Portal mounted
+            setTimeout(() => {
+                const portals = document.body.querySelectorAll('[role="dialog"]');
+                console.log('🔍 [MODAL.TSX] Dialogs in body:', portals.length, portals);
+            }, 100);
+        } else {
+            console.log('🔴 [MODAL.TSX] MODAL CLOSED', { title });
+        }
+    }, [isOpen, title]);
+
+    if (!isOpen) {
+        console.log('⚠️ [MODAL.TSX] Early return - isOpen=false');
+        return null;
+    }
+
+    const sizeMap = {
+        sm: '400px',
+        md: '600px',
+        lg: '900px',
+        xl: '1200px'
     };
 
-    // Explicit maxWidth prop takes precedence, otherwise use size map
-    const widthClass = maxWidth ? maxWidth : sizeClasses[size];
+    const widthValue = maxWidth || sizeMap[size];
 
+    console.log('✅ [MODAL.TSX] Creating Portal NOW', { title, widthValue, zIndex });
+
+    // 🚨 FORCE VISIBILITY TEST - Using ONLY inline styles, NO Tailwind
     return createPortal(
         <div
-            className="fixed inset-0 overflow-y-auto"
-            style={{ zIndex }}
             role="dialog"
             aria-modal="true"
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: zIndex,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(4px)',
+                overflow: 'auto',
+                padding: '20px'
+            }}
+            onClick={onClose}
         >
-            {/* Backdrop with Blur Effect - "Fondo aparezca la app" */}
-            <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                <div
-                    className="fixed inset-0 transition-opacity bg-black/40 backdrop-blur-sm"
-                    onClick={onClose}
-                    aria-hidden="true"
-                ></div>
+            <div
+                style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    maxWidth: widthValue,
+                    width: '100%',
+                    padding: '24px',
+                    position: 'relative',
+                    border: '3px solid #ff0000', // 🚨 RED BORDER for debugging
+                    minHeight: '300px'
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Debug Header */}
+                <div style={{
+                    marginBottom: '20px',
+                    paddingBottom: '16px',
+                    borderBottom: '2px solid #e5e7eb',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <h3 style={{
+                        fontSize: '20px',
+                        fontWeight: 'bold',
+                        color: '#111827',
+                        margin: 0
+                    }}>
+                        {title || 'Modal Title'}
+                    </h3>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: 'none',
+                            border: '2px solid #ff0000',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            cursor: 'pointer',
+                            fontSize: '18px',
+                            color: '#6b7280',
+                            padding: 0
+                        }}
+                    >
+                        ✕
+                    </button>
+                </div>
 
-                <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                {/* Content */}
+                <div style={{ color: '#000' }}>
+                    {children || <p style={{ color: '#ff0000', fontWeight: 'bold' }}>NO CHILDREN PROVIDED</p>}
+                </div>
 
-                <div
-                    className={`inline-block w-full ${widthClass} p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-900 border border-gray-100 dark:border-gray-800 shadow-2xl rounded-2xl relative`}
-                    onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-                >
-                    {/* Header Centralizado */}
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
-                        {title && <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span className="w-1.5 h-6 bg-primary rounded-full inline-block"></span>
-                            {title}
-                        </h3>}
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
-                        >
-                            <span className="sr-only">Cerrar</span>
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="mt-2">
-                        {children}
-                    </div>
+                {/* Debug Info */}
+                <div style={{
+                    marginTop: '20px',
+                    padding: '12px',
+                    backgroundColor: '#fef3c7',
+                    border: '2px solid #f59e0b',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontFamily: 'monospace'
+                }}>
+                    <strong>DEBUG:</strong> isOpen={String(isOpen)} | zIndex={zIndex} | size={size}
                 </div>
             </div>
         </div>,
