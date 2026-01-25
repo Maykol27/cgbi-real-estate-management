@@ -433,7 +433,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                             status: t.status,
                             priority: t.priority,
                             requester: 'Usuario (Sync)', // We don't have joined name immediately without fetch
-                            requesterRole: '...',
+                            requesterRole: 'Inquilino',
                             date: new Date(t.created_at).toLocaleDateString(),
                             propertyId: t.property_id,
                             messages: t.messages || []
