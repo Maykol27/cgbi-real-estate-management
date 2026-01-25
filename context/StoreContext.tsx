@@ -76,6 +76,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const fetchAllData = async () => {
         try {
             console.log("📥 Fetching all data from Supabase (Parallel)...");
+            console.log('👮 Usuario Actual (Auth):', supabase.auth.getUser().then(u => u.data.user?.id), 'Rol:', user?.role);
 
             // Independent Fetches using Promise.allSettled to prevent one failure (e.g. 403 RLS) from stopping others
             const results = await Promise.allSettled([
@@ -661,6 +662,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addTicket = async (t: Omit<Ticket, 'id' | 'date' | 'status'>): Promise<{ success: boolean; message: string }> => {
         try {
+            console.log('🚀 Intentando crear Ticket:', t);
             const { data, error } = await supabase.from('tickets').insert({
                 title: t.title,
                 description: t.desc,
@@ -700,6 +702,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const updateTicketStatus = async (id: number, status: Ticket['status']) => {
         // 1. Service Call
+        console.log('🚀 Updating Ticket Status:', id, status);
         const [success, error] = await TicketService.updateStatus(id, status);
 
         if (!success) {
@@ -848,6 +851,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const addProperty = async (p: Omit<Property, 'id'> & { imageFile?: File }) => {
         try {
             console.log("🏠 Creating property:", p.name);
+            console.log('🚀 Iniciando Carga Propiedad. Payload:', p);
             let publicUrl = p.image; // Use blob URL or empty initially if no file
 
             // 1. Upload logic (New)
@@ -916,6 +920,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const updateProperty = async (id: string | number, updates: Partial<Property> & { imageFile?: File }) => {
         try {
             console.log("🏠 Updating property:", id);
+            console.log('🚀 Iniciando Edición Propiedad. ID:', id, 'Updates:', updates);
             let publicUrl = updates.image;
 
             // 1. Upload logic (Update)
@@ -1025,6 +1030,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const addVisit = async (v: Omit<Visit, 'id'>): Promise<{ success: boolean; message: string }> => {
         try {
             console.log("📅 Creating visit for property:", v.propertyId);
+            console.log('🚀 Agendando Visita. Fecha:', v.date, 'Propiedad:', v.propertyId);
 
             const { data, error } = await supabase.from('visits').insert({
                 property_id: v.propertyId,
@@ -1101,6 +1107,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const updateVisit = async (id: string | number, updates: Partial<Visit>) => {
         try {
+            console.log('🚀 Updating Visit:', id, updates);
             // Map local updates to Supabase columns
             const dbUpdates: any = {};
             if (updates.date) dbUpdates.date = updates.date.toISOString();
@@ -1219,6 +1226,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addUser = async (u: Omit<User, 'id'>) => {
         try {
+            console.log('🚀 Intentando registrar usuario:', u.email, u.role);
             // Call Edge Function 'invite-user' to securely invite user and create profile
             const { data, error } = await supabase.functions.invoke('invite-user', {
                 body: {

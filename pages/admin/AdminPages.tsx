@@ -468,6 +468,7 @@ export const AdminProperties: React.FC = () => {
 
     const handleSaveProperty = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('🔘 Click detectado: Guardar Propiedad');
         const form = e.target as HTMLFormElement;
         const imageUrl = propertyImage ? URL.createObjectURL(propertyImage) : undefined;
 
@@ -509,6 +510,8 @@ export const AdminProperties: React.FC = () => {
     };
 
     const handleEdit = (prop: any) => {
+        console.log('🔘 Click detectado: Editar Propiedad', prop.id);
+        console.log('Estado del Modal ANTES:', isModalOpen);
         setEditingProp(prop);
         setFormListingType(prop.listingType || 'Arriendo'); // Initialize form state
         setIsModalOpen(true);
@@ -806,6 +809,7 @@ export const AdminTenants: React.FC = () => {
 
     const handleAddTenant = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('🔘 Click detectado: Nuevo Inquilino');
         const form = e.target as HTMLFormElement;
 
         const firstName = (form.elements.namedItem('firstName') as HTMLInputElement)?.value;
@@ -1085,6 +1089,7 @@ export const AdminOwners: React.FC = () => {
 
     const handleAddOwner = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('🔘 Click detectado: Nuevo Propietario');
         const form = e.target as HTMLFormElement;
         addUser({
             name: (form.elements[0] as HTMLInputElement).value + ' ' + (form.elements[1] as HTMLInputElement).value,
@@ -1189,6 +1194,7 @@ export const AdminTickets: React.FC = () => {
 
     const handleCreateTicket = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('🔘 Click detectado: Nuevo Ticket/Tarea');
         const form = e.target as HTMLFormElement;
 
         const result = await addTicket({
