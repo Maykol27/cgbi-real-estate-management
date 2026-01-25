@@ -603,17 +603,16 @@ export const AdminProperties: React.FC = () => {
                 </Modal>
             )}
 
-            {isModalOpen && (
-                <PropertyModal
-                    isOpen={isModalOpen}
-                    onClose={() => { setIsModalOpen(false); setEditingProp(null); }}
-                    onSubmit={handleSaveProperty}
-                    initialData={editingProp}
-                    setPropertyImage={(file) => setPropertyImage(file)}
-                    setFormListingType={setFormListingType}
-                    formListingType={formListingType}
-                />
-            )}
+            {/* Property Modal */}
+            <PropertyModal
+                isOpen={isModalOpen}
+                onClose={() => { setIsModalOpen(false); setEditingProp(null); }}
+                onSubmit={handleSaveProperty}
+                initialData={editingProp}
+                setPropertyImage={(file) => setPropertyImage(file)}
+                setFormListingType={setFormListingType}
+                formListingType={formListingType}
+            />
 
 
             <div className="flex-1 overflow-auto p-6 lg:p-10">
