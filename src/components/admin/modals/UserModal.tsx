@@ -19,6 +19,47 @@ export const UserModal: React.FC<UserModalProps> = ({
 }) => {
     const { properties } = useStore();
 
+    // Controlled State
+    const [formData, setFormData] = React.useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        propertyId: '',
+        policyNumber: ''
+    });
+
+    React.useEffect(() => {
+        if (isOpen) {
+            if (initialData) {
+                // Split name safely
+                const parts = (initialData.name || '').split(' ');
+                setFormData({
+                    firstName: parts[0] || '',
+                    lastName: parts.slice(1).join(' ') || '',
+                    email: initialData.email || '',
+                    phone: initialData.phone || '', // Check if phone exists in data model
+                    propertyId: initialData.propertyId || '',
+                    policyNumber: initialData.policyNumber || ''
+                });
+            } else {
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    propertyId: '',
+                    policyNumber: ''
+                });
+            }
+        }
+    }, [isOpen, initialData]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -30,34 +71,69 @@ export const UserModal: React.FC<UserModalProps> = ({
             <form onSubmit={onSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
-                        {/* Assuming onSubmit handler will join Name + Surname or take name field directly.
-                            Original code for Owner used split logic manually or form elements [0] + [1].
-                            Here we will stick to named inputs for robustness. */}
-                        <input required name="firstName" defaultValue={initialData?.name?.split(' ')[0]} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                        <label htmlFor="firstName" className="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
+                        <input
+                            required
+                            id="firstName"
+                            name="firstName"
+                            type="text"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
-                        <input required name="lastName" defaultValue={initialData?.name?.split(' ').slice(1).join(' ')} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                        <label htmlFor="lastName" className="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
+                        <input
+                            required
+                            id="lastName"
+                            name="lastName"
+                            type="text"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        />
                     </div>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Correo Electrónico</label>
-                    <input required name="email" defaultValue={initialData?.email} type="email" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                    <label htmlFor="email" className="block text-xs font-bold text-gray-500 mb-1">Correo Electrónico</label>
+                    <input
+                        required
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                    />
                 </div>
 
                 {userType === 'Propietario' && (
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Teléfono</label>
-                        <input required name="phone" type="tel" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                        <label htmlFor="phone" className="block text-xs font-bold text-gray-500 mb-1">Teléfono</label>
+                        <input
+                            required
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        />
                     </div>
                 )}
 
                 {userType === 'Inquilino' && (
                     <>
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Propiedad Asignada</label>
-                            <select name="propertyId" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                            <label htmlFor="propertyId" className="block text-xs font-bold text-gray-500 mb-1">Propiedad Asignada</label>
+                            <select
+                                id="propertyId"
+                                name="propertyId"
+                                value={formData.propertyId}
+                                onChange={handleChange}
+                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            >
                                 <option value="">Seleccionar propiedad...</option>
                                 {properties.map(p => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
@@ -65,8 +141,17 @@ export const UserModal: React.FC<UserModalProps> = ({
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Número de Póliza Asignado</label>
-                            <input required name="policyNumber" type="text" placeholder="Ej: POL-123456" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                            <label htmlFor="policyNumber" className="block text-xs font-bold text-gray-500 mb-1">Número de Póliza Asignado</label>
+                            <input
+                                required
+                                id="policyNumber"
+                                name="policyNumber"
+                                type="text"
+                                value={formData.policyNumber}
+                                onChange={handleChange}
+                                placeholder="Ej: POL-123456"
+                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            />
                         </div>
                     </>
                 )}

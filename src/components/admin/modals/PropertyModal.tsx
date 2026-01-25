@@ -23,20 +23,71 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 }) => {
     const { users } = useStore();
 
-    // 🔍 LOG: Traceability - Open/Props
+    // Local State for Controlled Inputs
+    const [formData, setFormData] = React.useState({
+        name: '',
+        address: '',
+        type: 'Apartamento',
+        rent: '',
+        owner: '',
+        owner_id: '',
+        sqMeters: '',
+        parking: '',
+        rooms: '',
+        bathrooms: '',
+        description: '',
+        status: 'Disponible'
+    });
+
+    // 🔍 LOG: Traceability - Open/Props & Sync State
     React.useEffect(() => {
         if (isOpen) {
             console.log('📦 [MODAL] Recibiendo datos (PropertyModal):', initialData);
+            if (initialData) {
+                setFormData({
+                    name: initialData.name || '',
+                    address: initialData.address || '',
+                    type: initialData.type || 'Apartamento',
+                    rent: initialData.rent || '',
+                    owner: initialData.owner || '',
+                    owner_id: initialData.owner_id || '',
+                    sqMeters: initialData.sqMeters || '',
+                    parking: initialData.parking || '',
+                    rooms: initialData.rooms || '',
+                    bathrooms: initialData.bathrooms || '',
+                    description: initialData.description || '',
+                    status: initialData.status || 'Disponible'
+                });
+            } else {
+                // Reset for creation
+                setFormData({
+                    name: '',
+                    address: '',
+                    type: 'Apartamento',
+                    rent: '',
+                    owner: '',
+                    owner_id: '',
+                    sqMeters: '',
+                    parking: '',
+                    rooms: '',
+                    bathrooms: '',
+                    description: '',
+                    status: 'Disponible'
+                });
+            }
         }
     }, [isOpen, initialData]);
 
+    // Handle generic change
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        // console.log('✍️ [FORM] Campo modificado:', name, value);
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     // 🛡️ Guard Clause: Prevent empty render on Edit Mode
     if (isOpen && initialData === undefined && typeof initialData !== 'object' && initialData !== null) {
-        // Note: initialData is null for Create Mode. If strict Edit is intended, logic should distinguish mode.
-        // Based on usage: handleEdit passes object, New Property sets editingProp=null.
-        // So if we have an ID but no data, that's an error. But here passed 'initialData' is the object itself.
-        // If we are in "Edit Mode" (implied by context) but data is missing?
-        // Let's rely on checking if it's open.
+        // Logic preserved
     }
 
     if (!isOpen) return null;
@@ -49,13 +100,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const dataEntries = Object.fromEntries(formData.entries());
-
-        console.log('✍️ [FORM] Datos modificados por usuario (Submit):', dataEntries);
-
-        console.log('🚀 [CRUD] Enviando a BD (wrapper)...');
+        console.log('🚀 [CRUD] Enviando a BD (wrapper)...', formData);
         onSubmit(e);
     };
 
@@ -67,17 +112,35 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         >
             <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Nombre / Identificador</label>
-                    <input required name="name" defaultValue={initialData?.name} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: Apto 301 - Edif. Solar" />
+                    <label htmlFor="name" className="block text-xs font-bold text-gray-500 mb-1">Nombre / Identificador</label>
+                    <input
+                        required
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        type="text"
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        placeholder="Ej: Apto 301 - Edif. Solar"
+                    />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Dirección</label>
-                    <input required name="address" defaultValue={initialData?.address} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
+                    <label htmlFor="address" className="block text-xs font-bold text-gray-500 mb-1">Dirección</label>
+                    <input
+                        required
+                        id="address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        type="text"
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                    />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Tipo de Operación</label>
+                        <label htmlFor="listingType" className="block text-xs font-bold text-gray-500 mb-1">Tipo de Operación</label>
                         <select
+                            id="listingType"
                             name="listingType"
                             value={formListingType}
                             onChange={(e) => {
@@ -91,8 +154,14 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Tipo Inmueble</label>
-                        <select name="type" defaultValue={initialData?.type || "Apartamento"} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                        <label htmlFor="type" className="block text-xs font-bold text-gray-500 mb-1">Tipo Inmueble</label>
+                        <select
+                            id="type"
+                            name="type"
+                            value={formData.type}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        >
                             <option>Apartamento</option>
                             <option>Casa</option>
                             <option>Local</option>
@@ -103,15 +172,26 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">{formListingType === 'Venta' ? 'Precio Venta (COP)' : 'Canon (COP)'}</label>
-                        <input required name="rent" defaultValue={initialData?.rent} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="0" />
+                        <label htmlFor="rent" className="block text-xs font-bold text-gray-500 mb-1">{formListingType === 'Venta' ? 'Precio Venta (COP)' : 'Canon (COP)'}</label>
+                        <input
+                            required
+                            id="rent"
+                            name="rent"
+                            value={formData.rent}
+                            onChange={handleChange}
+                            type="number"
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            placeholder="0"
+                        />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Propietario Asignado</label>
+                        <label htmlFor="owner" className="block text-xs font-bold text-gray-500 mb-1">Propietario Asignado</label>
                         <select
                             required
+                            id="owner"
                             name="owner"
-                            defaultValue={initialData?.owner || ""}
+                            value={formData.owner}
+                            onChange={handleChange}
                             className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
                         >
                             <option value="" disabled>Seleccionar Propietario</option>
@@ -127,32 +207,78 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 {/* New Attributes Section */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Metraje (m²)</label>
-                        <input required name="sqMeters" defaultValue={initialData?.sqMeters} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 85" />
+                        <label htmlFor="sqMeters" className="block text-xs font-bold text-gray-500 mb-1">Metraje (m²)</label>
+                        <input
+                            required
+                            id="sqMeters"
+                            name="sqMeters"
+                            value={formData.sqMeters}
+                            onChange={handleChange}
+                            type="number"
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            placeholder="Ej: 85"
+                        />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Estacionamientos</label>
-                        <input required name="parking" defaultValue={initialData?.parking} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 1" />
+                        <label htmlFor="parking" className="block text-xs font-bold text-gray-500 mb-1">Estacionamientos</label>
+                        <input
+                            required
+                            id="parking"
+                            name="parking"
+                            value={formData.parking}
+                            onChange={handleChange}
+                            type="number"
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            placeholder="Ej: 1"
+                        />
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Habitaciones</label>
-                        <input required name="rooms" defaultValue={initialData?.rooms} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 3" />
+                        <label htmlFor="rooms" className="block text-xs font-bold text-gray-500 mb-1">Habitaciones</label>
+                        <input
+                            required
+                            id="rooms"
+                            name="rooms"
+                            value={formData.rooms}
+                            onChange={handleChange}
+                            type="number"
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            placeholder="Ej: 3"
+                        />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Baños</label>
-                        <input required name="bathrooms" defaultValue={initialData?.bathrooms} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 2" />
+                        <label htmlFor="bathrooms" className="block text-xs font-bold text-gray-500 mb-1">Baños</label>
+                        <input
+                            required
+                            id="bathrooms"
+                            name="bathrooms"
+                            value={formData.bathrooms}
+                            onChange={handleChange}
+                            type="number"
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                            placeholder="Ej: 2"
+                        />
                     </div>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Descripción / Notas</label>
-                    <textarea name="description" defaultValue={initialData?.description} rows={3} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Detalles adicionales del inmueble..."></textarea>
+                    <label htmlFor="description" className="block text-xs font-bold text-gray-500 mb-1">Descripción / Notas</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        rows={3}
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        placeholder="Detalles adicionales del inmueble..."
+                    ></textarea>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Foto Principal</label>
+                    <label htmlFor="image" className="block text-xs font-bold text-gray-500 mb-1">Foto Principal</label>
                     <input
                         type="file"
+                        id="image"
+                        name="image"
                         accept="image/*"
                         onChange={(e) => {
                             console.log('✍️ [FORM] Imagen seleccionada');
@@ -164,11 +290,17 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
 
                 {/* Status Change Section - Highlighted */}
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50">
-                    <label className="block text-xs font-bold text-primary dark:text-blue-300 uppercase mb-2 flex items-center gap-2">
+                    <label htmlFor="status" className="block text-xs font-bold text-primary dark:text-blue-300 uppercase mb-2 flex items-center gap-2">
                         <span className="material-icons-round text-sm">info</span> Estatus Actual
                     </label>
                     {/* Dynamic Status Options based on formListingType */}
-                    <select name="status" defaultValue={initialData?.status || "Disponible"} className="w-full rounded-lg border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 text-sm font-medium">
+                    <select
+                        id="status"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 text-sm font-medium"
+                    >
                         <option value="Disponible">Disponible</option>
                         <option value="Desistido">Desistido</option>
                         {formListingType === 'Venta' && <option value="Vendido">Vendido</option>}

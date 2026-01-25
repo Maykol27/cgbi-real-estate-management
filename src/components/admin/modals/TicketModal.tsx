@@ -1,11 +1,6 @@
 import React from 'react';
 import { Modal } from '../../ui/Modal';
-import { useStore } from '../../../../context/StoreContext'; // Need to export Badge from somewhere or redefine it. 
-// Ideally Badge should be in shared components. For now I will import from AdminPages if exported, or just inline a simple Badge here or assume it's moved.
-// AdminPages defines Badge inline. I should move Badge to a shared UI component to avoid circular deps. 
-// For this task, I'll inline a simple Badge or copy it to avoid breaking AdminPages refactor immediately. 
-// Or better: I will expect the user to move Badge to `src/components/ui/Badge` later. 
-// I will create a simple local Badge component here to be safe and independent.
+import { useStore } from '../../../../context/StoreContext';
 
 const SimpleBadge: React.FC<{ color: string; text: string }> = ({ color, text }) => {
     const bgMap: Record<string, string> = {
@@ -28,12 +23,36 @@ interface TicketCreateModalProps {
 }
 
 export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, onClose, onSubmit }) => {
-    const { users, user } = useStore();
+    const { users } = useStore();
     const collaborators = users.filter(u => u.role === 'Colaborador');
 
+    // Controlled State
+    const [formData, setFormData] = React.useState({
+        title: '',
+        type: 'Tareas CGBI',
+        priority: 'Media',
+        assignedTo: '',
+        desc: ''
+    });
+
     React.useEffect(() => {
-        if (isOpen) console.log('📦 [MODAL] Abriendo Crear Ticket');
+        if (isOpen) {
+            console.log('📦 [MODAL] Abriendo Crear Ticket');
+            // Reset form
+            setFormData({
+                title: '',
+                type: 'Tareas CGBI',
+                priority: 'Media',
+                assignedTo: '',
+                desc: ''
+            });
+        }
     }, [isOpen]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     if (!isOpen) return null;
 
@@ -41,13 +60,28 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
         <Modal title="Crear Nuevo Ticket / Tarea" onClose={onClose} zIndex={50}>
             <form onSubmit={onSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Título / Asunto</label>
-                    <input required name="title" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: Revisión Mensual de Cuentas" />
+                    <label htmlFor="ticket-title" className="block text-xs font-bold text-gray-500 mb-1">Título / Asunto</label>
+                    <input
+                        required
+                        id="ticket-title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        type="text"
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        placeholder="Ej: Revisión Mensual de Cuentas"
+                    />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Tipo de Solicitud</label>
-                        <select name="type" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                        <label htmlFor="ticket-type" className="block text-xs font-bold text-gray-500 mb-1">Tipo de Solicitud</label>
+                        <select
+                            id="ticket-type"
+                            name="type"
+                            value={formData.type}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        >
                             <option value="Tareas CGBI">Tareas CGBI</option>
                             <option value="Mantenimiento">Mantenimiento</option>
                             <option value="Administrativo">Administrativo</option>
@@ -55,8 +89,14 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">Prioridad</label>
-                        <select name="priority" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                        <label htmlFor="ticket-priority" className="block text-xs font-bold text-gray-500 mb-1">Prioridad</label>
+                        <select
+                            id="ticket-priority"
+                            name="priority"
+                            value={formData.priority}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        >
                             <option value="Media">Media</option>
                             <option value="Alta">Alta</option>
                             <option value="Baja">Baja</option>
@@ -64,8 +104,14 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
                     </div>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Asignar Colaborador (Opcional)</label>
-                    <select name="assignedTo" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
+                    <label htmlFor="ticket-assignedTo" className="block text-xs font-bold text-gray-500 mb-1">Asignar Colaborador (Opcional)</label>
+                    <select
+                        id="ticket-assignedTo"
+                        name="assignedTo"
+                        value={formData.assignedTo}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                    >
                         <option value="">-- Sin Asignar --</option>
                         {collaborators.map(c => (
                             <option key={c.id} value={c.name}>{c.name}</option>
@@ -73,8 +119,17 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
                     </select>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">Descripción Detallada</label>
-                    <textarea required name="desc" rows={4} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Detalles de la tarea o ticket..."></textarea>
+                    <label htmlFor="ticket-desc" className="block text-xs font-bold text-gray-500 mb-1">Descripción Detallada</label>
+                    <textarea
+                        required
+                        id="ticket-desc"
+                        name="desc"
+                        value={formData.desc}
+                        onChange={handleChange}
+                        rows={4}
+                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                        placeholder="Detalles de la tarea o ticket..."
+                    ></textarea>
                 </div>
                 <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark">Crear Ticket</button>
             </form>
@@ -128,6 +183,9 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-gray-400">Prioridad:</span>
                             <select
+                                id="status-update-priority"
+                                name="status-update-priority"
+                                aria-label="Cambiar Prioridad"
                                 value={ticket.priority || 'Media'}
                                 onChange={(e) => onUpdatePriority(e.target.value)}
                                 className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-1 py-0.5"
@@ -167,6 +225,9 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     <div className="flex gap-2">
                         <input
                             type="text"
+                            id="reply-box"
+                            name="reply-box"
+                            aria-label="Escribir respuesta"
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                             placeholder="Escribe una respuesta... (Enter para enviar)"
