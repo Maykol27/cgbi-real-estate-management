@@ -7,6 +7,9 @@ import { Calendar } from '../../components/Calendar';
 import { Modal } from '../../src/components/ui/Modal';
 import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
+import { PropertyModal } from '../../src/components/admin/modals/PropertyModal';
+import { UserModal } from '../../src/components/admin/modals/UserModal';
+import { TicketCreateModal, TicketDetailModal } from '../../src/components/admin/modals/TicketModal';
 
 // --- Shared Components ---
 const SectionHeader: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
@@ -586,123 +589,17 @@ export const AdminProperties: React.FC = () => {
             )}
 
             {isModalOpen && (
-                <Modal title={editingProp ? "Editar Propiedad y Estatus" : "Registrar Nueva Propiedad"} onClose={() => { setIsModalOpen(false); setEditingProp(null); }}>
-                    <form onSubmit={handleSaveProperty} className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Nombre / Identificador</label>
-                            <input required name="name" defaultValue={editingProp?.name} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: Apto 301 - Edif. Solar" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Dirección</label>
-                            <input required name="address" defaultValue={editingProp?.address} type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Tipo de Operación</label>
-                                <select
-                                    name="listingType"
-                                    value={formListingType}
-                                    onChange={(e) => setFormListingType(e.target.value as 'Venta' | 'Arriendo')}
-                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
-                                >
-                                    <option value="Arriendo">Arriendo</option>
-                                    <option value="Venta">Venta</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Tipo Inmueble</label>
-                                <select name="type" defaultValue={editingProp?.type || "Apartamento"} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                    <option>Apartamento</option>
-                                    <option>Casa</option>
-                                    <option>Local</option>
-                                    <option>Oficina</option>
-                                </select>
-                            </div>
-                        </div>
+                <PropertyModal
+                    isOpen={isModalOpen}
+                    onClose={() => { setIsModalOpen(false); setEditingProp(null); }}
+                    onSubmit={handleSaveProperty}
+                    initialData={editingProp}
+                    setPropertyImage={(file) => setPropertyImage(file)}
+                    setFormListingType={setFormListingType}
+                    formListingType={formListingType}
+                />
+            )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">{formListingType === 'Venta' ? 'Precio Venta (COP)' : 'Canon (COP)'}</label>
-                                <input required name="rent" defaultValue={editingProp?.rent} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="0" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Propietario Asignado</label>
-                                <select
-                                    required
-                                    name="owner"
-                                    defaultValue=""
-                                    onChange={(e) => {
-                                        // Find the user object to set the hidden owner_id logic if needed, 
-                                        // or just reliable on form submit handler logic which I will update below
-                                    }}
-                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
-                                >
-                                    <option value="" disabled>Seleccionar Propietario</option>
-                                    {users.filter(u => u.role === 'Propietario' || u.role === 'Owner').map(u => (
-                                        <option key={u.id} value={u.name} data-id={u.id}>
-                                            {u.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* New Attributes Section */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Metraje (m²)</label>
-                                <input required name="sqMeters" defaultValue={editingProp?.sqMeters} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 85" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Estacionamientos</label>
-                                <input required name="parking" defaultValue={editingProp?.parking} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 1" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Habitaciones</label>
-                                <input required name="rooms" defaultValue={editingProp?.rooms} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 3" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Baños</label>
-                                <input required name="bathrooms" defaultValue={editingProp?.bathrooms} type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: 2" />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Descripción / Notas</label>
-                            <textarea name="description" defaultValue={editingProp?.description} rows={3} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Detalles adicionales del inmueble..."></textarea>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Foto Principal</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setPropertyImage(e.target.files?.[0] || null)}
-                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
-                            />
-                        </div>
-
-                        {/* Status Change Section - Highlighted */}
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50">
-                            <label className="block text-xs font-bold text-primary dark:text-blue-300 uppercase mb-2 flex items-center gap-2">
-                                <span className="material-icons-round text-sm">info</span> Estatus Actual
-                            </label>
-                            {/* Dynamic Status Options based on formListingType */}
-                            <select name="status" defaultValue={editingProp?.status || "Disponible"} className="w-full rounded-lg border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 text-sm font-medium">
-                                <option value="Disponible">Disponible</option>
-                                <option value="Desistido">Desistido</option>
-                                {formListingType === 'Venta' && <option value="Vendido">Vendido</option>}
-                                {formListingType === 'Arriendo' && <option value="Arrendado">Arrendado</option>}
-                            </select>
-                        </div>
-
-                        <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 hover:bg-primary-dark shadow-lg">
-                            {editingProp ? "Actualizar Propiedad" : "Guardar Propiedad"}
-                        </button>
-                    </form>
-                </Modal>
-            )
-            }
 
             <div className="flex-1 overflow-auto p-6 lg:p-10">
                 <div className="mb-6 flex gap-4">
@@ -854,40 +751,13 @@ export const AdminTenants: React.FC = () => {
             />
 
             {/* Create Tenant Modal */}
-            {isModalOpen && (
-                <Modal title="Registrar Inquilino" onClose={() => setIsModalOpen(false)}>
-                    <form onSubmit={handleAddTenant} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
-                                <input required name="firstName" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
-                                <input required name="lastName" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Correo Electrónico</label>
-                            <input required name="email" type="email" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Propiedad Asignada</label>
-                            <select name="propertyId" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                <option value="">Seleccionar propiedad...</option>
-                                {properties.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Número de Póliza Asignado</label>
-                            <input required name="policyNumber" type="text" placeholder="Ej: POL-123456" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                        </div>
-                        <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark">Guardar y Enviar Acceso</button>
-                    </form>
-                </Modal>
-            )}
+            {/* Create Tenant Modal */}
+            <UserModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleAddTenant}
+                userType="Inquilino"
+            />
 
             {/* Payment History Modal */}
             {selectedTenantHistory && (
@@ -1115,31 +985,13 @@ export const AdminOwners: React.FC = () => {
             />
 
             {/* Create Owner Modal */}
-            {isModalOpen && (
-                <Modal title="Registrar Propietario" onClose={() => setIsModalOpen(false)}>
-                    <form onSubmit={handleAddOwner} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
-                                <input required type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
-                                <input required type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Correo Electrónico</label>
-                            <input required type="email" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Teléfono</label>
-                            <input required type="tel" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" />
-                        </div>
-                        <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark">Registrar Propietario</button>
-                    </form>
-                </Modal>
-            )}
+            {/* Create Owner Modal */}
+            <UserModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleAddOwner}
+                userType="Propietario"
+            />
 
             <div className="flex-1 overflow-auto p-6 lg:p-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1255,186 +1107,24 @@ export const AdminTickets: React.FC = () => {
             />
 
             {/* Create Ticket Modal */}
-            {isCreateModalOpen && (
-                <Modal title="Crear Nuevo Ticket / Tarea" onClose={() => setIsCreateModalOpen(false)}>
-                    <form onSubmit={handleCreateTicket} className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Título / Asunto</label>
-                            <input required name="title" type="text" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Ej: Revisión Mensual de Cuentas" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Tipo de Solicitud</label>
-                                <select name="type" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                    <option value="Tareas CGBI">Tareas CGBI</option>
-                                    <option value="Mantenimiento">Mantenimiento</option>
-                                    <option value="Administrativo">Administrativo</option>
-                                    <option value="PQRS / Felicitaciones">PQRS / Felicitaciones</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">Prioridad</label>
-                                <select name="priority" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                    <option value="Media">Media</option>
-                                    <option value="Alta">Alta</option>
-                                    <option value="Baja">Baja</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Asignar Colaborador (Opcional)</label>
-                            <select name="assignedTo" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                <option value="">-- Sin Asignar --</option>
-                                {collaborators.map(c => (
-                                    <option key={c.id} value={c.name}>{c.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1">Descripción Detallada</label>
-                            <textarea required name="desc" rows={4} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm" placeholder="Detalles de la tarea o ticket..."></textarea>
-                        </div>
-                        <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm mt-2 shadow-lg hover:bg-primary-dark">Crear Ticket</button>
-                    </form>
-                </Modal>
-            )}
+            {/* Create Ticket Modal */}
+            <TicketCreateModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSubmit={handleCreateTicket}
+            />
 
             {/* Ticket Detail Modal */}
-            {selectedTicket && (
-                <Modal title={`Ticket #${selectedTicket.id}`} onClose={() => setSelectedTicket(null)} maxWidth="max-w-2xl">
-                    {(() => {
-                        // Safe lookup of latest ticket state
-                        const viewTicket = tickets.find(t => String(t.id) === String(selectedTicket.id)) || selectedTicket;
-                        if (!viewTicket) return <div className="p-4 text-center">Ticket no encontrado</div>;
-
-                        return (
-                            <div className="flex flex-col h-[500px]">
-                                {/* Ticket Info Header */}
-                                <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                                    <div>
-                                        <h4 className="font-bold text-lg text-gray-800 dark:text-white">{viewTicket.title}</h4>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-sm text-gray-500">Solicitado por: <span className="font-medium text-gray-700 dark:text-gray-300">{viewTicket.requester}</span> ({viewTicket.requesterRole})</span>
-                                        </div>
-                                        <div className="mt-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Descripción</p>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{viewTicket.desc || 'Sin descripción'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1">
-                                        <Badge color={viewTicket.status === 'Pendiente' ? 'red' : viewTicket.status === 'En Progreso' ? 'blue' : 'gray'} text={viewTicket.status || ''} />
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-xs text-gray-400">Prioridad:</span>
-                                            <select
-                                                value={viewTicket.priority || 'Media'}
-                                                onChange={(e) => {
-                                                    const newPriority = e.target.value as any;
-                                                    updateTicketPriority(viewTicket.id, newPriority);
-                                                    // Optimistic update if needed, but Store handles it
-                                                }}
-                                                className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-1 py-0.5"
-                                            >
-                                                <option value="Baja">Baja</option>
-                                                <option value="Media">Media</option>
-                                                <option value="Alta">Alta</option>
-                                            </select>
-                                        </div>
-                                        {viewTicket.attachment && (
-                                            <a
-                                                href={viewTicket.attachmentUrl || "#"}
-                                                download={viewTicket.attachment}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                onClick={(e) => {
-                                                    if (!viewTicket.attachmentUrl) {
-                                                        e.preventDefault();
-                                                        showToast("Archivo simulado no disponible.", "info");
-                                                    }
-                                                }}
-                                                className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1 font-bold"
-                                            >
-                                                <span className="material-icons-round text-sm">attach_file</span> Ver Adjunto
-                                            </a>
-                                        )}
-                                    </div>
-                                    {/* Collaborator Assignment - Only Admin */}
-                                    {user?.role !== 'Colaborador' && (
-                                        <div className="mt-2 flex items-center justify-end gap-2">
-                                            <span className="text-xs text-gray-400 font-bold">Asignado a:</span>
-                                            <select
-                                                value={viewTicket.assignedTo || ""}
-                                                onChange={(e) => assignTicket(viewTicket.id, e.target.value || undefined)}
-                                                className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-2 py-1 max-w-[150px]"
-                                            >
-                                                <option value="">-- Sin Asignar --</option>
-                                                {users.filter(u => u.role === 'Colaborador').map(c => (
-                                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Chat Area */}
-                                <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-4 space-y-4">
-                                    {/* System Intro Message */}
-                                    <div className="flex justify-center">
-                                        <span className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-full">Ticket creado: {viewTicket.date}</span>
-                                    </div>
-
-                                    {viewTicket.messages?.map((msg: any) => (
-                                        <div key={msg.id} className={`flex ${msg.role === 'Admin' ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[80%]`}>
-                                                <div className={`p-3 rounded-xl text-sm ${msg.role === 'Admin' ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none'}`}>
-                                                    <p className="font-bold text-[10px] mb-1 opacity-70">{msg.sender}</p>
-                                                    <p>{msg.text}</p>
-                                                    <p className={`text-[10px] mt-1 text-right ${msg.role === 'Admin' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.time}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )) || <p className="text-center text-gray-400 text-sm italic">No hay mensajes aún.</p>}
-                                </div>
-
-                                {/* Actions Footer */}
-                                <div className="mt-auto pt-2">
-                                    <textarea
-                                        value={replyText}
-                                        onChange={(e) => setReplyText(e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm p-3 focus:ring-primary mb-3"
-                                        rows={2}
-                                        placeholder="Escriba una respuesta pública al usuario..."
-                                    ></textarea>
-
-                                    <div className="flex justify-between items-center gap-4">
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleUpdateStatus('En Progreso')}
-                                                disabled={viewTicket.status === 'En Progreso'}
-                                                className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                Marcar En Progreso
-                                            </button>
-                                            <button
-                                                onClick={() => handleUpdateStatus('Cerrado')}
-                                                disabled={viewTicket.status === 'Cerrado'}
-                                                className="px-3 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                Cerrar Ticket
-                                            </button>
-                                        </div>
-                                        <button
-                                            onClick={handleSendReply}
-                                            className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold text-sm shadow-md transition-colors flex items-center gap-2"
-                                        >
-                                            <span className="material-icons-round text-sm">send</span> Responder
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
-                </Modal>
-            )}
+            {/* Ticket Detail Modal */}
+            <TicketDetailModal
+                ticket={selectedTicket ? (tickets.find(t => String(t.id) === String(selectedTicket.id)) || selectedTicket) : null}
+                onClose={() => setSelectedTicket(null)}
+                onUpdateStatus={handleUpdateStatus}
+                onUpdatePriority={(newPriority) => updateTicketPriority(selectedTicket.id, newPriority as any)}
+                onSendReply={handleSendReply}
+                replyText={replyText}
+                setReplyText={setReplyText}
+            />
 
             <div className="flex-1 overflow-auto p-6 md:p-8">
                 {/* Tabs Switcher */}
