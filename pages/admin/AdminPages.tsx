@@ -349,96 +349,98 @@ export const AdminDocuments: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Recent Documents List */}
-                <div className="bg-white dark:bg-card-dark rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden max-w-5xl mx-auto">
-                    <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Documentos Recientes</h3>
-                        <div className="relative w-full md:w-64">
-                            <span className="material-icons-round absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
-                            <input
-                                type="text"
-                                placeholder="Buscar documento..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 dark:bg-slate-800 border-none text-xs focus:ring-1 focus:ring-primary dark:text-white"
-                            />
+                {/* Recent Documents List - Hidden for Collaborators */}
+                {user?.role !== 'Colaborador' && (
+                    <div className="bg-white dark:bg-card-dark rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden max-w-5xl mx-auto">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Documentos Recientes</h3>
+                            <div className="relative w-full md:w-64">
+                                <span className="material-icons-round absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar documento..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 dark:bg-slate-800 border-none text-xs focus:ring-1 focus:ring-primary dark:text-white"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                {filteredFiles.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
-                                            No se encontraron documentos.
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
                                     </tr>
-                                ) : (
-                                    filteredFiles.map((file) => (
-                                        <tr key={file.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w - 8 h - 8 rounded - lg flex items - center justify - center shrink - 0 ${file.type === 'Factura / Recibo' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} `}>
-                                                        <span className="material-icons-round text-lg">
-                                                            {file.type === 'Factura / Recibo' ? 'receipt' : file.type === 'Contrato' ? 'gavel' : 'description'}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-gray-800 dark:text-white group-hover:text-primary transition-colors">{file.name}</p>
-                                                        <p className="text-xs text-gray-400">{file.size}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                                {file.date}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button onClick={() => confirmDelete(file.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Eliminar">
-                                                        <span className="material-icons-round text-lg">delete</span>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (file.fileUrl) {
-                                                                const link = document.createElement('a');
-                                                                link.href = file.fileUrl;
-                                                                link.download = file.name;
-                                                                document.body.appendChild(link);
-                                                                link.click();
-                                                                document.body.removeChild(link);
-                                                                showToast("Descargando archivo...", "success");
-                                                            } else {
-                                                                showToast("Descarga iniciada: " + file.name, "info");
-                                                            }
-                                                        }}
-                                                        className="p-1.5 text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-                                                        title="Descargar"
-                                                    >
-                                                        <span className="material-icons-round text-lg">download</span>
-                                                    </button>
-                                                </div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                    {filteredFiles.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                                                No se encontraron documentos.
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : (
+                                        filteredFiles.map((file) => (
+                                            <tr key={file.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${file.type === 'Factura / Recibo' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                                                            <span className="material-icons-round text-lg">
+                                                                {file.type === 'Factura / Recibo' ? 'receipt' : file.type === 'Contrato' ? 'gavel' : 'description'}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-gray-800 dark:text-white group-hover:text-primary transition-colors">{file.name}</p>
+                                                            <p className="text-xs text-gray-400">{file.size}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                    {file.date}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => confirmDelete(file.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Eliminar">
+                                                            <span className="material-icons-round text-lg">delete</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (file.fileUrl) {
+                                                                    const link = document.createElement('a');
+                                                                    link.href = file.fileUrl;
+                                                                    link.download = file.name;
+                                                                    document.body.appendChild(link);
+                                                                    link.click();
+                                                                    document.body.removeChild(link);
+                                                                    showToast("Descargando archivo...", "success");
+                                                                } else {
+                                                                    showToast("Descarga iniciada: " + file.name, "info");
+                                                                }
+                                                            }}
+                                                            className="p-1.5 text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                                            title="Descargar"
+                                                        >
+                                                            <span className="material-icons-round text-lg">download</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
-        </div >
+        </div>
     );
 };
 
@@ -1294,129 +1296,137 @@ export const AdminTickets: React.FC = () => {
             {/* Ticket Detail Modal */}
             {selectedTicket && (
                 <Modal title={`Ticket #${selectedTicket.id}`} onClose={() => setSelectedTicket(null)} maxWidth="max-w-2xl">
-                    <div className="flex flex-col h-[500px]">
-                        {/* Ticket Info Header */}
-                        <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                            <div>
-                                <h4 className="font-bold text-lg text-gray-800 dark:text-white">{selectedTicket.title}</h4>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-sm text-gray-500">Solicitado por: <span className="font-medium text-gray-700 dark:text-gray-300">{selectedTicket.requester}</span> ({selectedTicket.requesterRole})</span>
-                                </div>
-                                <div className="mt-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Descripción</p>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedTicket.desc || 'Sin descripción'}</p>
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                                <Badge color={selectedTicket.status === 'Pendiente' ? 'red' : selectedTicket.status === 'En Progreso' ? 'blue' : 'gray'} text={tickets.find(t => t.id === selectedTicket.id)?.status || ''} />
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs text-gray-400">Prioridad:</span>
-                                    <select
-                                        value={selectedTicket.priority || 'Media'}
-                                        onChange={(e) => {
-                                            const newPriority = e.target.value as any;
-                                            updateTicketPriority(selectedTicket.id, newPriority);
-                                            setSelectedTicket(prev => prev ? { ...prev, priority: newPriority } : null);
-                                        }}
-                                        className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-1 py-0.5"
-                                    >
-                                        <option value="Baja">Baja</option>
-                                        <option value="Media">Media</option>
-                                        <option value="Alta">Alta</option>
-                                    </select>
-                                </div>
-                                {selectedTicket.attachment && (
-                                    <a
-                                        href={selectedTicket.attachmentUrl || "#"}
-                                        download={selectedTicket.attachment}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        onClick={(e) => {
-                                            if (!selectedTicket.attachmentUrl) {
-                                                e.preventDefault();
-                                                showToast("Archivo simulado no disponible.", "info");
-                                            }
-                                        }}
-                                        className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1 font-bold"
-                                    >
-                                        <span className="material-icons-round text-sm">attach_file</span> Ver Adjunto
-                                    </a>
-                                )}
-                            </div>
-                            {/* Collaborator Assignment - Only Admin */}
-                            {user?.role !== 'Colaborador' && (
-                                <div className="mt-2 flex items-center justify-end gap-2">
-                                    <span className="text-xs text-gray-400 font-bold">Asignado a:</span>
-                                    <select
-                                        value={selectedTicket.assignedTo || ""}
-                                        onChange={(e) => assignTicket(selectedTicket.id, e.target.value || undefined)}
-                                        className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-2 py-1 max-w-[150px]"
-                                    >
-                                        <option value="">-- Sin Asignar --</option>
-                                        {users.filter(u => u.role === 'Colaborador').map(c => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
-                        </div>
+                    {(() => {
+                        // Safe lookup of latest ticket state
+                        const viewTicket = tickets.find(t => String(t.id) === String(selectedTicket.id)) || selectedTicket;
+                        if (!viewTicket) return <div className="p-4 text-center">Ticket no encontrado</div>;
 
-                        {/* Chat Area */}
-                        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-4 space-y-4">
-                            {/* System Intro Message */}
-                            <div className="flex justify-center">
-                                <span className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-full">Ticket creado: {selectedTicket.date}</span>
-                            </div>
-
-                            {tickets.find(t => t.id === selectedTicket.id)?.messages?.map((msg: any) => (
-                                <div key={msg.id} className={`flex ${msg.role === 'Admin' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[80%]`}>
-                                        <div className={`p-3 rounded-xl text-sm ${msg.role === 'Admin' ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none'}`}>
-                                            <p className="font-bold text-[10px] mb-1 opacity-70">{msg.sender}</p>
-                                            <p>{msg.text}</p>
-                                            <p className={`text-[10px] mt-1 text-right ${msg.role === 'Admin' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.time}</p>
+                        return (
+                            <div className="flex flex-col h-[500px]">
+                                {/* Ticket Info Header */}
+                                <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                    <div>
+                                        <h4 className="font-bold text-lg text-gray-800 dark:text-white">{viewTicket.title}</h4>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-sm text-gray-500">Solicitado por: <span className="font-medium text-gray-700 dark:text-gray-300">{viewTicket.requester}</span> ({viewTicket.requesterRole})</span>
+                                        </div>
+                                        <div className="mt-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Descripción</p>
+                                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{viewTicket.desc || 'Sin descripción'}</p>
                                         </div>
                                     </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <Badge color={viewTicket.status === 'Pendiente' ? 'red' : viewTicket.status === 'En Progreso' ? 'blue' : 'gray'} text={viewTicket.status || ''} />
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-xs text-gray-400">Prioridad:</span>
+                                            <select
+                                                value={viewTicket.priority || 'Media'}
+                                                onChange={(e) => {
+                                                    const newPriority = e.target.value as any;
+                                                    updateTicketPriority(viewTicket.id, newPriority);
+                                                    // Optimistic update if needed, but Store handles it
+                                                }}
+                                                className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-1 py-0.5"
+                                            >
+                                                <option value="Baja">Baja</option>
+                                                <option value="Media">Media</option>
+                                                <option value="Alta">Alta</option>
+                                            </select>
+                                        </div>
+                                        {viewTicket.attachment && (
+                                            <a
+                                                href={viewTicket.attachmentUrl || "#"}
+                                                download={viewTicket.attachment}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={(e) => {
+                                                    if (!viewTicket.attachmentUrl) {
+                                                        e.preventDefault();
+                                                        showToast("Archivo simulado no disponible.", "info");
+                                                    }
+                                                }}
+                                                className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1 font-bold"
+                                            >
+                                                <span className="material-icons-round text-sm">attach_file</span> Ver Adjunto
+                                            </a>
+                                        )}
+                                    </div>
+                                    {/* Collaborator Assignment - Only Admin */}
+                                    {user?.role !== 'Colaborador' && (
+                                        <div className="mt-2 flex items-center justify-end gap-2">
+                                            <span className="text-xs text-gray-400 font-bold">Asignado a:</span>
+                                            <select
+                                                value={viewTicket.assignedTo || ""}
+                                                onChange={(e) => assignTicket(viewTicket.id, e.target.value || undefined)}
+                                                className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 rounded px-2 py-1 max-w-[150px]"
+                                            >
+                                                <option value="">-- Sin Asignar --</option>
+                                                {users.filter(u => u.role === 'Colaborador').map(c => (
+                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
-                            )) || <p className="text-center text-gray-400 text-sm italic">No hay mensajes aún.</p>}
-                        </div>
 
-                        {/* Actions Footer */}
-                        <div className="mt-auto pt-2">
-                            <textarea
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm p-3 focus:ring-primary mb-3"
-                                rows={2}
-                                placeholder="Escriba una respuesta pública al usuario..."
-                            ></textarea>
+                                {/* Chat Area */}
+                                <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-4 space-y-4">
+                                    {/* System Intro Message */}
+                                    <div className="flex justify-center">
+                                        <span className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-full">Ticket creado: {viewTicket.date}</span>
+                                    </div>
 
-                            <div className="flex justify-between items-center gap-4">
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleUpdateStatus('En Progreso')}
-                                        disabled={tickets.find(t => t.id === selectedTicket.id)?.status === 'En Progreso'}
-                                        className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        Marcar En Progreso
-                                    </button>
-                                    <button
-                                        onClick={() => handleUpdateStatus('Cerrado')}
-                                        disabled={tickets.find(t => t.id === selectedTicket.id)?.status === 'Cerrado'}
-                                        className="px-3 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        Cerrar Ticket
-                                    </button>
+                                    {viewTicket.messages?.map((msg: any) => (
+                                        <div key={msg.id} className={`flex ${msg.role === 'Admin' ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[80%]`}>
+                                                <div className={`p-3 rounded-xl text-sm ${msg.role === 'Admin' ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-bl-none'}`}>
+                                                    <p className="font-bold text-[10px] mb-1 opacity-70">{msg.sender}</p>
+                                                    <p>{msg.text}</p>
+                                                    <p className={`text-[10px] mt-1 text-right ${msg.role === 'Admin' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.time}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )) || <p className="text-center text-gray-400 text-sm italic">No hay mensajes aún.</p>}
                                 </div>
-                                <button
-                                    onClick={handleSendReply}
-                                    className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold text-sm shadow-md transition-colors flex items-center gap-2"
-                                >
-                                    <span className="material-icons-round text-sm">send</span> Responder
-                                </button>
+
+                                {/* Actions Footer */}
+                                <div className="mt-auto pt-2">
+                                    <textarea
+                                        value={replyText}
+                                        onChange={(e) => setReplyText(e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm p-3 focus:ring-primary mb-3"
+                                        rows={2}
+                                        placeholder="Escriba una respuesta pública al usuario..."
+                                    ></textarea>
+
+                                    <div className="flex justify-between items-center gap-4">
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleUpdateStatus('En Progreso')}
+                                                disabled={viewTicket.status === 'En Progreso'}
+                                                className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Marcar En Progreso
+                                            </button>
+                                            <button
+                                                onClick={() => handleUpdateStatus('Cerrado')}
+                                                disabled={viewTicket.status === 'Cerrado'}
+                                                className="px-3 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Cerrar Ticket
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={handleSendReply}
+                                            className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold text-sm shadow-md transition-colors flex items-center gap-2"
+                                        >
+                                            <span className="material-icons-round text-sm">send</span> Responder
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        );
+                    })()}
                 </Modal>
             )}
 
@@ -2127,10 +2137,14 @@ export const AdminSettings: React.FC = () => {
 
 // Subcomponent for User Management to keep things clean
 const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
-    const { deleteUser, users: storeUsers } = useStore(); // Access deleteUser
+    const { deleteUser, updateProfile } = useStore(); // Access deleteUser AND updateProfile
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState("");
     const [processingId, setProcessingId] = useState<string | number | null>(null);
+
+    // Permission Editing State
+    const [editingUser, setEditingUser] = useState<any>(null); // The user being edited
+    const [tempPermissions, setTempPermissions] = useState<string[]>([]);
 
     const filtered = users.filter(u =>
         u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -2154,13 +2168,8 @@ const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
     const handleResetPassword = async (id: string | number) => {
         if (window.confirm(`¿Resetear contraseña a 'CGBI2026!'?`)) {
             setProcessingId(id);
-            // We call the same Edge Function but with different action
-            // Since deleteUser is strict, we should probably add resetPassword to store or call function directly here.
-            // For speed, let's just call fetch directly here as we are in Admin context.
-            // Or better, let's assume deleteUser is enough for now as requested ("boton de eliminar").
-            // But I promised "Reset Password". Let's use fetch.
-
             try {
+                // Dynamic import to avoid SSR issues if any, though likely client side
                 const { supabase } = await import('../../lib/supabaseClient');
                 const { data, error } = await supabase.functions.invoke('manage-users', {
                     body: { action: 'reset_password', userId: id }
@@ -2175,6 +2184,28 @@ const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
             }
         }
     }
+
+    const openEditPermissions = (user: any) => {
+        setEditingUser(user);
+        setTempPermissions(user.permissions || []);
+    };
+
+    const savePermissions = async () => {
+        if (!editingUser) return;
+        setProcessingId(editingUser.id);
+
+        await updateProfile(editingUser.id, { permissions: tempPermissions });
+
+        setProcessingId(null);
+        setEditingUser(null);
+        // Toast is handled in updateProfile, but we can add one here if needed? updateProfile handles it.
+    };
+
+    const toggleTempPermission = (perm: string) => {
+        setTempPermissions(prev =>
+            prev.includes(perm) ? prev.filter(p => p !== perm) : [...prev, perm]
+        );
+    };
 
     return (
         <div className="space-y-4">
@@ -2227,6 +2258,15 @@ const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
                                 </td>
                                 <td className="p-4 text-right">
                                     <div className="flex justify-end gap-2">
+                                        {u.role === 'Colaborador' && (
+                                            <button
+                                                onClick={() => openEditPermissions(u)}
+                                                className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                                                title="Editar Permisos"
+                                            >
+                                                <span className="material-icons-round text-lg">vpn_key</span>
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleResetPassword(u.id)}
                                             disabled={!!processingId}
@@ -2250,7 +2290,39 @@ const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
                     </tbody>
                 </table>
             </div>
-        </div>
 
+            {/* Permission Edit Modal */}
+            {editingUser && (
+                <Modal title={`Permisos: ${editingUser.name}`} isOpen={!!editingUser} onClose={() => setEditingUser(null)}>
+                    <div className="space-y-4">
+                        <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Acceso a Módulos</label>
+                            <div className="space-y-2">
+                                {['tickets', 'calendario', 'documentos', 'propiedades'].map(perm => (
+                                    <label key={perm} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-slate-700/50 rounded transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={tempPermissions.includes(perm)}
+                                            onChange={() => toggleTempPermission(perm)}
+                                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm dark:text-gray-300 capitalize font-medium">{perm}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2">
+                            <button onClick={() => setEditingUser(null)} className="px-4 py-2 text-gray-500 font-bold text-sm">Cancelar</button>
+                            <button
+                                onClick={savePermissions}
+                                className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md"
+                            >
+                                Guardar Permisos
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+        </div>
     );
 };

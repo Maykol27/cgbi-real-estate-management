@@ -402,8 +402,124 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.log("🔄 Cleaning up auth subscription");
             subscription.unsubscribe();
         };
+
     }, []);
 
+    // --- REALTIME SUBSCRIPTION (New) ---
+    useEffect(() => {
+        if (!user) return; // Only listen if logged in, RLS will handle security but good practice
+
+        console.log("📡 Connecting to Supabase Realtime...", user.role);
+
+        const channel = supabase
+            .channel('db-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'tickets' },
+                (payload) => {
+                    console.log('🔔 Realtime Ticket Event:', payload);
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+
+                    // 1. STATE SYNC
+                    if (eventType === 'INSERT') {
+                        // Cast newRecord to Ticket type roughly
+                        const t = newRecord as any;
+                        // Fetch properties/users to map names if needed, but for now fallback to ID or basic info
+                        // Ideally we'd do a quick fetch, but for speed we put raw data
+                        const newTicket: Ticket = {
+                            id: t.id,
+                            title: t.title,
+                            desc: t.description,
+                            status: t.status,
+                            priority: t.priority,
+                            requester: 'Usuario (Sync)', // We don't have joined name immediately without fetch
+                            requesterRole: '...',
+                            date: new Date(t.created_at).toLocaleDateString(),
+                            propertyId: t.property_id,
+                            messages: t.messages || []
+                        };
+
+                        // Prevent duplicate add if we just added it locally
+                        setTickets(prev => {
+                            if (prev.find(x => x.id === newTicket.id)) return prev;
+                            return [newTicket, ...prev];
+                        });
+
+                        // 2. NOTIFICATIONS
+                        // Notify Admin on New Ticket
+                        if (user.role === 'Administrador' || user.role === 'Admin' || user.role === 'Colaborador') {
+                            // Don't notify if I created it myself
+                            if (t.requester_id !== user.id) {
+                                notify("Nuevo Ticket", `Se ha creado un nuevo ticket: ${t.title}`);
+                            }
+                        }
+                    }
+                    else if (eventType === 'UPDATE') {
+                        setTickets(prev => prev.map(t => t.id === newRecord.id ? { ...t, ...newRecord, status: newRecord.status, priority: newRecord.priority, messages: newRecord.messages } : t));
+
+                        // Notify Owner/Tenant on Reply/Status Change
+                        const isMyTicket = newRecord.requester_id === user.id;
+                        if (isMyTicket && (user.role === 'Propietario' || user.role === 'Owner' || user.role === 'Inquilino')) {
+                            // Check what changed?
+                            if (newRecord.status !== oldRecord.status) {
+                                notify("Actualización de Ticket", `Tu ticket "${newRecord.title}" ahora está: ${newRecord.status}`);
+                            }
+                            // If explicit message check needed, would be complex, status is good proxy
+                        }
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'finance_requests' },
+                (payload) => {
+                    console.log('💰 Realtime Finance Event:', payload);
+                    const { eventType, new: newRecord } = payload;
+
+                    if (eventType === 'INSERT') {
+                        const r = newRecord as any;
+                        // Add to State
+                        const newReq: FinanceRequest = {
+                            id: r.id,
+                            title: r.title,
+                            desc: r.description,
+                            cost: r.cost,
+                            status: r.status,
+                            requester: 'Admin (Sync)',
+                            date: new Date(r.created_at).toLocaleDateString(),
+                            propertyId: r.property_id
+                        };
+
+                        setFinanceRequests(prev => {
+                            if (prev.find(x => x.id === newReq.id)) return prev;
+                            return [newReq, ...prev];
+                        });
+
+                        // Notify Owner (Approval Needed)
+                        // We need to check if this finance request is for one of MY properties
+                        // Since 'properties' array is in scope...
+                        const isForMyProperty = properties.some(p => String(p.id) === String(r.property_id));
+                        if ((user.role === 'Propietario' || user.role === 'Owner') && isForMyProperty) {
+                            notify("Aprobación Requerida", `Nueva solicitud de gasto: ${r.title}`);
+                        }
+                    }
+                    else if (eventType === 'UPDATE') {
+                        setFinanceRequests(prev => prev.map(r => r.id === newRecord.id ? { ...r, ...newRecord, status: newRecord.status } : r));
+
+                        // Notify if I was the requester (Admin) and it got approved/rejected
+                        if ((user.role === 'Analista' || user.role === 'Admin') && newRecord.requester_id === user.id) {
+                            notify("Solicitud Actualizada", `Solicitud "${newRecord.title}" ha sido ${newRecord.status}`);
+                        }
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            console.log("🔕 Disconnecting Realtime...");
+            supabase.removeChannel(channel);
+        };
+    }, [user, properties]); // Re-run if user or properties list changes (important for owner check)
     const fetchProfile = async (userId: string): Promise<User | undefined> => {
         console.log("StoreContext: fetchProfile START", userId);
         try {
@@ -1170,21 +1286,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const updateProfile = (userId: string | number, updates: Partial<User>) => {
-        // Update Local State for immediate UI change
-        setUser(prev => prev && prev.id === userId ? { ...prev, ...updates } : prev);
-        setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
-
-        // Persist to localStorage to survive refresh (since DB column might be missing)
+    const updateProfile = async (userId: string | number, updates: Partial<User>) => {
         try {
-            const stored = localStorage.getItem('sikai_user_updates');
-            const data = stored ? JSON.parse(stored) : {};
-            // Use a consistent ID key. If user.id is mock (1), it might conflict if we don't handle it well.
-            // But for this session it works.
-            data[userId] = { ...(data[userId] || {}), ...updates };
-            localStorage.setItem('sikai_user_updates', JSON.stringify(data));
-        } catch (e) {
-            console.error("Failed to persist locally", e);
+            const dbUpdates: any = {};
+            if (updates.permissions) dbUpdates.permissions = updates.permissions;
+            if (updates.name) dbUpdates.full_name = updates.name;
+            if (updates.role) dbUpdates.role = updates.role;
+
+            if (Object.keys(dbUpdates).length > 0) {
+                const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', userId);
+                if (error) throw error;
+            }
+
+            // Update Local State for immediate UI change
+            setUser(prev => prev && prev.id === userId ? { ...prev, ...updates } : prev);
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+
+            notify("Perfil Actualizado", "Los cambios han sido guardados correctamente.");
+        } catch (err: any) {
+            console.error("Error updating profile:", err);
+            notify("Error", "No se pudo actualizar el perfil en la base de datos.");
         }
     };
 
@@ -1212,7 +1333,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             properties, addProperty, updatePropertyStatus, updateProperty,
             visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
             financeRequests, addFinanceRequest, updateFinanceRequestStatus,
-            payments, addPayment, updateUserStatus,
+            payments, addPayment, updateUserStatus, updateProfile,
             requestNotificationPermission
         }}>
             {children}
