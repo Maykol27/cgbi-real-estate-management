@@ -821,8 +821,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 target: d.target,
                 size: d.size,
                 url: publicUrl,
-                created_by: user?.id // Track who created this document
+                created_by: user?.id, // Track who created this document
+                target_user_ids: d.targetId ? [d.targetId] : null // Populate array for RLS
             }).select().single();
+
+            console.log('📡 [DB_RESPONSE] Documento registrado:', data);
 
             if (error) {
                 console.error("❌ Error creating document:", error);

@@ -62,13 +62,13 @@ export interface Document {
     id: string | number;
     name: string;
     type: 'Factura / Recibo' | 'Contrato' | 'Comunicación' | 'Solicitud' | 'Documento Personal';
-    target: string;
-    targetIds?: (string | number)[];
-    targetId?: string;
+    target: string; // Display name: "Todos", "Juan Pérez", etc.
+    targetIds?: (string | number)[]; // Array de UUIDs para RLS
+    targetId?: string; // Single UUID helper for specific client
     date: string;
     size: string;
     fileUrl?: string;
-    createdBy?: string | number; // Track who created the document
+    createdBy?: string | number;
 }
 
 export interface Visit {

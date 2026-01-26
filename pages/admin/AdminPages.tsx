@@ -130,13 +130,16 @@ export const AdminDocuments: React.FC = () => {
         }
 
         // Use Store Action
+        console.log('📤 [DOC_UPLOAD] Enviando documento a Target ID:', specificClientId || 'General');
+
         addDocument({
             name: selectedFile.name,
             size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-            type: docType as any, // Use the selected type
-            target: recipient === "Cliente Específico" ? (specificClientId || specificClient) : recipient, // Use UUID if available
+            type: docType as any,
+            target: recipient === "Cliente Específico" ? specificClient : recipient, // For display
+            targetId: recipient === "Cliente Específico" ? specificClientId : undefined, // UUID for RLS
             fileUrl: fileUrl,
-            file: selectedFile // Pass the File object for upload
+            file: selectedFile
         });
 
         // Reset Form
