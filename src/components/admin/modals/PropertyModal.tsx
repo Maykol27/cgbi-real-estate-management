@@ -114,7 +114,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 </div>
 
                 {/* Listing Type & Property Type */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="listingType" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Tipo de Operación
@@ -153,7 +153,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 </div>
 
                 {/* Rent/Price & Owner */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="rent" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             {formListingType === 'Venta' ? 'Precio Venta (COP)' : 'Canon (COP)'}
@@ -192,7 +192,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 </div>
 
                 {/* Square Meters & Parking */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="sqMeters" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Metraje (m²)
@@ -226,7 +226,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 </div>
 
                 {/* Rooms & Bathrooms */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="rooms" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                             Habitaciones
