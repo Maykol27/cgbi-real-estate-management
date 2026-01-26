@@ -182,43 +182,55 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 }) => {
 
     React.useEffect(() => {
-        if (ticket) console.log('📦 [MODAL] Detalle Ticket Abierto:', ticket.id, ticket);
-    }, [ticket]);
+        if (ticket) {
+            console.log('📦 [MODAL] Detalle Ticket Abierto:', ticket.id, ticket);
+            console.log('👤 [MODAL] Assigned to:', ticket.assigned_to);
+        }
+    }, [ticket, ticket?.assigned_to]);
 
     // Early return but SAFE - REGLA 3
     if (!ticket) return null;
 
+
     return (
-        <Modal isOpen={!!ticket} title={`Ticket #${ticket?.id || 'N/A'}`} onClose={onClose} maxWidth="max-w-2xl" zIndex={50}>
-            <div className="flex flex-col h-[500px]">
+        <Modal isOpen={!!ticket} title={`Ticket #${ticket?.id || 'N/A'}`} onClose={onClose} maxWidth="max-w-3xl" zIndex={50}>
+            <div className="flex flex-col h-[550px]">
                 {/* Info Header */}
-                <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                        <h4 className="font-bold text-lg text-gray-800 dark:text-white">{ticket?.title || 'Sin título'}</h4>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                    {/* Title and Requester */}
+                    <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                            <h4 className="font-bold text-lg text-[#111827] dark:text-[#F9FAFB]">{ticket?.title || 'Sin título'}</h4>
+                            <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 block">
                                 Solicitado por: <span className="font-medium text-gray-700 dark:text-gray-300">{ticket?.requester || 'Desconocido'}</span> ({ticket?.requesterRole || 'N/A'})
                             </span>
                         </div>
-                        <div className="mt-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Descripción</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{ticket?.desc || 'Sin descripción'}</p>
-                        </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
                         <SimpleBadge
                             color={ticket?.status === 'Pendiente' ? 'red' : ticket?.status === 'En Progreso' ? 'blue' : 'gray'}
                             text={ticket?.status || 'Sin estado'}
                         />
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-gray-400">Prioridad:</span>
+                    </div>
+
+                    {/* Description */}
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 mb-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Descripción</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{ticket?.desc || 'Sin descripción'}</p>
+                    </div>
+
+                    {/* Two-column: Priority + Assignment */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Priority */}
+                        <div>
+                            <label htmlFor="status-update-priority" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+                                Prioridad
+                            </label>
                             <select
                                 id="status-update-priority"
                                 name="status-update-priority"
                                 aria-label="Cambiar Prioridad"
                                 value={ticket?.priority || 'Media'}
                                 onChange={(e) => onUpdatePriority(e.target.value)}
-                                className="text-xs border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 dark:text-white rounded px-2 py-0.5"
+                                className="w-full text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             >
                                 <option value="Baja">Baja</option>
                                 <option value="Media">Media</option>
@@ -226,11 +238,11 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                             </select>
                         </div>
 
-                        {/* ADMIN ONLY: Assign Collaborator */}
+                        {/* ADMIN ONLY: Assignment */}
                         {currentUser?.role === 'Admin' && onAssignCollaborator && (
-                            <div className="mt-3 w-full bg-[#D62C5E]/5 dark:bg-[#D62C5E]/10 p-3 rounded-lg border border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
-                                <label htmlFor="assign-collaborator" className="block text-xs font-bold text-[#D62C5E] uppercase mb-2 flex items-center gap-1">
-                                    <span className="material-icons-round text-sm">person_add</span>
+                            <div>
+                                <label htmlFor="assign-collaborator" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+                                    <span className="material-icons-round text-base text-[#D62C5E]">person</span>
                                     Asignar a Colaborador
                                 </label>
                                 <select
