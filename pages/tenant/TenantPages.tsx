@@ -7,7 +7,7 @@ import { formatCurrency } from '../../utils';
 
 // --- Shared Components ---
 const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
-    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 z-10 shadow-sm">
+    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 z-50 shadow-sm relative">
         <h1 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h1>
         <div className="flex items-center gap-2">
             <NotificationButton />
