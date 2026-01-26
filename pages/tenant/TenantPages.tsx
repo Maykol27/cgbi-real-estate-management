@@ -383,7 +383,7 @@ export const TenantRequests: React.FC = () => {
                                             {t.messages.map((msg: any) => (
                                                 <div key={msg.id} className={`flex ${msg.role === 'Admin' ? 'justify-start' : 'justify-end'}`}>
                                                     <div className={`max-w-[90%] p-2 rounded-lg text-sm ${msg.role === 'Admin' ? 'bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200' : 'bg-white border border-gray-200 text-gray-700 dark:bg-slate-700 dark:text-gray-300'}`}>
-                                                        <p className="font-bold text-xs opacity-75 mb-0.5">{msg.sender}</p>
+                                                        <p className="font-bold text-xs opacity-75 mb-0.5">{msg.role === 'Admin' ? 'Admin CGBI' : (msg.sender || 'Tú')}</p>
                                                         <p>{msg.text}</p>
                                                         <p className="text-[10px] opacity-60 text-right mt-1">{msg.time}</p>
                                                     </div>

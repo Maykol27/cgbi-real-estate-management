@@ -692,7 +692,7 @@ export const OwnerRequests: React.FC = () => {
                                             {req.messages.map((msg: any) => (
                                                 <div key={msg.id} className={`flex ${msg.role === 'Admin' ? 'justify-start' : 'justify-end'}`}>
                                                     <div className={`max-w-[90%] p-2 rounded-lg text-xs ${msg.role === 'Admin' ? 'bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200' : 'bg-white border border-gray-200 text-gray-700 dark:bg-slate-700 dark:text-gray-300'}`}>
-                                                        <span className="font-bold opacity-75 mr-1">{msg.sender}:</span>
+                                                        <span className="font-bold opacity-75 mr-1">{msg.role === 'Admin' ? 'Admin CGBI' : (msg.sender || 'Tú')}:</span>
                                                         <span>{msg.text}</span>
                                                     </div>
                                                 </div>
