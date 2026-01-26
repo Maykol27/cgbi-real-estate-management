@@ -314,14 +314,14 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                             <span className="material-icons-round">send</span>
                         </button>
                     </div>
-                    <div className="flex gap-2 mt-2 justify-end">
+                    <div className="grid grid-cols-2 md:flex gap-2 mt-2 md:justify-end">
                         {['Pendiente', 'En Progreso', 'Resuelto', 'Cerrado'].map((status) => (
                             <button
                                 key={status}
                                 onClick={() => onUpdateStatus(status)}
-                                className={`px-3 py-1 text-xs font-bold rounded-lg border transition-all ${ticket?.status === status
+                                className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all ${ticket?.status === status
                                     ? 'bg-gray-800 text-white border-gray-800 dark:bg-white dark:text-gray-900'
-                                    : 'bg-transparent text-gray-500 border-gray-200 hover:border-gray-400'
+                                    : 'bg-transparent text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                                     }`}
                             >
                                 {status}
