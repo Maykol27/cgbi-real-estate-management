@@ -732,8 +732,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const assignTicket = async (id: string | number, userId: string | number | undefined) => {
-        // Optimistic Update
-        setTickets(prev => prev.map(t => t.id === id ? { ...t, assignedTo: userId } : t));
+        console.log('🔄 [STORE] assignTicket called - ticketId:', id, 'collaboratorId:', userId);
+
+        // Optimistic Update - FIXED: Use assigned_to (snake_case) to match Supabase schema
+        setTickets(prev => prev.map(t => t.id === id ? { ...t, assigned_to: userId } : t));
         const assignee = users.find(u => u.id === userId);
         notify("Ticket Asignado", `Ticket #${id} asignado a ${assignee?.name || 'Nadie'}.`);
 
@@ -743,9 +745,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }).eq('id', id);
 
         if (error) {
-            console.error("Error assigning ticket:", error);
+            console.error("❌ [STORE] Error assigning ticket:", error);
             notify("Error", "No se pudo guardar la asignación en la base de datos.");
-            // Revert optimistic update could be here, but keeping simple
+            // Revert optimistic update
+            setTickets(prev => prev.map(t => t.id === id ? { ...t, assigned_to: null } : t));
+        } else {
+            console.log('✅ [STORE] Ticket assigned successfully to collaborator:', userId);
         }
     };
 
