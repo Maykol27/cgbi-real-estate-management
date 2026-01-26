@@ -162,6 +162,10 @@ interface TicketDetailModalProps {
     onSendReply: () => void;
     replyText: string;
     setReplyText: (text: string) => void;
+    // New props for assignment
+    collaborators?: any[];
+    currentUser?: any;
+    onAssignCollaborator?: (collaboratorId: string) => void;
 }
 
 export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
@@ -171,7 +175,10 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     onUpdatePriority,
     onSendReply,
     replyText,
-    setReplyText
+    setReplyText,
+    collaborators = [],
+    currentUser,
+    onAssignCollaborator
 }) => {
 
     React.useEffect(() => {
@@ -218,6 +225,40 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                                 <option value="Alta">Alta</option>
                             </select>
                         </div>
+
+                        {/* ADMIN ONLY: Assign Collaborator */}
+                        {currentUser?.role === 'Admin' && onAssignCollaborator && (
+                            <div className="mt-3 w-full bg-[#D62C5E]/5 dark:bg-[#D62C5E]/10 p-3 rounded-lg border border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                <label htmlFor="assign-collaborator" className="block text-xs font-bold text-[#D62C5E] uppercase mb-2 flex items-center gap-1">
+                                    <span className="material-icons-round text-sm">person_add</span>
+                                    Asignar a Colaborador
+                                </label>
+                                <select
+                                    id="assign-collaborator"
+                                    name="assign-collaborator"
+                                    aria-label="Asignar Ticket a Colaborador"
+                                    value={ticket?.assigned_to || ''}
+                                    onChange={(e) => {
+                                        console.log('🔄 [TICKET] Asignando a colaborador:', e.target.value);
+                                        onAssignCollaborator(e.target.value);
+                                    }}
+                                    className="w-full text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
+                                >
+                                    <option value="">Sin asignar</option>
+                                    {collaborators.map(collab => (
+                                        <option key={collab.id} value={collab.id}>
+                                            {collab.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {ticket?.assigned_to && (
+                                    <p className="mt-1.5 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                                        <span className="material-icons-round text-xs">check_circle</span>
+                                        Asignado a: {collaborators.find(c => c.id === ticket.assigned_to)?.name || 'Colaborador'}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

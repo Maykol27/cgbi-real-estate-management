@@ -669,10 +669,10 @@ export const AdminProperties: React.FC = () => {
                                         <td className="p-5 text-sm font-semibold text-[#111827] dark:text-[#F9FAFB]">{formatCurrency(Number(prop.rent))}</td>
                                         <td className="p-5">
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${prop.status === 'Arrendado' || prop.status === 'Vendido' || prop.status === 'Ocupado'
-                                                    ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900'
-                                                    : prop.status === 'Disponible'
-                                                        ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900'
-                                                        : 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/20 dark:bg-[#D62C5E]/30 dark:text-[#F9FAFB] dark:border-[#D62C5E]/40'
+                                                ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900'
+                                                : prop.status === 'Disponible'
+                                                    ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900'
+                                                    : 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/20 dark:bg-[#D62C5E]/30 dark:text-[#F9FAFB] dark:border-[#D62C5E]/40'
                                                 }`}>
                                                 {prop.status}
                                             </span>
@@ -1160,7 +1160,6 @@ export const AdminTickets: React.FC = () => {
             />
 
             {/* Ticket Detail Modal */}
-            {/* Ticket Detail Modal */}
             <TicketDetailModal
                 ticket={selectedTicket ? (tickets.find(t => String(t.id) === String(selectedTicket.id)) || selectedTicket) : null}
                 onClose={() => setSelectedTicket(null)}
@@ -1169,6 +1168,12 @@ export const AdminTickets: React.FC = () => {
                 onSendReply={handleSendReply}
                 replyText={replyText}
                 setReplyText={setReplyText}
+                collaborators={collaborators}
+                currentUser={user}
+                onAssignCollaborator={(collaboratorId) => {
+                    console.log('🔄 [ADMIN] Asignando ticket', selectedTicket.id, 'a colaborador', collaboratorId);
+                    assignTicket(selectedTicket.id, collaboratorId);
+                }}
             />
 
             <div className="flex-1 overflow-auto p-6 md:p-8">
