@@ -26,13 +26,9 @@ export const TenantDashboard: React.FC = () => {
     // Get first name for greeting
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
 
-    // Filter Documents for News/Feed
-    const myDocuments = documents.filter(d =>
-        d.target === 'Todos' ||
-        d.target === 'Inquilinos' ||
-        d.target === 'Tenant' ||
-        d.target === 'All'
-    ).slice(0, 5); // Show last 5
+    // RLS already filters documents - show all that the user is allowed to see
+    // No need for additional filtering, RLS handles security at DB level
+    const myDocuments = documents.slice(0, 5); // Show last 5
 
     // Derived Payment State
     // Find earliest pending payment
@@ -193,13 +189,9 @@ export const TenantContracts: React.FC = () => {
     const { documents } = useStore();
     const { showToast } = useToast();
 
-    // Filter docs
-    const myDocuments = documents.filter(d =>
-        d.target === 'Todos' ||
-        d.target === 'Inquilinos' ||
-        d.target === 'Tenant' ||
-        d.target === 'All'
-    );
+    // RLS already filters documents - show all that the user is allowed to see
+    // No need for additional filtering, RLS handles security at DB level  
+    const myDocuments = documents;
 
     const handleDownload = (doc: any) => {
         if (doc.fileUrl) {
