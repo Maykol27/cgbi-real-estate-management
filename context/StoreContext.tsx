@@ -135,7 +135,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         bathrooms: p.bathrooms,
                         parking: p.parking,
                         description: p.description,
-                        image: p.image // Ensure image URL is loaded
+                        image: p.image_url // Fixed: Read from correct DB column
                     };
                 }) as Property[];
                 allProperties = mappedProps;
@@ -900,7 +900,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 parking: p.parking,
                 description: p.description,
                 owner_id: p.owner_id,
-                image: publicUrl // Store the real URL
+                image_url: publicUrl // Fixed: Use correct DB column name
             }).select().single();
 
             if (error) {
@@ -979,7 +979,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             // Only update image if we have a valid publicUrl (from successful upload) OR if explicitly clearing it (passing null?)
             // Usually we pass 'undefined' if NO change.
             if (publicUrl && publicUrl.startsWith('http')) {
-                dbUpdates.image = publicUrl;
+                dbUpdates.image_url = publicUrl; // Fixed: Use correct DB column name
             }
 
 
