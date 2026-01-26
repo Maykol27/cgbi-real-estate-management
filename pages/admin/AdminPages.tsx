@@ -1867,9 +1867,9 @@ export const AdminSettings: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol de Usuario</label>
                             <select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm">
-                                <option value="Propietario">Propietario</option>
-                                <option value="Arrendatario">Arrendatario (Inquilino)</option>
-                                <option value="Colaborador">Colaborador</option>
+                                <option value="Propietario">Propietario (Owner)</option>
+                                <option value="Inquilino">Inquilino (Tenant)</option>
+                                <option value="Colaborador">Colaborador (Collaborator)</option>
                             </select>
                         </div>
                         {newUser.role === 'Colaborador' && (

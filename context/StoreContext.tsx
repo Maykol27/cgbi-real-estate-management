@@ -1251,11 +1251,31 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const addUser = async (u: Omit<User, 'id'>) => {
         try {
             console.log('🚀 Intentando registrar usuario:', u.email, u.role);
+
+            // CRITICAL: Role Mapper - Convert Spanish UI values to technical database enums
+            const roleMap: Record<string, string> = {
+                'Inquilino': 'Inquilino',      // Standard
+                'Arrendatario': 'Inquilino',   // Old Spanish term -> Fixed
+                'Propietario': 'Propietario',  // Standard
+                'Owner': 'Propietario',        // English -> Fixed
+                'Administrador': 'Admin',      // Spanish -> Fixed
+                'Admin': 'Admin',              // Standard
+                'Colaborador': 'Colaborador',  // Standard
+                'Collaborator': 'Colaborador'  // English -> Fixed
+            };
+
+            const technicalRole = roleMap[u.role] || u.role;
+            console.log(`🔄 [ROLE_MAPPER] ${u.role} → ${technicalRole}`);
+
+            if (technicalRole !== u.role) {
+                console.warn(`⚠️ [ROLE_MAPPER] Corrigiendo rol no estándar: "${u.role}" → "${technicalRole}"`);
+            }
+
             // Call Edge Function 'invite-user' to securely invite user and create profile
             const { data, error } = await supabase.functions.invoke('invite-user', {
                 body: {
                     email: u.email,
-                    role: u.role,
+                    role: technicalRole, // Use mapped role
                     full_name: u.name,
                     policy_number: u.policyNumber,
                     permissions: u.permissions
