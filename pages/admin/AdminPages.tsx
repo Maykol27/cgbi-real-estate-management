@@ -1672,8 +1672,7 @@ export const AdminCalendar: React.FC = () => {
                                 <input
                                     type="time"
                                     required
-                                    disabled={!!editingVisit}
-                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 dark:disabled:text-gray-400"
+                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                     value={newVisitData.time}
                                     onChange={e => setNewVisitData({ ...newVisitData, time: e.target.value })}
                                 />
@@ -1684,8 +1683,7 @@ export const AdminCalendar: React.FC = () => {
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Propiedad</label>
                             <select
                                 required
-                                disabled={!!editingVisit}
-                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 dark:disabled:text-gray-400"
+                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                 value={newVisitData.propertyId}
                                 onChange={e => setNewVisitData({ ...newVisitData, propertyId: e.target.value })}
                             >
@@ -1702,8 +1700,7 @@ export const AdminCalendar: React.FC = () => {
                                 <input
                                     required
                                     type="text"
-                                    disabled={!!editingVisit}
-                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 dark:disabled:text-gray-400"
+                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                     placeholder="Ej: Familia Rodriguez"
                                     value={newVisitData.visitorName}
                                     onChange={e => setNewVisitData({ ...newVisitData, visitorName: e.target.value })}
@@ -1712,9 +1709,8 @@ export const AdminCalendar: React.FC = () => {
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Asesor Responsable</label>
                                 <select
-                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 dark:disabled:text-gray-400"
+                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                     value={newVisitData.advisor}
-                                    disabled={!!editingVisit}
                                     onChange={e => setNewVisitData({ ...newVisitData, advisor: e.target.value })}
                                 >
                                     <option value="">Seleccionar Asesor...</option>
@@ -1728,9 +1724,8 @@ export const AdminCalendar: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Estado del Evento</label>
                             <select
-                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 dark:disabled:text-gray-400"
+                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                 value={newVisitData.status}
-                                disabled={!!editingVisit} // Disable status edit in this simplified view
                                 onChange={e => setNewVisitData({ ...newVisitData, status: e.target.value as any })}
                             >
                                 <option value="Programada">📅 Programada</option>

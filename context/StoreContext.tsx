@@ -178,16 +178,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (docsResult.status === 'fulfilled' && docsResult.value.data) {
                 console.log('📄 [DOCS] Documentos obtenidos de BD:', docsResult.value.data.length);
 
-                const mappedDocs = docsResult.value.data.map((d: any) => ({
-                    id: d.id,
-                    name: d.name,
-                    type: d.type,
-                    target: d.target || 'Todos',
-                    date: new Date(d.created_at).toLocaleDateString(),
-                    size: d.size,
-                    fileUrl: d.url,
-                    createdBy: d.created_by // Track document creator
-                })) as Document[];
+                const mappedDocs = docsResult.value.data.map((d: any) => {
+                    // Map target user ID to display name
+                    let displayTarget = d.target || 'Todos';
+
+                    // Check if target is a UUID (contains hyphens) and map to user name
+                    if (displayTarget && displayTarget.includes('-')) {
+                        const targetUser = allUsers.find(u => u.id === displayTarget);
+                        displayTarget = targetUser ? targetUser.name : displayTarget;
+                    }
+
+                    return {
+                        id: d.id,
+                        name: d.name,
+                        type: d.type,
+                        target: displayTarget,
+                        date: new Date(d.created_at).toLocaleDateString(),
+                        size: d.size,
+                        fileUrl: d.url,
+                        createdBy: d.created_by // Track document creator
+                    };
+                }) as Document[];
                 setDocuments(mappedDocs);
                 console.log(`✅ Loaded ${mappedDocs.length} documents`);
                 console.log(`📄 [RLS] Usuario ${user?.role} tiene acceso a ${mappedDocs.length} documentos`);

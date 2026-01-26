@@ -254,8 +254,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
           {!effectiveCollapsed && (
             <div className="text-center pb-2">
               <p className="text-[10px] text-white/20 font-mono">
-                v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.1.0'}
-                {typeof __COMMIT_HASH__ !== 'undefined' ? ` (${__COMMIT_HASH__})` : ''}
+                V.{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.7.8'}
               </p>
             </div>
           )}
