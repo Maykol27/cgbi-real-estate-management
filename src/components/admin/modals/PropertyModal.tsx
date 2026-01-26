@@ -76,6 +76,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
             isOpen={isOpen}
             title={initialData ? "Editar Propiedad y Estatus" : "Registrar Nueva Propiedad"}
             onClose={onClose}
+            size="lg"
             zIndex={50}
         >
             <form onSubmit={handleFormSubmit} className="space-y-4">
