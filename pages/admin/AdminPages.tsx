@@ -1135,7 +1135,14 @@ export const AdminTickets: React.FC = () => {
         }
     };
 
-    const filteredTickets = filterStatus === "Todos" ? tickets : tickets.filter(t => t.status === filterStatus);
+    // CRITICAL: Filter tickets for collaborators - they only see assigned tickets
+    let visibleTickets = tickets;
+    if (user?.role === 'Colaborador') {
+        visibleTickets = tickets.filter(t => t.assigned_to === user.id);
+        console.log(`🔍 [COLLABORATOR FILTER] User ${user.id} sees ${visibleTickets.length} assigned tickets`);
+    }
+
+    const filteredTickets = filterStatus === "Todos" ? visibleTickets : visibleTickets.filter(t => t.status === filterStatus);
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark">

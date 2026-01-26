@@ -161,7 +161,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         date: new Date(t.created_at).toLocaleDateString(),
                         propertyId: t.property_id,
                         propertyName: prop ? prop.name : undefined,
-                        messages: t.messages || []
+                        messages: t.messages || [],
+                        assigned_to: t.assigned_to // CRITICAL: Include assigned_to from Supabase
                     };
                 }) as Ticket[];
                 setTickets(mappedTickets);
