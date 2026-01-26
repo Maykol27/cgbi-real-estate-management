@@ -140,7 +140,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }) as Property[];
                 allProperties = mappedProps;
                 setProperties(mappedProps);
-                console.log("✅ Loaded", mappedProps.length, "properties");
+                console.log(`✅ Loaded ${mappedProps.length} properties`);
+                console.log(`🏠 [RLS] Usuario ${user?.role} tiene acceso a ${mappedProps.length} propiedades`);
+                if (mappedProps.length === 0 && (user?.role === 'Propietario' || user?.role === 'Inquilino')) {
+                    console.warn('⚠️ [RLS] No se encontraron propiedades para este usuario');
+                }
             } else {
                 console.warn("⚠️ Failed to load properties");
             }
@@ -166,7 +170,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     };
                 }) as Ticket[];
                 setTickets(mappedTickets);
-                console.log("✅ Loaded", mappedTickets.length, "tickets");
+                console.log(`✅ Loaded ${mappedTickets.length} tickets`);
+                console.log(`🎫 [RLS] Usuario ${user?.role} tiene acceso a ${mappedTickets.length} tickets`);
             }
 
             // 4. Process Documents
@@ -184,7 +189,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     createdBy: d.created_by // Track document creator
                 })) as Document[];
                 setDocuments(mappedDocs);
-                console.log("✅ Loaded", mappedDocs.length, "documents");
+                console.log(`✅ Loaded ${mappedDocs.length} documents`);
+                console.log(`📄 [RLS] Usuario ${user?.role} tiene acceso a ${mappedDocs.length} documentos`);
 
                 // Audit log for Collaborators (RLS will filter automatically)
                 if (mappedDocs.length > 0) {
