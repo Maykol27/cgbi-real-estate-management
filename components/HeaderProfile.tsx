@@ -34,10 +34,10 @@ export const HeaderProfile: React.FC = () => {
             {isOpen && (
                 <>
                     <div
-                        className="fixed inset-0 z-40 bg-transparent"
+                        className="fixed inset-0 z-[90] bg-transparent"
                         onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute right-0 top-12 w-48 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute right-0 top-12 w-48 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
                         <div className="px-4 py-2 border-b border-gray-50 dark:border-gray-700 sm:hidden">
                             <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user?.name}</p>
                             <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{user?.role}</p>

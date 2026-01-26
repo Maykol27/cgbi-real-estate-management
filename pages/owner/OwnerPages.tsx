@@ -8,7 +8,7 @@ import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
 
 const OwnerHeader: React.FC<{ title: string }> = ({ title }) => (
-    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark shadow-sm flex items-center justify-between px-6 z-10 border-b border-gray-100 dark:border-gray-700">
+    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark shadow-sm flex items-center justify-between px-6 z-50 border-b border-gray-100 dark:border-gray-700 relative">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">{title}</h2>
         <div className="flex items-center gap-2">
             <NotificationButton />
