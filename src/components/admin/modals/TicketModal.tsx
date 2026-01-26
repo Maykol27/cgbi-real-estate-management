@@ -285,7 +285,13 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                                     }`}>
                                     <p>{msg?.text || ''}</p>
                                 </div>
-                                <span className="text-[10px] text-gray-400 mt-1 px-1">{msg?.sender || 'Usuario'} • {msg?.time || ''}</span>
+                                <span className="text-[10px] text-gray-400 mt-1 px-1">
+                                    {/* Smart naming: Internal tickets show collaborator name, external show "Admin CGBI" */}
+                                    {msg?.role === 'Admin'
+                                        ? (ticket?.requesterRole === 'Colaborador' ? (msg?.sender || 'Admin') : 'Admin CGBI')
+                                        : (msg?.sender || 'Usuario')
+                                    } • {msg?.time || ''}
+                                </span>
                             </div>
                         ))
                     ) : (
