@@ -68,6 +68,7 @@ export interface Document {
     date: string;
     size: string;
     fileUrl?: string;
+    createdBy?: string | number; // Track who created the document
 }
 
 export interface Visit {

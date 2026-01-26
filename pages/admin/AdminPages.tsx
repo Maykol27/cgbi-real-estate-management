@@ -442,6 +442,83 @@ export const AdminDocuments: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Collaborator Document History - Only show own uploaded documents */}
+                {user?.role === 'Colaborador' && (
+                    <div className="bg-white dark:bg-card-dark rounded-3xl shadow-soft border border-gray-100 dark:border-gray-700 overflow-hidden max-w-5xl mx-auto">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Mi Historial de Documentos</h3>
+                            <p className="text-sm text-gray-500 mt-1">Solo puedes ver los documentos que has subido</p>
+                        </div>
+
+                        {filteredFiles.length === 0 ? (
+                            <div className="p-12 text-center">
+                                <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                    <span className="material-icons-round text-3xl text-gray-400">description</span>
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-2">📄 Aún no has subido documentos</h4>
+                                <p className="text-sm text-gray-500">Tu historial aparecerá aquí cuando subas tu primer archivo.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                        {filteredFiles.map((file) => (
+                                            <tr key={file.id} className="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${file.type === 'Factura / Recibo' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                                                            <span className="material-icons-round text-lg">
+                                                                {file.type === 'Factura / Recibo' ? 'receipt' : file.type === 'Contrato' ? 'gavel' : 'description'}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-gray-800 dark:text-white group-hover:text-primary transition-colors">{file.name}</p>
+                                                            <p className="text-xs text-gray-400">{file.size}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                    {file.date}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (file.fileUrl) {
+                                                                const link = document.createElement('a');
+                                                                link.href = file.fileUrl;
+                                                                link.download = file.name;
+                                                                document.body.appendChild(link);
+                                                                link.click();
+                                                                document.body.removeChild(link);
+                                                                showToast("Descargando archivo...", "success");
+                                                            }
+                                                        }}
+                                                        className="p-1.5 text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                                        title="Descargar"
+                                                    >
+                                                        <span className="material-icons-round text-lg">download</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -1271,10 +1348,10 @@ export const AdminTickets: React.FC = () => {
                                                             onClick={(e) => e.stopPropagation()}
                                                             onChange={(e) => updateTicketPriority(ticket.id, e.target.value as any)}
                                                             className={`text-xs font-bold rounded-md px-3 py-1.5 border cursor-pointer transition-all ${ticket.priority === 'Alta'
-                                                                    ? 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/30 dark:bg-[#D62C5E]/20 dark:border-[#D62C5E]/40'
-                                                                    : ticket.priority === 'Media'
-                                                                        ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30'
-                                                                        : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:border-gray-600'
+                                                                ? 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/30 dark:bg-[#D62C5E]/20 dark:border-[#D62C5E]/40'
+                                                                : ticket.priority === 'Media'
+                                                                    ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30'
+                                                                    : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:border-gray-600'
                                                                 } focus:outline-none focus:ring-2 focus:ring-[#D62C5E]/30`}
                                                         >
                                                             <option value="Baja">Baja</option>

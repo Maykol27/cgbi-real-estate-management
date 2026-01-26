@@ -171,6 +171,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             // 4. Process Documents
             if (docsResult.status === 'fulfilled' && docsResult.value.data) {
+                console.log('📄 [DOCS] Documentos obtenidos de BD:', docsResult.value.data.length);
+
                 const mappedDocs = docsResult.value.data.map((d: any) => ({
                     id: d.id,
                     name: d.name,
@@ -178,10 +180,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     target: d.target || 'Todos',
                     date: new Date(d.created_at).toLocaleDateString(),
                     size: d.size,
-                    fileUrl: d.url
+                    fileUrl: d.url,
+                    createdBy: d.created_by // Track document creator
                 })) as Document[];
                 setDocuments(mappedDocs);
                 console.log("✅ Loaded", mappedDocs.length, "documents");
+
+                // Audit log for Collaborators (RLS will filter automatically)
+                if (mappedDocs.length > 0) {
+                    console.log('📄 [DOCS] Documentos cargados. RLS aplicará filtros según rol del usuario.');
+                }
             }
 
             // 5. Process Visits
@@ -812,7 +820,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 type: d.type,
                 target: d.target,
                 size: d.size,
-                url: publicUrl
+                url: publicUrl,
+                created_by: user?.id // Track who created this document
             }).select().single();
 
             if (error) {
