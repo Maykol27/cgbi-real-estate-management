@@ -178,18 +178,18 @@ export const UserModal: React.FC<UserModalProps> = ({
                     </>
                 )}
 
-                {/* CGBI Branded Submit Button */}
-                <div className="flex gap-3 pt-2">
+                {/* CGBI Branded Submit Button - Mobile First */}
+                <div className="flex flex-col-reverse md:flex-row gap-3 pt-2">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-md font-bold text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                        className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-md font-bold text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
-                        className="flex-1 bg-[#D62C5E] hover:bg-[#A01B44] text-white py-2.5 rounded-md font-bold text-sm shadow-md transition-all"
+                        className="w-full bg-[#D62C5E] hover:bg-[#A01B44] text-white py-2.5 rounded-md font-bold text-sm shadow-md transition-all"
                     >
                         {initialData ? "Actualizar Usuario" : `Crear Usuario`}
                     </button>
