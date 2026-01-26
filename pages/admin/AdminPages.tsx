@@ -1270,10 +1270,12 @@ export const AdminTickets: React.FC = () => {
                                                             value={ticket.priority || 'Media'}
                                                             onClick={(e) => e.stopPropagation()}
                                                             onChange={(e) => updateTicketPriority(ticket.id, e.target.value as any)}
-                                                            className={`text-xs font-bold rounded px-2 py-1 border-0 cursor-pointer ${(ticket.priority === 'Alta' || !ticket.priority) ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300' :
-                                                                ticket.priority === 'Media' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300' :
-                                                                    'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
-                                                                } focus:ring-2 focus:ring-primary/20`}
+                                                            className={`text-xs font-bold rounded-md px-3 py-1.5 border cursor-pointer transition-all ${ticket.priority === 'Alta'
+                                                                    ? 'bg-[#D62C5E]/10 text-[#D62C5E] border-[#D62C5E]/30 dark:bg-[#D62C5E]/20 dark:border-[#D62C5E]/40'
+                                                                    : ticket.priority === 'Media'
+                                                                        ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30'
+                                                                        : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:border-gray-600'
+                                                                } focus:outline-none focus:ring-2 focus:ring-[#D62C5E]/30`}
                                                         >
                                                             <option value="Baja">Baja</option>
                                                             <option value="Media">Media</option>
