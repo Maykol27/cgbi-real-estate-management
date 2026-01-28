@@ -1174,8 +1174,8 @@ export const AdminTickets: React.FC = () => {
             type: (form.elements.namedItem('type') as HTMLSelectElement).value as any,
             priority: (form.elements.namedItem('priority') as HTMLSelectElement).value as any,
             assignedTo: (form.elements.namedItem('assignedTo') as HTMLSelectElement).value || undefined,
-            requester: `Admin (${user?.name})`,
-            requesterRole: 'Admin',
+            requester: `${user?.role} (${user?.name})`,
+            requesterRole: user?.role || 'Admin',
             propertyId: undefined // Global admin task
         };
         console.log('📦 [CRUD] Payload Ticket:', payload);
@@ -1202,7 +1202,7 @@ export const AdminTickets: React.FC = () => {
         if (!replyText.trim()) return;
 
         addMessageToTicket(selectedTicket.id, {
-            sender: "Admin CGBI",
+            sender: user?.name || "Admin CGBI",
             role: "Admin",
             text: replyText
         });
