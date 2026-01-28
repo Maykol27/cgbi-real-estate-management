@@ -43,7 +43,8 @@ interface StoreContextType {
     addUser: (u: Omit<User, 'id'>) => void;
     updateProfile: (userId: string | number, updates: Partial<User>) => void; // New method for generic profile updates
     updateUserStatus: (userId: string | number, status: 'Al Día' | 'Pendiente de Pago' | 'En Mora') => Promise<void>;
-    deleteUser: (userId: string | number) => Promise<{ success: boolean; message: string }>; // New method for deleting users
+    deleteUser: (userId: string | number) => Promise<{ success: boolean; message: string }>;
+    uploadAvatar: (userId: string, file: File) => Promise<{ success: boolean; url?: string; message?: string }>; // New method
 
     // Notification Helper
     requestNotificationPermission: () => void;
@@ -67,7 +68,31 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Ref to track user without triggering re-renders in effects with stale closures
     const userRef = React.useRef<User | null>(null);
 
-    // Keep ref in sync with state
+    const uploadAvatar = async (userId: string, file: File): Promise<{ success: boolean; url?: string; message?: string }> => {
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${userId}-${Math.random()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+            // Auto update profile with new URL
+            await updateProfile(userId, { photoUrl: data.publicUrl });
+
+            return { success: true, url: data.publicUrl };
+        } catch (error: any) {
+            console.error('Error uploading avatar:', error);
+            return { success: false, message: error.message };
+        }
+    };
+
+    // Auto-refresh data periodically to keep UI in sync
     useEffect(() => {
         userRef.current = user;
     }, [user]);
@@ -106,7 +131,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     email: p.email,
                     role: p.role,
                     permissions: p.permissions || [],
-                    financialStatus: p.financial_status || 'Al Día'
+                    financialStatus: p.financial_status || 'Al Día',
+                    photoUrl: p.avatar_url,
+                    phone: p.phone
                 })) as unknown as User[];
                 setUsers(allUsers);
                 console.log("✅ Loaded", allUsers.length, "users");
@@ -668,7 +695,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     role: data.role as any,
                     email: data.email,
                     permissions: data.permissions,
-                    financialStatus: data.financial_status || 'Al Día'
+                    financialStatus: data.financial_status || 'Al Día',
+                    photoUrl: data.avatar_url,
+                    phone: data.phone
                 };
 
                 console.log("StoreContext: Setting User State & Caching", loadedUser);
@@ -1451,6 +1480,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (updates.permissions) dbUpdates.permissions = updates.permissions;
             if (updates.name) dbUpdates.full_name = updates.name;
             if (updates.role) dbUpdates.role = updates.role;
+            if (updates.phone) dbUpdates.phone = updates.phone;
+            if (updates.photoUrl) dbUpdates.avatar_url = updates.photoUrl;
 
             if (Object.keys(dbUpdates).length > 0) {
                 const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', userId);
@@ -1492,7 +1523,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             properties, addProperty, updatePropertyStatus, updateProperty,
             visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
             financeRequests, addFinanceRequest, updateFinanceRequestStatus,
-            payments, addPayment, updateUserStatus, updateProfile,
+            payments, addPayment, updateUserStatus, updateProfile, uploadAvatar,
             requestNotificationPermission
         }}>
             {children}
