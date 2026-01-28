@@ -36,7 +36,8 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         rooms: '',
         bathrooms: '',
         description: '',
-        status: 'Disponible'
+        status: 'Disponible',
+        contractEnd: ''
     });
 
     // Sync with initialData when modal opens
@@ -55,7 +56,8 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 rooms: initialData?.rooms || '',
                 bathrooms: initialData?.bathrooms || '',
                 description: initialData?.description || '',
-                status: initialData?.status || 'Disponible'
+                status: initialData?.status || 'Disponible',
+                contractEnd: initialData?.contractEnd || ''
             });
         }
     }, [isOpen, initialData]);
@@ -274,6 +276,21 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                         className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all resize-none"
                         placeholder="Detalles adicionales del inmueble..."
                     ></textarea>
+                </div>
+
+                {/* Contract End Date */}
+                <div>
+                    <label htmlFor="contractEnd" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+                        Fin de Contrato
+                    </label>
+                    <input
+                        id="contractEnd"
+                        name="contractEnd"
+                        value={formData?.contractEnd || ''}
+                        onChange={handleChange}
+                        type="date"
+                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
+                    />
                 </div>
 
                 {/* Image Upload */}

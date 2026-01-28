@@ -243,7 +243,11 @@ export const OwnerProperties: React.FC = () => {
                                 </div>
                                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                     <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
-                                    <span className="font-semibold dark:text-white">Dic 2026</span>
+                                    <span className="font-semibold dark:text-white">
+                                        {selectedProp.contractEnd
+                                            ? new Date(selectedProp.contractEnd).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
+                                            : 'No Definido'}
+                                    </span>
                                 </div>
                             </div>
                             <button onClick={() => setShowHistory(true)} className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-bold text-sm mt-2 transition-colors">Ver Historial de Pagos</button>
@@ -310,7 +314,14 @@ export const OwnerProperties: React.FC = () => {
                                 <p className="text-sm text-gray-500 mb-4">{p.address}</p>
                                 <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                     <div><span className="text-gray-400 text-xs block uppercase">Renta</span> <span className="font-semibold dark:text-gray-200">{formatCurrency(Number(p.rent))}</span></div>
-                                    <div><span className="text-gray-400 text-xs block uppercase">Fin Contrato</span> <span className="font-semibold dark:text-gray-200">Dic 2026</span></div>
+                                    <div>
+                                        <span className="text-gray-400 text-xs block uppercase">Fin Contrato</span>
+                                        <span className="font-semibold dark:text-gray-200">
+                                            {p.contractEnd
+                                                ? new Date(p.contractEnd).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
+                                                : '-'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

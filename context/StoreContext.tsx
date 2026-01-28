@@ -135,7 +135,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         bathrooms: p.bathrooms,
                         parking: p.parking,
                         description: p.description,
-                        image: p.image_url // Fixed: Read from correct DB column
+                        contractEnd: p.contract_end_date
                     };
                 }) as Property[];
                 allProperties = mappedProps;
@@ -451,31 +451,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     if (eventType === 'INSERT') {
                         // Cast newRecord to Ticket type roughly
                         const t = newRecord as any;
-                        // Fetch properties/users to map names if needed, but for now fallback to ID or basic info
-                        // Ideally we'd do a quick fetch, but for speed we put raw data
                         const newTicket: Ticket = {
                             id: t.id,
                             title: t.title,
                             desc: t.description,
                             status: t.status,
                             priority: t.priority,
-                            requester: 'Usuario (Sync)', // We don't have joined name immediately without fetch
+                            requester: 'Usuario (Sync)',
                             requesterRole: 'Inquilino',
                             date: new Date(t.created_at).toLocaleDateString(),
                             propertyId: t.property_id,
                             messages: t.messages || []
                         };
 
-                        // Prevent duplicate add if we just added it locally
                         setTickets(prev => {
                             if (prev.find(x => x.id === newTicket.id)) return prev;
                             return [newTicket, ...prev];
                         });
 
-                        // 2. NOTIFICATIONS
-                        // Notify Admin on New Ticket
+                        // NOTIFICATION: New Ticket (For Admins)
                         if (user.role === 'Administrador' || user.role === 'Admin' || user.role === 'Colaborador') {
-                            // Don't notify if I created it myself
                             if (t.requester_id !== user.id) {
                                 notify("Nuevo Ticket", `Se ha creado un nuevo ticket: ${t.title}`);
                             }
@@ -484,14 +479,29 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     else if (eventType === 'UPDATE') {
                         setTickets(prev => prev.map(t => t.id === newRecord.id ? { ...t, ...newRecord, status: newRecord.status, priority: newRecord.priority, messages: newRecord.messages } : t));
 
-                        // Notify Owner/Tenant on Reply/Status Change
+                        // NOTIFICATION: Ticket Updates & Messages
                         const isMyTicket = newRecord.requester_id === user.id;
-                        if (isMyTicket && (user.role === 'Propietario' || user.role === 'Owner' || user.role === 'Inquilino')) {
-                            // Check what changed?
-                            if (newRecord.status !== oldRecord.status) {
-                                notify("Actualización de Ticket", `Tu ticket "${newRecord.title}" ahora está: ${newRecord.status}`);
+                        const isAdmin = user.role === 'Admin' || user.role === 'Colaborador';
+
+                        // A. Status Change
+                        if (isMyTicket && newRecord.status !== oldRecord.status) {
+                            notify("Actualización de Ticket", `Tu ticket "${newRecord.title}" ahora está: ${newRecord.status}`);
+                        }
+
+                        // B. New Messages (Check length difference)
+                        const oldMsgs = oldRecord.messages || [];
+                        const newMsgs = newRecord.messages || [];
+                        if (newMsgs.length > oldMsgs.length) {
+                            const lastMsg = newMsgs[newMsgs.length - 1];
+                            // Notify if I am NOT the sender
+                            const iAmSender = lastMsg.sender === user.name || (lastMsg.role === 'Admin' && isAdmin);
+
+                            if (!iAmSender) {
+                                // If I am the requester (Tenant/Owner) OR I am Admin handling it
+                                if (isMyTicket || isAdmin) {
+                                    notify("Nuevo Mensaje", `Nuevo mensaje en ticket #${newRecord.id}: "${lastMsg.text.substring(0, 30)}..."`);
+                                }
                             }
-                            // If explicit message check needed, would be complex, status is good proxy
                         }
                     }
                 }
@@ -505,7 +515,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                     if (eventType === 'INSERT') {
                         const r = newRecord as any;
-                        // Add to State
                         const newReq: FinanceRequest = {
                             id: r.id,
                             title: r.title,
@@ -523,8 +532,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         });
 
                         // Notify Owner (Approval Needed)
-                        // We need to check if this finance request is for one of MY properties
-                        // Since 'properties' array is in scope...
                         const isForMyProperty = properties.some(p => String(p.id) === String(r.property_id));
                         if ((user.role === 'Propietario' || user.role === 'Owner') && isForMyProperty) {
                             notify("Aprobación Requerida", `Nueva solicitud de gasto: ${r.title}`);
@@ -532,11 +539,99 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     }
                     else if (eventType === 'UPDATE') {
                         setFinanceRequests(prev => prev.map(r => r.id === newRecord.id ? { ...r, ...newRecord, status: newRecord.status } : r));
-
-                        // Notify if I was the requester (Admin) and it got approved/rejected
                         if ((user.role === 'Analista' || user.role === 'Admin') && newRecord.requester_id === user.id) {
                             notify("Solicitud Actualizada", `Solicitud "${newRecord.title}" ha sido ${newRecord.status}`);
                         }
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'payments' },
+                (payload) => {
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+                    // NOTIFICATION: Payment Verified (For Tenant)
+                    if (eventType === 'UPDATE' && newRecord.status === 1 && oldRecord.status !== 1) {
+                        if (user.id === newRecord.tenant_id) {
+                            notify("Pago Aprobado", `Tu pago del periodo ${newRecord.period} ha sido verificado.`);
+                        }
+                    }
+                    // Sync State (Simplified)
+                    if (eventType === 'INSERT' || eventType === 'UPDATE') {
+                        // Optimizing: only refetch or update if relevant, but simplistic refresh is safer for consistency
+                        if (user.role === 'Admin' || user.role === 'Colaborador' || user.id === newRecord.tenant_id) {
+                            // Fetching single item or refreshing list would be ideal. 
+                            // For now, let's just let the user know. 
+                        }
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'documents' },
+                (payload) => {
+                    const doc = payload.new;
+                    // NOTIFICATION: New Document
+                    // Logic: Check if document is shared with me or my role
+                    const isForMe = doc.target === user.name || (doc.target_user_ids && doc.target_user_ids.includes(user.id));
+                    const isGlobal = doc.target === 'Todos' || doc.target === 'All';
+                    const isRoleBased = (user.role === 'Propietario' && (doc.target === 'Propietarios' || doc.target === 'Owner')) ||
+                        (user.role === 'Inquilino' && (doc.target === 'Inquilinos' || doc.target === 'Tenant'));
+
+                    if (isForMe || isGlobal || isRoleBased) {
+                        // Don't notify if I uploaded it
+                        if (doc.created_by !== user.id) {
+                            notify("Nuevo Documento", `Se ha compartido un nuevo archivo: ${doc.name}`);
+                            // Update list locally
+                            setDocuments(prev => [{
+                                id: doc.id,
+                                name: doc.name,
+                                type: doc.type,
+                                target: doc.target,
+                                date: new Date(doc.created_at).toLocaleDateString(),
+                                size: doc.size,
+                                fileUrl: doc.url,
+                                createdBy: doc.created_by
+                            }, ...prev]);
+                        }
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'visits' },
+                (payload) => {
+                    const { eventType, new: newRecord } = payload;
+
+                    if (eventType === 'INSERT') {
+                        // NOTIFICATION: New Visit (For Owner)
+                        // Check if property belongs to me
+                        const isMyProperty = properties.some(p => String(p.id) === String(newRecord.property_id));
+                        if ((user.role === 'Propietario' || user.role === 'Owner') && isMyProperty) {
+                            notify("Nueva Visita", `Se ha agendado una visita para el ${new Date(newRecord.date).toLocaleDateString()}.`);
+                            // Add to state
+                            const newVisit: Visit = {
+                                id: newRecord.id,
+                                propertyId: newRecord.property_id,
+                                visitorName: newRecord.visitor_name,
+                                advisor: newRecord.advisor,
+                                date: new Date(newRecord.date),
+                                status: newRecord.status,
+                                propertyName: 'Cargando...', // Would need fetch
+                                feedback: newRecord.feedback
+                            };
+                            setVisits(prev => [...prev, newVisit]);
+                        }
+                    }
+                    else if (eventType === 'UPDATE') {
+                        // NOTIFICATION: Visit Feedback (For Owner)
+                        const isMyProperty = properties.some(p => String(p.id) === String(newRecord.property_id));
+                        if ((user.role === 'Propietario' || user.role === 'Owner') && isMyProperty) {
+                            if (newRecord.feedback && newRecord.feedback !== (payload.old as any).feedback) {
+                                notify("Resultado de Visita", `Feedback disponible: "${newRecord.feedback.substring(0, 40)}..."`);
+                            }
+                        }
+                        setVisits(prev => prev.map(v => v.id === newRecord.id ? { ...v, ...newRecord, date: new Date(newRecord.date) } : v));
                     }
                 }
             )
@@ -927,9 +1022,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 rooms: p.rooms,
                 bathrooms: p.bathrooms,
                 parking: p.parking,
-                description: p.description,
                 owner_id: p.owner_id,
-                image_url: publicUrl // Fixed: Use correct DB column name
+                image_url: publicUrl, // Fixed: Use correct DB column name
+                contract_end_date: p.contractEnd
             }).select().single();
 
             if (error) {
@@ -1004,6 +1099,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (updates.parking !== undefined) dbUpdates.parking = updates.parking;
             if (updates.description !== undefined) dbUpdates.description = updates.description;
             if (updates.owner_id !== undefined) dbUpdates.owner_id = updates.owner_id;
+            if (updates.contractEnd !== undefined) dbUpdates.contract_end_date = updates.contractEnd;
 
             // Only update image if we have a valid publicUrl (from successful upload) OR if explicitly clearing it (passing null?)
             // Usually we pass 'undefined' if NO change.

@@ -56,6 +56,7 @@ export interface Property {
     bathrooms: number;
     parking: number;
     description: string;
+    contractEnd?: string;
 }
 
 export interface Document {

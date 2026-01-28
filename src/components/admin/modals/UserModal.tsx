@@ -118,7 +118,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                         placeholder="correo@ejemplo.com"
                     />
                     <p className="mt-1.5 text-xs text-blue-600 dark:text-blue-400">
-                        Al crear el usuario, se enviará automáticamente un enlace para configurar su contraseña.
+                        Al crear el usuario recuerda informarle que tiene su cuenta activa, que no olvide cambiar su contraseña
                     </p>
                 </div>
 
@@ -162,7 +162,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                         </div>
                         <div>
                             <label htmlFor="policyNumber" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
-                                Número de Póliza Asignado
+                                Número de solicitud asignado
                             </label>
                             <input
                                 required
