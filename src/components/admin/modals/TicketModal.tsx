@@ -286,9 +286,13 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                                     <p>{msg?.text || ''}</p>
                                 </div>
                                 <span className="text-[10px] text-gray-400 mt-1 px-1">
-                                    {/* Smart naming: Internal tickets show collaborator name, external show "Admin CGBI" */}
+                                    {/* Smart naming: 
+                                            If I am an Admin/Collab replying -> show Name if internal ticket (requester=Collab)
+                                            OR if User is viewing -> show "Admin CGBI" 
+                                            Actually, User requested: "Internal ticket to collab -> response should show Name, not Admin CGBI"
+                                        */}
                                     {msg?.role === 'Admin'
-                                        ? (ticket?.requesterRole === 'Colaborador' ? (msg?.sender || 'Admin') : 'Admin CGBI')
+                                        ? (ticket?.requesterRole === 'Colaborador' || ticket?.requesterRole === 'Admin' ? (msg?.sender || 'Admin') : 'Admin CGBI')
                                         : (msg?.sender || 'Usuario')
                                     } • {msg?.time || ''}
                                 </span>
