@@ -71,16 +71,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const uploadAvatar = async (userId: string, file: File): Promise<{ success: boolean; url?: string; message?: string }> => {
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}-${Math.random()}.${fileExt}`;
+            const fileName = `avatars/${userId}-${Math.random()}.${fileExt}`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('avatars')
+                .from('project_files')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
-            const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+            const { data } = supabase.storage.from('project_files').getPublicUrl(filePath);
 
             // Auto update profile with new URL
             await updateProfile(userId, { photoUrl: data.publicUrl });
