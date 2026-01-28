@@ -24,7 +24,7 @@ export interface Ticket {
     type?: 'Mantenimiento' | 'Administrativo' | 'PQRS / Felicitaciones' | 'Tareas CGBI';
     priority?: 'Alta' | 'Media' | 'Baja';
     requester: string;
-    requesterRole: 'Propietario' | 'Inquilino' | 'Admin';
+    requesterRole: 'Propietario' | 'Inquilino' | 'Admin' | 'Colaborador';
     date: string;
     propertyId?: string | number;
     propertyName?: string;

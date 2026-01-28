@@ -325,7 +325,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                         </button>
                     </div>
                     <div className="grid grid-cols-2 md:flex gap-2 mt-2 md:justify-end">
-                        {['Pendiente', 'En Progreso', 'Resuelto', 'Cerrado'].map((status) => (
+                        {['Pendiente', 'En Progreso', 'Cerrado'].map((status) => (
                             <button
                                 key={status}
                                 onClick={() => onUpdateStatus(status)}
