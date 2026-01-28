@@ -174,7 +174,9 @@ export const AdminDocuments: React.FC = () => {
         }
     };
 
-    const filteredFiles = documents.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredFiles = documents
+        .filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => b.id - a.id);
 
 
 
@@ -1222,7 +1224,8 @@ export const AdminTickets: React.FC = () => {
         console.log(`🔍 [COLLABORATOR FILTER] User ${user.id} sees ${visibleTickets.length} assigned tickets`);
     }
 
-    const filteredTickets = filterStatus === "Todos" ? visibleTickets : visibleTickets.filter(t => t.status === filterStatus);
+    const filteredTickets = (filterStatus === "Todos" ? visibleTickets : visibleTickets.filter(t => t.status === filterStatus))
+        .sort((a, b) => b.id - a.id);
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark">
@@ -1409,7 +1412,7 @@ export const AdminTickets: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                    {financeRequests.map((req) => {
+                                    {financeRequests.sort((a, b) => b.id - a.id).map((req) => {
                                         const prop = properties.find(p => String(p.id) === String(req.propertyId));
                                         return (
                                             <tr key={req.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">

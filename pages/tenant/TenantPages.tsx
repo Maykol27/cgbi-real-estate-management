@@ -191,7 +191,7 @@ export const TenantContracts: React.FC = () => {
 
     // RLS already filters documents - show all that the user is allowed to see
     // No need for additional filtering, RLS handles security at DB level  
-    const myDocuments = documents;
+    const myDocuments = [...documents].sort((a, b) => b.id - a.id);
 
     const handleDownload = (doc: any) => {
         if (doc.fileUrl) {
@@ -255,7 +255,9 @@ export const TenantRequests: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
 
     // Filter tickets for this tenant
-    const myTickets = tickets.filter(t => t.requesterRole === 'Inquilino' && t.requester === user?.name);
+    const myTickets = tickets
+        .filter(t => t.requesterRole === 'Inquilino' && t.requester === user?.name)
+        .sort((a, b) => b.id - a.id);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

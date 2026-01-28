@@ -419,7 +419,9 @@ export const OwnerRequests: React.FC = () => {
 
     // Derived State: Find the first pending request FOR THIS OWNER
     const myPropertyIds = properties.map(p => p.id);
-    const requestToApprove = financeRequests.find(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.some(id => String(id) === String(r.propertyId)));
+    const requestToApprove = financeRequests
+        .filter(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.some(id => String(id) === String(r.propertyId)))
+        .sort((a, b) => b.id - a.id)[0];
 
     // UI State
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -428,7 +430,7 @@ export const OwnerRequests: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
 
     // Filter tickets for this owner
-    const ownRequests = tickets.filter(t => t.requesterRole === 'Propietario');
+    const ownRequests = tickets.filter(t => t.requesterRole === 'Propietario').sort((a, b) => b.id - a.id);
 
     const handleApprove = () => {
         if (!requestToApprove) return;
