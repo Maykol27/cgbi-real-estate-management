@@ -956,15 +956,32 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 publicUrl = publicUrlData.publicUrl;
             }
 
-            // 2. Insert Record and verify it was created
+            // 2. Logic to determine target_user_ids for RLS
+            let targetIds: (string | number)[] = [];
+            if (d.targetId) {
+                targetIds = [d.targetId];
+            } else {
+                // Group Logic: Populate IDs based on target group
+                if (d.target === 'Inquilinos') {
+                    targetIds = users.filter(u => u.role === 'Inquilino').map(u => u.id);
+                } else if (d.target === 'Propietarios') {
+                    targetIds = users.filter(u => u.role === 'Propietario').map(u => u.id);
+                } else if (d.target === 'Todos' || d.target === 'General') {
+                    // "Todos" usually implies public or all users. 
+                    // We add all relevant users (Tenant/Owner) just to be safe with RLS
+                    targetIds = users.filter(u => u.role === 'Inquilino' || u.role === 'Propietario').map(u => u.id);
+                }
+            }
+
+            // 3. Insert Record
             const { data, error } = await supabase.from('documents').insert({
                 name: d.name,
                 type: d.type,
-                target: d.target,
+                target: d.target, // "Todos", "Inquilinos", "Propietarios" for display/reference
                 size: d.size,
                 url: publicUrl,
-                created_by: user?.id, // Track who created this document
-                target_user_ids: d.targetId ? [d.targetId] : null // Populate array for RLS
+                created_by: user?.id,
+                target_user_ids: targetIds.length > 0 ? targetIds : null // Array for RLS
             }).select().single();
 
             console.log('📡 [DB_RESPONSE] Documento registrado:', data);
@@ -981,7 +998,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     ...d,
                     id: data.id,
                     date: new Date(data.created_at).toLocaleDateString(),
-                    fileUrl: data.url
+                    fileUrl: data.url,
+                    targetIds: targetIds // Keep local consistency
                 };
                 setDocuments(prev => [newDoc, ...prev]);
                 // Refetch all data to ensure it appears for all users
