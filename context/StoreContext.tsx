@@ -162,7 +162,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         bathrooms: p.bathrooms,
                         parking: p.parking,
                         description: p.description,
-                        contractEnd: p.contract_end_date
+                        contractEnd: p.contract_end_date,
+                        image: p.image_url
                     };
                 }) as Property[];
                 allProperties = mappedProps;
