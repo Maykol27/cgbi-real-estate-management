@@ -297,7 +297,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         icon: '/logo-cgbi.jpeg',
                         badge: '/favicon-96x96.png', // Android small icon
                         vibrate: [200, 100, 200]
-                    });
+                    } as any);
                 }).catch(() => {
                     // Fallback
                     new Notification(title, { body, icon: '/logo-cgbi.jpeg' });
