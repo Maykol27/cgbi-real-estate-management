@@ -31,7 +31,7 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
         title: '',
         type: 'Tareas CGBI',
         priority: 'Media',
-        assignedTo: '',
+        assigned_to: '',
         desc: ''
     });
 
@@ -43,7 +43,7 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
                 title: '',
                 type: 'Tareas CGBI',
                 priority: 'Media',
-                assignedTo: '',
+                assigned_to: '',
                 desc: ''
             });
         }
@@ -113,19 +113,19 @@ export const TicketCreateModal: React.FC<TicketCreateModalProps> = ({ isOpen, on
                 </div>
 
                 <div>
-                    <label htmlFor="ticket-assignedTo" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                    <label htmlFor="ticket-assigned_to" className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
                         Asignar Colaborador (Opcional)
                     </label>
                     <select
-                        id="ticket-assignedTo"
-                        name="assignedTo"
-                        value={formData?.assignedTo || ''}
+                        id="ticket-assigned_to"
+                        name="assigned_to"
+                        value={formData?.assigned_to || ''}
                         onChange={handleChange}
                         className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm px-3 py-2"
                     >
                         <option value="">-- Sin Asignar --</option>
                         {collaborators.map(c => (
-                            <option key={c.id} value={c.name}>{c.name}</option>
+                            <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                     </select>
                 </div>

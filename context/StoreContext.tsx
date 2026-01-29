@@ -908,7 +908,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         // Persist to Supabase
         const { error } = await supabase.from('tickets').update({
-            assigned_to: userId
+            assigned_to: userId || null
         }).eq('id', id);
 
         if (error) {

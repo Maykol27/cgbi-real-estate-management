@@ -29,5 +29,5 @@ export interface Ticket {
   status: 'Pending' | 'In Progress' | 'Closed';
   propertyId?: string;
   propertyName?: string;
-  assignedTo?: string; // Collaborator ID
+  assigned_to?: string; // Collaborator ID
 }

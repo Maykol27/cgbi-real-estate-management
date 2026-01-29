@@ -29,7 +29,7 @@ export interface Ticket {
     date: string;
     propertyId?: string | number;
     propertyName?: string;
-    assignedTo?: string | number;
+    assigned_to?: string | number;
     attachment?: string;
     attachmentUrl?: string;
     messages: {

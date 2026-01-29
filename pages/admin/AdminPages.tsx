@@ -380,6 +380,7 @@ export const AdminDocuments: React.FC = () => {
                                     <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
                                         <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
                                         <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Enviado por</th>
                                         <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
                                         <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
                                     </tr>
@@ -409,6 +410,9 @@ export const AdminDocuments: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
+                                                </td>
+                                                <td className="px-6 py-4 text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    {file.createdBy ? (users.find(u => String(u.id) === String(file.createdBy))?.name || 'Sistema') : 'Admin'}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
                                                     {file.date}
@@ -1175,7 +1179,7 @@ export const AdminTickets: React.FC = () => {
             desc: (form.elements.namedItem('desc') as HTMLTextAreaElement).value,
             type: (form.elements.namedItem('type') as HTMLSelectElement).value as any,
             priority: (form.elements.namedItem('priority') as HTMLSelectElement).value as any,
-            assignedTo: (form.elements.namedItem('assignedTo') as HTMLSelectElement).value || undefined,
+            assigned_to: (form.elements.namedItem('assigned_to') as HTMLSelectElement).value || undefined,
             requester: `${user?.role} (${user?.name})`,
             requesterRole: user?.role || 'Admin',
             propertyId: undefined // Global admin task
@@ -1326,6 +1330,7 @@ export const AdminTickets: React.FC = () => {
                                         <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
                                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Asunto</th>
                                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Solicitante</th>
+                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Asignado a</th>
                                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Prioridad</th>
                                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Estado</th>
                                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">Acción</th>
@@ -1342,11 +1347,24 @@ export const AdminTickets: React.FC = () => {
                                                     <td className="py-4 px-6">
                                                         <p className="font-bold text-sm text-gray-800 dark:text-white">{ticket.title}</p>
                                                         <p className="text-xs text-gray-400">#{ticket.id} • {ticket.date}</p>
-                                                        {ticket.assignedTo && <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] font-bold border border-purple-100"><span className="material-icons-round text-[10px]">person</span> {users.find(u => u.id === ticket.assignedTo)?.name.split(' ')[0]}</span>}
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <p className="text-sm font-medium dark:text-gray-200">{ticket.requester}</p>
                                                         <p className="text-xs text-blue-500">{ticket.requesterRole}</p>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        {ticket.assigned_to ? (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                                                    <span className="material-icons-round text-xs text-purple-600 dark:text-purple-400">person</span>
+                                                                </div>
+                                                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                                                    {users.find(u => String(u.id) === String(ticket.assigned_to))?.name || 'Cargando...'}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 italic">Sin asignar</span>
+                                                        )}
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <select
@@ -1714,7 +1732,13 @@ export const AdminCalendar: React.FC = () => {
                                 <select
                                     className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 dark:text-white text-sm"
                                     value={newVisitData.advisor}
-                                    onChange={e => setNewVisitData({ ...newVisitData, advisor: e.target.value })}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setNewVisitData({ ...newVisitData, advisor: val });
+                                        if (editingVisit) {
+                                            updateVisit(editingVisit.id, { advisor: val });
+                                        }
+                                    }}
                                 >
                                     <option value="">Seleccionar Asesor...</option>
                                     {collaborators.map(u => (
