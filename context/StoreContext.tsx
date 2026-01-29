@@ -287,8 +287,24 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // --- Actions ---
     const notify = (title: string, body: string) => {
         if (!("Notification" in window)) return;
+
         if (Notification.permission === "granted") {
-            new Notification(title, { body, icon: '/logo-cgbi.jpeg' });
+            // Try Service Worker first for better mobile support
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, {
+                        body,
+                        icon: '/logo-cgbi.jpeg',
+                        badge: '/favicon-96x96.png', // Android small icon
+                        vibrate: [200, 100, 200]
+                    });
+                }).catch(() => {
+                    // Fallback
+                    new Notification(title, { body, icon: '/logo-cgbi.jpeg' });
+                });
+            } else {
+                new Notification(title, { body, icon: '/logo-cgbi.jpeg' });
+            }
         }
     };
 
