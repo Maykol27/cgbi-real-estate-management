@@ -108,11 +108,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.log('👮 Usuario Actual (Auth):', auth.user?.id, 'Rol:', user?.role);
 
             // 1. Fetch Profile first to determine Role for filtering
-            const { data: profileData } = await supabase.from('profiles').select('role').eq('id', auth.user?.id).single();
-            const userRole = profileData?.role || user?.role;
+            let userRole = user?.role;
             const userId = auth.user?.id;
 
-            console.log('👮 Usuario Actual:', userId, 'Rol:', userRole);
+            if (!userRole && userId) {
+                const { data, error } = await supabase.from('profiles').select('role').eq('id', userId).single();
+                if (data) {
+                    userRole = data.role;
+                } else {
+                    console.warn("⚠️ No se pudo obtener el rol del usuario para filtrar datos:", error);
+                }
+            }
+
+            console.log('👮 Usuario Actual:', userId, 'Rol Detectado:', userRole);
 
             // 2. Prepare Dynamic Queries based on Role
             let ticketsQuery = supabase.from('tickets').select('*');
