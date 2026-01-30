@@ -655,17 +655,17 @@ export const AdminProperties: React.FC = () => {
             />
 
             {/* Listing Type Toggle */}
-            <div className="px-6 lg:px-10 mb-4">
-                <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+            <div className="px-6 lg:px-10 mb-4 mt-8">
+                <div className="flex flex-col md:flex-row gap-2 md:gap-4 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl w-full md:w-fit">
                     <button
                         onClick={() => setListingFilter('Arriendo')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
+                        className={`w-full md:w-auto px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Arriendo
                     </button>
                     <button
                         onClick={() => setListingFilter('Venta')}
-                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
+                        className={`w-full md:w-auto px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Venta
                     </button>
