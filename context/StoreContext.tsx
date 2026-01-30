@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { TicketService } from '../src/services/ticketService';
+import { useToast } from './ToastContext';
 
 // --- Types ---
 import { User, Ticket, Document, Property, Visit, FinanceRequest, Payment } from '../src/types';
@@ -54,6 +55,7 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // --- State (initialized empty) ---
+    const { showToast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<User[]>([]);
@@ -889,6 +891,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
 
     const updateTicketStatus = async (id: number, status: Ticket['status']) => {
+        showToast("Guardando cambios...", "info");
         // 1. Service Call
         console.log('🚀 Updating Ticket Status:', id, status);
         const [success, error] = await TicketService.updateStatus(id, status);
@@ -902,10 +905,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         // 2. Local State Update ONLY if success
         setTickets(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+        showToast("Estado actualizado", "success");
         notify("Actualización de Ticket", `El ticket #${id} cambió a estado: ${status}`);
     };
 
     const updateTicketPriority = async (id: number, priority: Ticket['priority']) => {
+        showToast("Actualizando prioridad...", "info");
         // 1. Service Call
         const [success, error] = await TicketService.updatePriority(id, priority);
 
@@ -920,6 +925,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const assignTicket = async (id: string | number, userId: string | number | undefined) => {
+        showToast("Asignando colaborador...", "info");
         console.log('🔄 [STORE] assignTicket called - ticketId:', id, 'collaboratorId:', userId);
 
         // Optimistic Update - FIXED: Use assigned_to (snake_case) to match Supabase schema
@@ -939,10 +945,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             setTickets(prev => prev.map(t => t.id === id ? { ...t, assigned_to: null } : t));
         } else {
             console.log('✅ [STORE] Ticket assigned successfully to collaborator:', userId);
+            showToast("Asignación guardada", "success");
         }
     };
 
     const addMessageToTicket = async (id: number, msg: { sender: string; role: string; text: string }) => {
+        showToast("Enviando mensaje...", "info");
         const newMessage = {
             ...msg,
             id: Date.now(),
@@ -968,6 +976,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addDocument = async (d: Omit<Document, 'id' | 'date'> & { file?: File }) => {
         try {
+            showToast("Subiendo documento...", "info");
             console.log("📄 Creating document:", d.name);
             let publicUrl = d.fileUrl;
 
@@ -1051,6 +1060,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const deleteDocument = async (id: string | number) => {
         try {
+            showToast("Eliminando documento...", "info");
             const { error } = await supabase.from('documents').delete().eq('id', id);
             if (error) {
                 notify("Error", "No se pudo eliminar el documento.");
@@ -1065,6 +1075,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addProperty = async (p: Omit<Property, 'id'> & { imageFile?: File }) => {
         try {
+            showToast("Creando propiedad...", "info");
             console.log("🏠 Creating property:", p.name);
             console.log('🚀 Iniciando Carga Propiedad. Payload:', p);
             let publicUrl = p.image; // Use blob URL or empty initially if no file
@@ -1134,7 +1145,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const updateProperty = async (id: string | number, updates: Partial<Property> & { imageFile?: File }) => {
         try {
-            console.log("🏠 Updating property:", id);
+            showToast("Guardando cambios en propiedad...", "info");
+            console.log('🏗️ Updating Property:', id, updates);
             console.log('🚀 Iniciando Edición Propiedad. ID:', id, 'Updates:', updates);
             let publicUrl = updates.image;
 
@@ -1245,6 +1257,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addVisit = async (v: Omit<Visit, 'id'>): Promise<{ success: boolean; message: string }> => {
         try {
+            showToast("Agendando visita...", "info");
             console.log("📅 Creating visit for property:", v.propertyId);
             console.log('🚀 Agendando Visita. Fecha:', v.date, 'Propiedad:', v.propertyId);
 
@@ -1288,6 +1301,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const deleteVisit = async (id: string | number): Promise<{ success: boolean; message: string }> => {
         try {
+            showToast("Eliminando visita...", "info");
             const { error } = await supabase.from('visits').delete().eq('id', id);
 
             if (error) {
@@ -1323,6 +1337,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const updateVisit = async (id: string | number, updates: Partial<Visit>) => {
         try {
+            showToast("Actualizando visita...", "info");
             console.log('🚀 Updating Visit:', id, updates);
             // Map local updates to Supabase columns
             const dbUpdates: any = {};
@@ -1343,6 +1358,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             // Update local state
             setVisits(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
+            showToast("Visita actualizada", "success");
             notify("Visita Actualizada", "Los cambios han sido guardados.");
 
         } catch (err) {
@@ -1354,6 +1370,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => {
         try {
+            showToast("Enviando solicitud financiera...", "info");
             console.log("💰 Creating finance request:", r.title);
 
             const { data, error } = await supabase.from('finance_requests').insert({
@@ -1391,6 +1408,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     const updateFinanceRequestStatus = async (id: string | number, status: string, reason?: string) => {
+        showToast("Actualizando estado de aprobación...", "info");
         const { error } = await supabase.from('finance_requests').update({
             status: status,
             rejection_reason: reason
@@ -1564,6 +1582,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 notify("Error", "No se pudo actualizar el estado del usuario.");
                 return;
             }
+            showToast("Estado actualizado correctamente", "success");
             setUsers(prev => prev.map(u => u.id === userId ? { ...u, financialStatus: status } : u));
             notify("Estado Actualizado", `El estado del usuario ahora es: ${status}`);
         } catch (err) {

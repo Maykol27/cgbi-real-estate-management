@@ -15,8 +15,8 @@ import { LoadingScreen } from './components/LoadingScreen';
 
 const App: React.FC = () => {
   return (
-    <StoreProvider>
-      <ToastProvider>
+    <ToastProvider>
+      <StoreProvider>
         <LoadingScreen />
         <HashRouter>
           <Routes>
@@ -67,8 +67,8 @@ const App: React.FC = () => {
             } />
           </Routes>
         </HashRouter>
-      </ToastProvider>
-    </StoreProvider>
+      </StoreProvider>
+    </ToastProvider>
   );
 };
 
