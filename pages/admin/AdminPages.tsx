@@ -377,12 +377,12 @@ export const AdminDocuments: React.FC = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Enviado por</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+                                    <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Nombre Archivo</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Dirigido A</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Enviado por</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -472,11 +472,11 @@ export const AdminDocuments: React.FC = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre Archivo</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Dirigido A</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+                                        <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Nombre Archivo</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Dirigido A</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -659,13 +659,13 @@ export const AdminProperties: React.FC = () => {
                 <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
                     <button
                         onClick={() => setListingFilter('Arriendo')}
-                        className={`px - 4 py - 2 text - sm font - bold rounded - lg transition - all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
+                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Arriendo' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Arriendo
                     </button>
                     <button
                         onClick={() => setListingFilter('Venta')}
-                        className={`px - 4 py - 2 text - sm font - bold rounded - lg transition - all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
+                        className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${listingFilter === 'Venta' ? 'bg-white dark:bg-card-dark shadow-sm text-primary dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'} `}
                     >
                         En Venta
                     </button>
@@ -1331,13 +1331,13 @@ export const AdminTickets: React.FC = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Asunto</th>
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Solicitante</th>
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Asignado a</th>
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Prioridad</th>
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Estado</th>
-                                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">Acción</th>
+                                        <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Asunto</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Solicitante</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Asignado a</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Prioridad</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Estado</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1418,12 +1418,12 @@ export const AdminTickets: React.FC = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-700">
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Solicitud Técnica / Financiera</th>
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Inmueble / Solicitante</th>
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Costo Estimado</th>
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Estado de Aprobación</th>
-                                        <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">
+                                    <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Solicitud Técnica / Financiera</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Inmueble / Solicitante</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Costo Estimado</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Estado de Aprobación</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right">
                                             <button
                                                 onClick={() => setShowFinanceModal(true)}
                                                 className="bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded text-xs font-bold transition-colors"
