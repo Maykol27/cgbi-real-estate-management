@@ -128,6 +128,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             // 2. Prepare Dynamic Queries based on Role
             let ticketsQuery = supabase.from('tickets').select('*');
             let visitsQuery = supabase.from('visits').select('*');
+            let financeQuery = supabase.from('finance_requests').select('*');
 
             if (userRole === 'Colaborador' && userId) {
                 console.log('👀 Aplicando filtro de Colaborador');
@@ -140,6 +141,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 } else {
                     console.warn("⚠️ No se puede filtrar visitas: Falta nombre del colaborador");
                 }
+
+                // Finance Requests use UUID
+                financeQuery = financeQuery.eq('requester_id', userId);
             }
 
             // Independent Fetches using Promise.allSettled
@@ -149,7 +153,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 ticketsQuery,
                 supabase.from('documents').select('*'),
                 visitsQuery,
-                supabase.from('finance_requests').select('*')
+                financeQuery
             ]);
 
             const [
