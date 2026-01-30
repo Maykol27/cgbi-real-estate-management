@@ -8,7 +8,25 @@
         ],
         "headers": [
             {
-                "source": "**",
+                "source": "**/*.@(js|css|jpg|jpeg|png|gif|svg|ico)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "max-age=31536000, immutable"
+                    }
+                ]
+            },
+            {
+                "source": "**/*.@(html|json)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "no-cache, no-store, must-revalidate"
+                    }
+                ]
+            },
+            {
+                "source": "sw.js",
                 "headers": [
                     {
                         "key": "Cache-Control",
