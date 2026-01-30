@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ThemeToggle, NotificationButton } from '../../components/Layout';
 import { HeaderProfile } from '../../components/HeaderProfile';
 import { useStore } from '../../context/StoreContext';
@@ -22,6 +23,7 @@ const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
 export const TenantDashboard: React.FC = () => {
     const { user, payments, documents } = useStore();
     const { showToast } = useToast();
+    const navigate = useNavigate();
 
     // Get first name for greeting
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
@@ -93,9 +95,9 @@ export const TenantDashboard: React.FC = () => {
                         </div>
                         {/* View All Button */}
                         <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-800/50 text-center">
-                            <a href="/tenant/documents" className="text-sm font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1">
+                            <button onClick={() => navigate('/tenant/contracts')} className="text-sm font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1">
                                 Ver todo <span className="material-icons-round text-sm">arrow_forward</span>
-                            </a>
+                            </button>
                         </div>
                     </div>
 
