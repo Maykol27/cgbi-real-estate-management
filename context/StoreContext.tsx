@@ -105,7 +105,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.log("📥 Fetching all data from Supabase (Parallel)...");
             // Use current state users if available for logging
             const { data: auth } = await supabase.auth.getUser();
-            console.log('👮 Usuario Actual (Auth):', auth.user?.id, 'Rol:', user?.role);
+            console.log("🚀 StoreContext v2.8.2 - Fetching Data...");
 
             // 1. Fetch Profile first to determine Role for filtering
             let userRole = user?.role;
