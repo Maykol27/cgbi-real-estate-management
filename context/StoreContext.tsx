@@ -101,7 +101,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const fetchAllData = async () => {
         try {
             console.log("📥 Fetching all data from Supabase (Parallel)...");
-            console.log('👮 Usuario Actual (Auth):', supabase.auth.getUser().then(u => u.data.user?.id), 'Rol:', user?.role);
+            // Use current state users if available for logging
+            const { data: auth } = await supabase.auth.getUser();
+            console.log('👮 Usuario Actual (Auth):', auth.user?.id, 'Rol:', user?.role);
 
             // Independent Fetches using Promise.allSettled to prevent one failure (e.g. 403 RLS) from stopping others
             const results = await Promise.allSettled([
@@ -168,8 +170,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }) as Property[];
                 allProperties = mappedProps;
                 setProperties(mappedProps);
-                console.log(`✅ Loaded ${mappedProps.length} properties`);
-                console.log(`🏠 [RLS] Usuario ${user?.role} tiene acceso a ${mappedProps.length} propiedades`);
+                console.log("✅ Loaded", mappedProps.length, "properties");
                 if (mappedProps.length === 0 && (user?.role === 'Propietario' || user?.role === 'Inquilino')) {
                     console.warn('⚠️ [RLS] No se encontraron propiedades para este usuario');
                 }
@@ -199,7 +200,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }) as Ticket[];
                 setTickets(mappedTickets);
                 console.log(`✅ Loaded ${mappedTickets.length} tickets`);
-                console.log(`🎫 [RLS] Usuario ${user?.role} tiene acceso a ${mappedTickets.length} tickets`);
             }
 
             // 4. Process Documents
@@ -521,7 +521,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         }
                     }
                     else if (eventType === 'UPDATE') {
-                        setTickets(prev => prev.map(t => t.id === newRecord.id ? { ...t, ...newRecord, status: newRecord.status, priority: newRecord.priority, messages: newRecord.messages } : t));
+                        setTickets(prev => prev.map(t => t.id === newRecord.id ? {
+                            ...t,
+                            ...newRecord,
+                            desc: newRecord.description || t.desc,
+                            propertyId: newRecord.property_id || t.propertyId,
+                            status: newRecord.status,
+                            priority: newRecord.priority,
+                            messages: newRecord.messages
+                        } : t));
 
                         // NOTIFICATION: Ticket Updates & Messages
                         const isMyTicket = newRecord.requester_id === user.id;
@@ -582,7 +590,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         }
                     }
                     else if (eventType === 'UPDATE') {
-                        setFinanceRequests(prev => prev.map(r => r.id === newRecord.id ? { ...r, ...newRecord, status: newRecord.status } : r));
+                        setFinanceRequests(prev => prev.map(r => r.id === newRecord.id ? {
+                            ...r,
+                            ...newRecord,
+                            desc: newRecord.description || r.desc,
+                            propertyId: newRecord.property_id || r.propertyId,
+                            rejectionReason: newRecord.rejection_reason || r.rejectionReason,
+                            status: newRecord.status
+                        } : r));
                         if ((user.role === 'Analista' || user.role === 'Admin') && newRecord.requester_id === user.id) {
                             notify("Solicitud Actualizada", `Solicitud "${newRecord.title}" ha sido ${newRecord.status}`);
                         }
@@ -675,7 +690,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                                 notify("Resultado de Visita", `Feedback disponible: "${newRecord.feedback.substring(0, 40)}..."`);
                             }
                         }
-                        setVisits(prev => prev.map(v => v.id === newRecord.id ? { ...v, ...newRecord, date: new Date(newRecord.date) } : v));
+                        setVisits(prev => prev.map(v => v.id === newRecord.id ? {
+                            ...v,
+                            ...newRecord,
+                            visitorName: newRecord.visitor_name || v.visitorName,
+                            propertyId: newRecord.property_id || v.propertyId,
+                            date: new Date(newRecord.date)
+                        } : v));
                     }
                 }
             )
@@ -1307,7 +1328,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const dbUpdates: any = {};
             if (updates.date) dbUpdates.date = updates.date.toISOString();
             if (updates.status) dbUpdates.status = updates.status;
-            if (updates.advisor) dbUpdates.advisor = updates.advisor; // Now enabled
+            if (updates.advisor !== undefined) dbUpdates.advisor = updates.advisor || null; // Fix: allow clearing advisor
             if (updates.visitorName) dbUpdates.visitor_name = updates.visitorName;
             if (updates.propertyId) dbUpdates.property_id = updates.propertyId;
             if (updates.feedback !== undefined) dbUpdates.feedback = updates.feedback; // Fix feedback update

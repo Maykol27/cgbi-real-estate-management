@@ -817,7 +817,7 @@ export const AdminTenants: React.FC = () => {
 
     // Derived Payment History for Selected Tenant
     const tenantPayments = selectedTenantHistory
-        ? payments.filter(p => p.tenant_id === selectedTenantHistory).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        ? payments.filter(p => String(p.tenant_id) === String(selectedTenantHistory)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         : [];
 
     const isCollaborator = user?.role === 'Colaborador';
@@ -1224,7 +1224,7 @@ export const AdminTickets: React.FC = () => {
     // CRITICAL: Filter tickets for collaborators - they only see assigned tickets
     let visibleTickets = tickets;
     if (user?.role === 'Colaborador') {
-        visibleTickets = tickets.filter(t => t.assigned_to === user.id);
+        visibleTickets = tickets.filter(t => String(t.assigned_to) === String(user.id));
         console.log(`🔍 [COLLABORATOR FILTER] User ${user.id} sees ${visibleTickets.length} assigned tickets`);
     }
 
@@ -1786,7 +1786,7 @@ export const AdminCalendar: React.FC = () => {
                                             d.setHours(Number(h), Number(m));
                                             return d;
                                         })(),
-                                        propertyName: properties.find(p => p.id === Number(newVisitData.propertyId))?.name || 'Visita Inmueble',
+                                        propertyName: properties.find(p => String(p.id) === String(newVisitData.propertyId))?.name || 'Visita Inmueble',
                                         visitorName: newVisitData.visitorName,
                                         advisor: newVisitData.advisor
                                     };
