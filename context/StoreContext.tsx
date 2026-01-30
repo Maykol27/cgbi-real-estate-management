@@ -107,13 +107,30 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const { data: auth } = await supabase.auth.getUser();
             console.log('👮 Usuario Actual (Auth):', auth.user?.id, 'Rol:', user?.role);
 
-            // Independent Fetches using Promise.allSettled to prevent one failure (e.g. 403 RLS) from stopping others
+            // 1. Fetch Profile first to determine Role for filtering
+            const { data: profileData } = await supabase.from('profiles').select('role').eq('id', auth.user?.id).single();
+            const userRole = profileData?.role || user?.role;
+            const userId = auth.user?.id;
+
+            console.log('👮 Usuario Actual:', userId, 'Rol:', userRole);
+
+            // 2. Prepare Dynamic Queries based on Role
+            let ticketsQuery = supabase.from('tickets').select('*');
+            let visitsQuery = supabase.from('visits').select('*');
+
+            if (userRole === 'Colaborador' && userId) {
+                console.log('👀 Aplicando filtro de Colaborador (tickets asignados y mis visitas)');
+                ticketsQuery = ticketsQuery.eq('assigned_to', userId);
+                visitsQuery = visitsQuery.eq('advisor', userId);
+            }
+
+            // Independent Fetches using Promise.allSettled
             const results = await Promise.allSettled([
                 supabase.from('profiles').select('*'),
                 supabase.from('properties').select('*'),
-                supabase.from('tickets').select('*'),
+                ticketsQuery,
                 supabase.from('documents').select('*'),
-                supabase.from('visits').select('*'),
+                visitsQuery,
                 supabase.from('finance_requests').select('*')
             ]);
 
