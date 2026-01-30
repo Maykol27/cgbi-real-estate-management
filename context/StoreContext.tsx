@@ -107,29 +107,39 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const { data: auth } = await supabase.auth.getUser();
             console.log("🚀 StoreContext v2.8.2 - Fetching Data...");
 
-            // 1. Fetch Profile first to determine Role for filtering
+            // 1. Fetch Profile first to determine Role and Name for filtering
             let userRole = user?.role;
+            let userName = user?.name;
             const userId = auth.user?.id;
 
-            if (!userRole && userId) {
-                const { data, error } = await supabase.from('profiles').select('role').eq('id', userId).single();
+            if (userId) {
+                // Always fetch profile to ensure we have the latest Role and Name
+                const { data, error } = await supabase.from('profiles').select('role, full_name').eq('id', userId).single();
                 if (data) {
                     userRole = data.role;
+                    userName = data.full_name;
                 } else {
-                    console.warn("⚠️ No se pudo obtener el rol del usuario para filtrar datos:", error);
+                    console.warn("⚠️ No se pudo obtener el perfil del usuario:", error);
                 }
             }
 
-            console.log('👮 Usuario Actual:', userId, 'Rol Detectado:', userRole);
+            console.log('👮 Usuario Actual:', userId, 'Rol:', userRole, 'Nombre:', userName);
 
             // 2. Prepare Dynamic Queries based on Role
             let ticketsQuery = supabase.from('tickets').select('*');
             let visitsQuery = supabase.from('visits').select('*');
 
             if (userRole === 'Colaborador' && userId) {
-                console.log('👀 Aplicando filtro de Colaborador (tickets asignados y mis visitas)');
+                console.log('👀 Aplicando filtro de Colaborador');
+                // Tickets use UUID
                 ticketsQuery = ticketsQuery.eq('assigned_to', userId);
-                visitsQuery = visitsQuery.eq('advisor', userId);
+
+                // Visits use NAME (Database inconsistency fix)
+                if (userName) {
+                    visitsQuery = visitsQuery.eq('advisor', userName);
+                } else {
+                    console.warn("⚠️ No se puede filtrar visitas: Falta nombre del colaborador");
+                }
             }
 
             // Independent Fetches using Promise.allSettled
