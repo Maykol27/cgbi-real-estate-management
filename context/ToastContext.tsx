@@ -23,7 +23,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== id));
-        }, 3000); // Auto close after 3s
+        }, 6000); // Auto close after 6s
     }, []);
 
     const removeToast = (id: number) => {
@@ -38,14 +38,14 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     <div
                         key={toast.id}
                         className={`pointer-events-auto min-w-[300px] max-w-md p-4 rounded-xl shadow-lg border-l-4 transform transition-all animate-in slide-in-from-right-full duration-300 flex items-center justify-between gap-4 ${toast.type === 'success' ? 'bg-white dark:bg-slate-800 border-emerald-500 text-gray-800 dark:text-white' :
-                                toast.type === 'error' ? 'bg-white dark:bg-slate-800 border-red-500 text-gray-800 dark:text-white' :
-                                    'bg-white dark:bg-slate-800 border-blue-500 text-gray-800 dark:text-white'
+                            toast.type === 'error' ? 'bg-white dark:bg-slate-800 border-red-500 text-gray-800 dark:text-white' :
+                                'bg-white dark:bg-slate-800 border-blue-500 text-gray-800 dark:text-white'
                             }`}
                     >
                         <div className="flex items-center gap-3">
                             <span className={`material-icons-round ${toast.type === 'success' ? 'text-emerald-500' :
-                                    toast.type === 'error' ? 'text-red-500' :
-                                        'text-blue-500'
+                                toast.type === 'error' ? 'text-red-500' :
+                                    'text-blue-500'
                                 }`}>
                                 {toast.type === 'success' ? 'check_circle' : toast.type === 'error' ? 'error' : 'info'}
                             </span>

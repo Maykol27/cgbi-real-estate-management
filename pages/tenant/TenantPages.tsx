@@ -27,8 +27,20 @@ export const TenantDashboard: React.FC = () => {
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
 
     // RLS already filters documents - show all that the user is allowed to see
-    // No need for additional filtering, RLS handles security at DB level
-    const myDocuments = documents.slice(0, 5); // Show last 5
+    // Store logic: Filter last 7 days and limit to 3
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const myDocuments = documents
+        .filter(d => {
+            // Parse date "DD/MM/YYYY" or ISO
+            const parts = d.date.split('/');
+            const docDate = parts.length === 3
+                ? new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+                : new Date(d.date);
+            return docDate >= sevenDaysAgo;
+        })
+        .slice(0, 3);
 
     // Derived Payment State
     // Find earliest pending payment
@@ -57,7 +69,7 @@ export const TenantDashboard: React.FC = () => {
                     <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="material-icons-round text-primary dark:text-blue-400">notifications_active</span>
-                            <h3 className="font-bold text-lg text-primary dark:text-blue-200">Buzón de Novedades</h3>
+                            <h3 className="font-bold text-lg text-primary dark:text-blue-200">Últimos Documentos</h3>
                         </div>
                         <div className="space-y-3">
                             {myDocuments.length > 0 ? (
@@ -78,6 +90,12 @@ export const TenantDashboard: React.FC = () => {
                             ) : (
                                 <p className="text-sm text-gray-500 italic">No hay novedades recientes.</p>
                             )}
+                        </div>
+                        {/* View All Button */}
+                        <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-800/50 text-center">
+                            <a href="/tenant/documents" className="text-sm font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1">
+                                Ver todo <span className="material-icons-round text-sm">arrow_forward</span>
+                            </a>
                         </div>
                     </div>
 
