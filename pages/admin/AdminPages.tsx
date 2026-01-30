@@ -831,17 +831,21 @@ export const AdminTenants: React.FC = () => {
         const lastName = (form.elements.namedItem('lastName') as HTMLInputElement)?.value;
         const email = (form.elements.namedItem('email') as HTMLInputElement)?.value;
         const policyNumber = (form.elements.namedItem('policyNumber') as HTMLInputElement)?.value;
+        const propertyId = (form.elements.namedItem('propertyId') as HTMLSelectElement)?.value;
 
         if (!firstName || !lastName || !email) {
             showToast("Por favor complete todos los campos obligatorios", "error");
             return;
         }
 
+        if (propertyId) console.log("🏠 Asignando propiedad:", propertyId);
+
         await addUser({
             name: `${firstName} ${lastName} `,
             role: 'Inquilino',
             email: email,
-            policyNumber: policyNumber
+            policyNumber: policyNumber,
+            propertyId: propertyId ? Number(propertyId) : undefined
         });
 
         setIsModalOpen(false);
@@ -1833,7 +1837,7 @@ export const AdminCalendar: React.FC = () => {
 
 // --- Settings Page (Admin) ---
 export const AdminSettings: React.FC = () => {
-    const { addUser, deleteUser, user, users } = useStore();
+    const { addUser, deleteUser, user, users, properties } = useStore();
 
     // Permission Check (Strict Admin Only)
     if (user?.role === 'Colaborador') {
@@ -1845,18 +1849,22 @@ export const AdminSettings: React.FC = () => {
     const [showUserModal, setShowUserModal] = useState(false);
 
     // User Creation State
-    const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Propietario', permissions: [] as string[] });
+    const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Propietario', permissions: [] as string[], propertyId: '', policyNumber: '' });
 
     const handleCreateUser = (e: React.FormEvent) => {
         e.preventDefault();
+
         addUser({
             name: newUser.name,
             email: newUser.email,
             role: newUser.role as any,
-            permissions: newUser.role === 'Colaborador' ? newUser.permissions : undefined
+            permissions: newUser.role === 'Colaborador' ? newUser.permissions : undefined,
+            policyNumber: newUser.role === 'Inquilino' ? newUser.policyNumber : undefined,
+            propertyId: newUser.role === 'Inquilino' ? newUser.propertyId : undefined
         });
+
         setShowUserModal(false);
-        setNewUser({ name: '', email: '', role: 'Propietario', permissions: [] });
+        setNewUser({ name: '', email: '', role: 'Propietario', permissions: [] as string[], propertyId: '', policyNumber: '' });
     };
 
     const togglePermission = (perm: string) => {
@@ -1909,6 +1917,36 @@ export const AdminSettings: React.FC = () => {
                                             <span className="text-sm dark:text-gray-300 capitalize">{perm}</span>
                                         </label>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {newUser.role === 'Inquilino' && (
+                            <div className="space-y-4 bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Propiedad Asignada</label>
+                                    <select
+                                        required
+                                        value={newUser.propertyId}
+                                        onChange={e => setNewUser({ ...newUser, propertyId: e.target.value })}
+                                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                                    >
+                                        <option value="">Seleccionar propiedad...</option>
+                                        {properties?.map(p => (
+                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Número de Solicitud</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        placeholder="Ej: POL-123456"
+                                        value={newUser.policyNumber}
+                                        onChange={e => setNewUser({ ...newUser, policyNumber: e.target.value })}
+                                        className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-800 text-sm"
+                                    />
                                 </div>
                             </div>
                         )}

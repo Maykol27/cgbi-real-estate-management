@@ -129,7 +129,7 @@ serve(async (req) => {
                 full_name: full_name,
                 role: role,
                 permissions: permissions || [],
-                // policy_number: policy_number // assuming column exists? StoreContext passes it.
+                policy_number: policy_number
             })
 
         if (profileError) {

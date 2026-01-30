@@ -1497,7 +1497,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const addUser = async (u: Omit<User, 'id'>) => {
+    const addUser = async (u: Omit<User, 'id'> & { propertyId?: string | number, policyNumber?: string }) => {
         try {
             console.log('🚀 Intentando registrar usuario:', u.email, u.role);
 
@@ -1549,6 +1549,28 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     permissions: u.permissions || []
                 };
                 setUsers(prev => [...prev, newUser]);
+                setUsers(prev => [...prev, newUser]);
+
+                // If Property ID is provided (Tenant Check-in), update Property Record
+                if (u.propertyId) {
+                    console.log(`🏠 Linking Property #${u.propertyId} to new Tenant ${data.user.id}`);
+                    const { error: propError } = await supabase
+                        .from('properties')
+                        .update({
+                            status: 'Occupied',
+                            owner_id: data.user.id // Assign tenant as "owner" of the rental unit (or use tenant_id col if exists, assume owner_id for now as implied by current schema usage)
+                        })
+                        .eq('id', u.propertyId);
+
+                    if (propError) {
+                        console.error("⚠️ Error linking property:", propError);
+                        notify("Advertencia", "Usuario creado pero no se pudo vincular la propiedad.");
+                    } else {
+                        // Update local property state
+                        setProperties(prev => prev.map(p => p.id === u.propertyId ? { ...p, status: 'Occupied', owner_id: data.user.id, owner: u.name } : p));
+                    }
+                }
+
                 notify("Usuario Invitado", `Se ha enviado un correo de invitación a ${u.email}.`);
             } else {
                 notify("Error", data?.error || "Error desconocido al invitar usuario.");
