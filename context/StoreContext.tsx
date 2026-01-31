@@ -1724,6 +1724,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
             financeRequests, addFinanceRequest, updateFinanceRequestStatus,
             payments, addPayment, updateUserStatus, updateProfile, uploadAvatar,
+            notifications, markNotificationAsRead, fetchNotifications,
             requestNotificationPermission
         }}>
             {children}
