@@ -400,32 +400,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const requestNotificationPermission = () => {
-        if (!("Notification" in window)) {
-            alert("Tu navegador no soporta notificaciones de escritorio.");
-            return;
-        }
 
-        if (Notification.permission === 'granted') {
-            notify("Notificaciones Activas", "El servicio de notificaciones ya está activo y funcionando.");
-            // alert("Las notificaciones ya están activadas para CGBI."); // Optional: explicit alert
-            return;
-        }
-
-        if (Notification.permission === 'denied') {
-            alert("⚠️ Las notificaciones están bloqueadas.\n\nPor favor, habilítalas manualmente en la configuración de privacidad de tu navegador (icono de candado en la barra de direcciones) para recibir alertas importantes.");
-            return;
-        }
-
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                notify("¡Éxito!", "Has activado las notificaciones de CGBI.");
-            } else {
-                // If user just clicked Block in the prompt
-                console.log("Permiso de notificaciones denegado por el usuario.");
-            }
-        });
-    };
 
     // --- CONSOLIDATED Supabase Auth Integration ---
     useEffect(() => {
