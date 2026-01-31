@@ -6,6 +6,18 @@ import { useToast } from './ToastContext';
 // --- Types ---
 import { User, Ticket, Document, Property, Visit, FinanceRequest, Payment } from '../src/types';
 
+export interface Notification {
+    id: string;
+    created_at: string;
+    user_id: string;
+    title: string;
+    body: string;
+    type: 'info' | 'success' | 'warning' | 'error';
+    is_read: boolean;
+    link?: string;
+    metadata?: any;
+}
+
 interface StoreContextType {
     user: User | null;
     loading: boolean;
@@ -47,6 +59,11 @@ interface StoreContextType {
     deleteUser: (userId: string | number) => Promise<{ success: boolean; message: string }>;
     uploadAvatar: (userId: string, file: File) => Promise<{ success: boolean; url?: string; message?: string }>; // New method
 
+    // Notifications
+    notifications: Notification[];
+    markNotificationAsRead: (id: string) => Promise<void>;
+    fetchNotifications: () => Promise<void>;
+
     // Notification Helper
     requestNotificationPermission: () => void;
 }
@@ -65,6 +82,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const [visits, setVisits] = useState<Visit[]>([]);
     const [financeRequests, setFinanceRequests] = useState<FinanceRequest[]>([]);
     const [payments, setPayments] = useState<Payment[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isInitializing, setIsInitializing] = useState(false);
 
     // Ref to track user without triggering re-renders in effects with stale closures
@@ -321,9 +339,42 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }
 
             console.log("✅ All data fetch attempts completed.");
+
+            // Fetch notifications if user is logged in
+            const currentUserId = userRef.current?.id;
+            if (currentUserId) {
+                const { data: notifs } = await supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (notifs) {
+                    setNotifications(notifs as Notification[]);
+                }
+            }
+
         } catch (error) {
             console.error("❌ Critical error in fetchAllData:", error);
         }
+    };
+
+    const fetchNotifications = async () => {
+        if (!user) return;
+        const { data } = await supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(50);
+        if (data) setNotifications(data as Notification[]);
+    };
+
+    const markNotificationAsRead = async (id: string) => {
+        // Optimistic
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        await supabase.from('notifications').update({ is_read: true }).eq('id', id);
     };
     // --- Actions ---
     const notify = (title: string, body: string) => {
@@ -738,6 +789,19 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                             propertyId: newRecord.property_id || v.propertyId,
                             date: new Date(newRecord.date)
                         } : v));
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'notifications' },
+                (payload) => {
+                    // Only process matches for current user (RLS should handle filter, but double check)
+                    const newNotif = payload.new as Notification;
+                    if (newNotif.user_id === user.id) {
+                        console.log("🔔 Nueva Notificación Persistente:", newNotif);
+                        setNotifications(prev => [newNotif, ...prev]);
+                        notify(newNotif.title, newNotif.body);
                     }
                 }
             )

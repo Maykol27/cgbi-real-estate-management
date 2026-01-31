@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "errors": "\u001b[33m[plugin vite:reporter] \n(!) C:/Users/mayko/Downloads/cgbi-real-estate-management/lib/supabaseClient.ts is dynamically imported by C:/Users/mayko/Downloads/cgbi-real-estate-management/pages/admin/AdminPages.tsx but also statically imported by C:/Users/mayko/Downloads/cgbi-real-estate-management/components/ChangePasswordModal.tsx, C:/Users/mayko/Downloads/cgbi-real-estate-management/context/StoreContext.tsx, C:/Users/mayko/Downloads/cgbi-real-estate-management/pages/DebugConnection.tsx, C:/Users/mayko/Downloads/cgbi-real-estate-management/src/services/ticketService.ts, dynamic import will not move module into another chunk.\n\u001b[39m\n\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m\n",
+  "timestamp": "2026-01-31 11:42:29",
+  "vite_ruby": "3.8.0",
+  "digest": "d022edcc9a243df8041027a5f58f737f215148fa"
+}

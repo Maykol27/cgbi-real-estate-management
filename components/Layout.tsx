@@ -59,15 +59,113 @@ export const ThemeToggle = () => {
 };
 
 export const NotificationButton = () => {
-  const { requestNotificationPermission } = useStore();
+  const { notifications, markNotificationAsRead, requestNotificationPermission } = useStore();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <button
-      onClick={requestNotificationPermission}
-      className="p-2 rounded-full bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-slate-600 transition-all border border-gray-100 dark:border-gray-600 group"
-      title="Activar Notificaciones"
-    >
-      <span className="material-icons-round text-xl group-hover:animate-swing">notifications</span>
-    </button>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => {
+          // First time request permission if needed, but mainly toggle dropdown
+          if (Notification.permission !== 'granted') requestNotificationPermission();
+          setShowDropdown(!showDropdown);
+        }}
+        className="relative p-2 rounded-full bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-slate-600 transition-all border border-gray-100 dark:border-gray-600 group"
+        title="Notificaciones"
+      >
+        <span className="material-icons-round text-xl group-hover:animate-swing">notifications</span>
+        {unreadCount > 0 && (
+          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-500 rounded-full border-2 border-white dark:border-slate-800">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      {/* Dropdown */}
+      {showDropdown && (
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 ring-1 ring-black/5">
+          <div className="p-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/80 dark:bg-slate-800/80 backdrop-blur-sm sticky top-0 z-10">
+            <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-200">Notificaciones</h3>
+            {unreadCount > 0 && (
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{unreadCount} nuevas</span>
+            )}
+          </div>
+
+          <div className="max-h-[28rem] overflow-y-auto overscroll-contain">
+            {notifications.length === 0 ? (
+              <div className="p-8 text-center text-gray-400 dark:text-gray-500">
+                <span className="material-icons-round text-4xl mb-3 opacity-30">notifications_none</span>
+                <p className="text-sm">No tienes notificaciones recientes</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                {notifications.map(notif => (
+                  <div
+                    key={notif.id}
+                    onClick={async () => {
+                      if (!notif.is_read) await markNotificationAsRead(notif.id);
+                      if (notif.link) {
+                        navigate(notif.link);
+                        setShowDropdown(false);
+                      }
+                    }}
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer flex gap-3 group ${!notif.is_read ? 'bg-blue-50/40 dark:bg-blue-900/10' : ''}`}
+                  >
+                    <div className={`mt-1.5 flex-shrink-0 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-800 ${!notif.is_read ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-600'}`}></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <p className={`text-sm font-medium ${!notif.is_read ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}>
+                          {notif.title}
+                        </p>
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                          {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                        {notif.body}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="p-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center">
+            <button
+              onClick={() => {
+                notifications.forEach(n => !n.is_read && markNotificationAsRead(n.id));
+              }}
+              className="text-xs text-gray-500 hover:text-primary transition-colors px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-700"
+              disabled={unreadCount === 0}
+            >
+              Marcar todo leído
+            </button>
+            <button
+              onClick={requestNotificationPermission}
+              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1"
+              title="Configurar Alertas"
+            >
+              <span className="material-icons-round text-[16px]">settings</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
