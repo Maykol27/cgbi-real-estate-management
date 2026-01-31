@@ -1715,6 +1715,36 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
+    // --- Notifications ---
+    const requestNotificationPermission = async () => {
+        try {
+            if (!("Notification" in window)) {
+                console.log("This browser does not support desktop notifications");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                console.log("Notification permission already granted.");
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+                console.log("Notification permission granted.");
+                try {
+                    new Notification("Sikai CX", {
+                        body: "Notificaciones activadas correctamente.",
+                        icon: "/sikai-icon.png"
+                    });
+                } catch (e) {
+                    // Ignore error if new Notification fails on mobile
+                }
+            }
+        } catch (error) {
+            console.warn("Notification permission request failed (safely handled):", error);
+        }
+    };
+
     return (
         <StoreContext.Provider value={{
             user, loading, login, logout, users, addUser, deleteUser,
