@@ -117,6 +117,34 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         userRef.current = user;
     }, [user]);
 
+    // --- Notifications Logic (Hoisted for fetchAllData) ---
+    const fetchNotifications = async () => {
+        try {
+            // Use userRef for latest state or fallback
+            const currentUserId = userRef.current?.id || supabase.auth.getUser().then(({ data }) => data.user?.id);
+            if (!currentUserId) return;
+
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', await currentUserId) // await in case it's a promise
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (error) throw error;
+            if (data) setNotifications(data as Notification[]);
+        } catch (err) {
+            console.warn("Safe Warning: Failed to fetch notifications", err);
+        }
+    };
+
+    const markNotificationAsRead = async (id: string) => {
+        try {
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+            await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+        } catch (e) { console.error(e); }
+    };
+
     // --- CONSOLIDATED Data Fetching Function (Refactored for Stability) ---
     const fetchAllData = async () => {
         try {
@@ -360,22 +388,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const fetchNotifications = async () => {
-        if (!user) return;
-        const { data } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(50);
-        if (data) setNotifications(data as Notification[]);
-    };
 
-    const markNotificationAsRead = async (id: string) => {
-        // Optimistic
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-        await supabase.from('notifications').update({ is_read: true }).eq('id', id);
-    };
     // --- Actions ---
     const notify = (title: string, body: string) => {
         if (!("Notification" in window)) return;
@@ -1689,6 +1702,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.error(err);
         }
     };
+
+
 
     // --- Notifications ---
     const requestNotificationPermission = async () => {
