@@ -1010,7 +1010,7 @@ text - xs font - bold py - 1 px - 2 rounded - full border - none
                         </div>
 
                         <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-700 shadow-lg overflow-hidden mb-4">
-                            <img src={`https://i.pravatar.cc/150?u=${selectedTenantProfile.id}`} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={selectedTenantProfile.photoUrl || `https://i.pravatar.cc/150?u=${selectedTenantProfile.id}`} alt="Profile" className="w-full h-full object-cover" />
                         </div >
                         <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-1">{selectedTenantProfile.name}</h2>
                         <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-6">Contrato Vigente</span>
@@ -1043,7 +1043,7 @@ text - xs font - bold py - 1 px - 2 rounded - full border - none
                     {tenants.map((currTenant) => (
                         <div key={currTenant.id} className="bg-white dark:bg-card-dark p-6 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center hover:shadow-hover transition-all group relative">
                             <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-100 to-blue-50 dark:from-blue-900/40 dark:to-slate-800 p-1 mb-4">
-                                <img src={`https://i.pravatar.cc/150?u=${currTenant.id}`} alt="Tenant" className="w-full h-full rounded-full object-cover" />
+                                <img src={currTenant.photoUrl || `https://i.pravatar.cc/150?u=${currTenant.id}`} alt="Tenant" className="w-full h-full rounded-full object-cover" />
                             </div>
                             <h3 className="font-bold text-lg text-gray-800 dark:text-white">{currTenant.name}</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{currTenant.email}</p>
@@ -1127,7 +1127,7 @@ export const AdminOwners: React.FC = () => {
                     {owners.map((owner) => (
                         <div key={owner.id} className="bg-white dark:bg-card-dark p-6 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700 flex flex-col items-center text-center hover:shadow-hover transition-all group relative">
                             <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-slate-800 p-1 mb-4">
-                                <img src={`https://i.pravatar.cc/150?u=${owner.id}`} alt="Owner" className="w-full h-full rounded-full object-cover" />
+                                <img src={owner.photoUrl || `https://i.pravatar.cc/150?u=${owner.id}`} alt="Owner" className="w-full h-full rounded-full object-cover" />
                             </div>
                             <h3 className="font-bold text-lg text-gray-800 dark:text-white">{owner.name}</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{owner.email}</p>
