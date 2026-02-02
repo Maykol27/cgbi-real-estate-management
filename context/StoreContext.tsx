@@ -181,12 +181,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 // Tickets use UUID
                 ticketsQuery = ticketsQuery.eq('assigned_to', userId);
 
-                // Visits use NAME (Database inconsistency fix)
-                if (userName) {
-                    visitsQuery = visitsQuery.eq('advisor', userName);
-                } else {
-                    console.warn("⚠️ No se puede filtrar visitas: Falta nombre del colaborador");
-                }
+                // Visits: Allow Collaborators to see ALL visits (User Request)
+                // visitsQuery = visitsQuery.eq('advisor', userName);
 
                 // Finance Requests use UUID
                 financeQuery = financeQuery.eq('requester_id', userId);

@@ -42,6 +42,16 @@ export const TenantDashboard: React.FC = () => {
                 : new Date(d.date);
             return docDate >= sevenDaysAgo;
         })
+        .sort((a, b) => {
+            const parseDate = (dateStr: string) => {
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
+                }
+                return new Date(dateStr).getTime();
+            };
+            return parseDate(b.date) - parseDate(a.date);
+        })
         .slice(0, 3);
 
     // Derived Payment State

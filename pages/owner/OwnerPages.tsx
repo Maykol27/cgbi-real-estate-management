@@ -34,7 +34,16 @@ export const OwnerDashboard: React.FC = () => {
         d.target === 'Propietarios' ||
         d.target === 'Owner' ||
         d.target === 'All'
-    );
+    ).sort((a, b) => {
+        const parseDate = (dateStr: string) => {
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
+            }
+            return new Date(dateStr).getTime();
+        };
+        return parseDate(b.date) - parseDate(a.date);
+    });
 
     // Find active contract
     const myContract = myDocs.find(d => d.name.toLowerCase().includes('contrato') || d.type.toLowerCase().includes('contrato'));
