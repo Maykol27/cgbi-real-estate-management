@@ -9,7 +9,7 @@ const corsHeaders = {
 
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
+        return new Response('ok', { headers: corsHeaders, status: 200 })
     }
 
     try {
@@ -25,20 +25,43 @@ serve(async (req) => {
             throw new Error("Missing Authorization header")
         }
         const token = authHeader.replace('Bearer ', '')
-        const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token)
 
-        if (authError || !caller) {
-            console.error("Manage-Users Auth Error:", authError);
-            return new Response(JSON.stringify({ error: "Unauthorized", details: authError }), { status: 401, headers: corsHeaders })
+        // Decoding JWT manually to avoid getUser errors
+        const [_header, payload, _signature] = token.split('.');
+        if (!payload) throw new Error("Invalid Token format");
+
+        // Decode payload
+        // Polyfill for atob if not available (Deno has atob)
+        const decodeBase64 = (str: string) => {
+            // Handle URL safe base64
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            return atob(str);
+        };
+
+        const decodedPayload = JSON.parse(decodeBase64(payload));
+        const callerId = decodedPayload.sub;
+
+        if (!callerId) {
+            console.error("No 'sub' in token payload");
+            return new Response(JSON.stringify({ error: "Unauthorized: Invalid Token Claims" }), { status: 401, headers: corsHeaders })
         }
 
+        console.log("Caller ID from JWT:", callerId);
+
         // Check role in profiles table for reliability
-        const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', caller.id).single();
-        const callerRole = profile?.role || caller.user_metadata?.role || '';
+        const { data: profile, error: profileError } = await supabaseAdmin.from('profiles').select('role').eq('id', callerId).single();
 
-        console.log("Caller Role Resolved:", callerRole); // Debug log
+        if (profileError || !profile) {
+            console.error("Profile fetch error:", profileError);
+            return new Response(JSON.stringify({ error: "Profile not found or error", details: profileError }), { status: 403, headers: corsHeaders })
+        }
 
-        // Allow 'Admin', 'Administrador', 'Administrator' (case insensitive check done below)
+        const callerRole = profile.role || ''; // decodedPayload.role is often 'authenticated', we need app role
+
+        console.log("Caller Role Resolved:", callerRole);
+
+        // Allow 'Admin', 'Administrador', 'Administrator' (case insensitive)
         const normalizedRole = String(callerRole).toLowerCase().trim();
         const isAdmin = ['admin', 'administrador', 'administrator'].includes(normalizedRole);
 

@@ -1334,6 +1334,7 @@ export const AdminTickets: React.FC = () => {
                                         <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Asunto</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Solicitante</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Propiedad</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Asignado a</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Prioridad</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Estado</th>
@@ -1343,7 +1344,7 @@ export const AdminTickets: React.FC = () => {
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                         {filteredTickets.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="py-8 text-center text-gray-400">No hay tickets en esta categoría.</td>
+                                                <td colSpan={6} className="py-8 text-center text-gray-400">No hay tickets en esta categoría.</td>
                                             </tr>
                                         ) : (
                                             filteredTickets.map((ticket) => (
@@ -1355,6 +1356,9 @@ export const AdminTickets: React.FC = () => {
                                                     <td className="py-4 px-6">
                                                         <p className="text-sm font-medium dark:text-gray-200">{ticket.requester}</p>
                                                         <p className="text-xs text-blue-500">{ticket.requesterRole}</p>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <p className="text-sm font-medium dark:text-gray-200">{ticket.propertyName || 'N/A'}</p>
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         {ticket.assigned_to ? (

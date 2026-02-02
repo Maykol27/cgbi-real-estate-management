@@ -1,5 +1,5 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, FunctionsHttpError } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://eqfsekdvzdklhhcqifuk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxZnNla2R2emRrbGhoY3FpZnVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2Mzk1ODIsImV4cCI6MjA4MzIxNTU4Mn0.QWoxJOtjhJcKC7QBkjAof0D7kXFmiGlMjoHD-ZQD0PI';
@@ -7,50 +7,45 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function main() {
-    const email = 'maykol.test.repro@sikaiconsulting.com'; // Use a TEST email to avoid conflict if possible, or use the problematic one?
-    // User said "maykol.sicard@sikaiconsulting.com". Let's use that one but carefully. 
-    // Wait, if I use the real email, I might mess up his manual setup. 
-    // But verify functionality first with a UNIQUE email.
-    const uniqueEmail = `test.existing.user@sikaiconsulting.com`;
+    const email = 'comercial@cgbi.com.co';
     const password = 'CGBI2026!';
 
-    console.log(`------ TEST: Creating user ${uniqueEmail} ------`);
+    console.log(`------ TEST: Logging in as ${email} ------`);
 
     try {
-        // 1. Invoke invite-user
-        console.log("Invoking invite-user...");
-        const { data, error } = await supabase.functions.invoke('invite-user', {
-            body: {
-                email: uniqueEmail,
-                role: 'owner',
-                full_name: 'Test Repro User',
-                permissions: []
-            }
-        });
-
-        if (error) {
-            console.error("Invite-user invocation failed:", error);
-            // If it fails, we try to create it anyway?
-        } else {
-            console.log("Invite-user response:", data);
-        }
-
-        // 2. Try Login
-        console.log("Attempting Login...");
+        // 1. Login
         const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-            email: uniqueEmail,
-            password: password
+            email,
+            password
         });
 
         if (loginError) {
             console.error("LOGIN FAILED:", loginError.message);
-            // Check if "Email not confirmed"
-            if (loginError.message.includes("Email not confirmed")) {
-                console.error("!!! CRITICAL: Email was NOT confirmed automatically !!!");
+            return;
+        }
+
+        console.log("LOGIN SUCCESS! Token:", loginData.session.access_token.substring(0, 20) + "...");
+
+        // 2. Invoke manage-users (Try a dummy action to test auth)
+        // We won't delete, just pass a dummy action to see if it passes auth check
+        console.log("Invoking manage-users...");
+        const { data, error } = await supabase.functions.invoke('manage-users', {
+            body: {
+                action: 'check_auth', // Invalid action but should pass auth check first
+                userId: 'dummy'
+            },
+            headers: {
+                Authorization: `Bearer ${loginData.session.access_token}`
+            }
+        });
+
+        if (error) {
+            console.error("Manage-users invocation failed:", error);
+            if (error instanceof FunctionsHttpError) {
+                console.log("Error details:", await error.context.json());
             }
         } else {
-            console.log("LOGIN SUCCESS! User ID:", loginData.user.id);
-            console.log("Email Confirmed At:", loginData.user.email_confirmed_at);
+            console.log("Manage-users response:", data);
         }
 
     } catch (e) {
