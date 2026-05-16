@@ -50,7 +50,7 @@ interface StoreContextType {
     updateFinanceRequestStatus: (id: string | number, status: string, reason?: string) => void;
 
     payments: Payment[];
-    addPayment: (p: Omit<Payment, 'id' | 'status'>) => Promise<{ success: boolean; message: string }>;
+    addPayment: (p: Omit<Payment, 'id'> & { status?: number }) => Promise<{ success: boolean; message: string }>;
 
     // Users
     addUser: (u: Omit<User, 'id'>) => void;
@@ -1058,6 +1058,35 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         if (error) {
             console.error("Error saving message", error);
             notify("Error", "No se pudo guardar el mensaje.");
+        } else {
+            // Notificación persistente
+            try {
+                const { data: ticketData } = await supabase.from('tickets').select('requester_id, assigned_to').eq('id', id).single();
+                if (ticketData) {
+                    const currentUserId = user?.id;
+                    const recipients = [];
+                    
+                    if (currentUserId === ticketData.requester_id) {
+                        if (ticketData.assigned_to) recipients.push(ticketData.assigned_to);
+                    } else {
+                        recipients.push(ticketData.requester_id);
+                    }
+
+                    for (const targetId of recipients) {
+                        if (targetId && targetId !== currentUserId) {
+                            await supabase.from('notifications').insert({
+                                user_id: targetId,
+                                title: `Nuevo mensaje en Ticket #${id}`,
+                                body: `El usuario ${user?.name || 'Alguien'} ha respondido en el ticket.`,
+                                type: 'info',
+                                is_read: false
+                            });
+                        }
+                    }
+                }
+            } catch (notifyErr) {
+                console.error("Error creating persistent notification:", notifyErr);
+            }
         }
     };
 
@@ -1512,13 +1541,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         notify("Estado Actualizado", `La solicitud #${id} ha sido marcada como ${status}.`);
     };
 
-    const addPayment = async (p: Omit<Payment, 'id' | 'status'>): Promise<{ success: boolean; message: string }> => {
+    const addPayment = async (p: Omit<Payment, 'id'> & { status?: number }): Promise<{ success: boolean; message: string }> => {
         try {
+            const finalStatus = p.status !== undefined ? p.status : 1;
             const { data, error } = await supabase.from('payments').insert({
                 amount: p.amount,
                 period: p.period,
                 date: p.date,
-                status: 1, // 1=Pagado
+                status: finalStatus,
                 tenant_id: p.tenant_id || user?.id
             }).select().single();
 
@@ -1531,7 +1561,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 const newPayment: Payment = {
                     ...p,
                     id: data.id,
-                    status: 1,
+                    status: finalStatus,
                     tenant_id: data.tenant_id
                 };
                 setPayments(prev => [newPayment, ...prev]);
@@ -1685,10 +1715,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const updateUserStatus = async (userId: string | number, status: 'Al Día' | 'Pendiente de Pago' | 'En Mora') => {
         try {
-            const { error } = await supabase.from('profiles').update({ financial_status: status }).eq('id', userId);
+            const { data, error } = await supabase.from('profiles').update({ financial_status: status }).eq('id', userId).select();
             if (error) {
                 console.error("Error updating user status:", error);
                 notify("Error", "No se pudo actualizar el estado del usuario.");
+                return;
+            }
+            if (!data || data.length === 0) {
+                console.warn("Silent failure updating user status (possibly blocked by RLS permissions).");
+                notify("Alerta de Permisos", "No se guardaron los cambios debido a restricciones de seguridad (RLS).");
                 return;
             }
             showToast("Estado actualizado correctamente", "success");

@@ -298,6 +298,12 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     <label htmlFor="image" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
                         Foto Principal
                     </label>
+                    {initialData?.image && (
+                        <div className="mb-3">
+                            <p className="text-xs text-gray-500 mb-1">Imagen actual:</p>
+                            <img src={initialData.image} alt="Imagen actual de la propiedad" className="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+                        </div>
+                    )}
                     <input
                         type="file"
                         id="image"

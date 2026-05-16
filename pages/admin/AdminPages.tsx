@@ -927,11 +927,13 @@ export const AdminTenants: React.FC = () => {
                                     const form = e.target as HTMLFormElement;
                                     const amount = (form.elements.namedItem('amount') as HTMLInputElement).value;
                                     const period = (form.elements.namedItem('period') as HTMLInputElement).value;
+                                    const statusVal = (form.elements.namedItem('status') as HTMLSelectElement).value;
 
                                     if (amount && period && selectedTenantHistory) {
                                         const res = await addPayment({
                                             amount: Number(amount),
                                             period,
+                                            status: Number(statusVal),
                                             date: new Date().toISOString(),
                                             tenant_id: selectedTenantHistory
                                         });
@@ -951,6 +953,14 @@ export const AdminTenants: React.FC = () => {
                                 <div className="flex-1 w-full">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">Monto</label>
                                     <input name="amount" type="number" required placeholder="0" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white" />
+                                </div>
+                                <div className="flex-1 w-full">
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">Estado</label>
+                                    <select name="status" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white">
+                                        <option value="1">Pagado</option>
+                                        <option value="0">Pendiente</option>
+                                        <option value="2">En Mora</option>
+                                    </select>
                                 </div>
                                 <button type="submit" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-1">
                                     <span className="material-icons-round text-base">save</span> Registrar

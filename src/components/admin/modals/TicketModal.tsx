@@ -194,7 +194,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
     return (
         <Modal isOpen={!!ticket} title={`Ticket #${ticket?.id || 'N/A'}`} onClose={onClose} maxWidth="max-w-3xl" zIndex={50}>
-            <div className="flex flex-col h-[550px]">
+            <div className="flex flex-col h-[calc(100vh-200px)] md:h-[550px] min-h-0">
                 {/* Info Header */}
                 <div className="mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
                     {/* Title and Requester */}
