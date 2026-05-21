@@ -732,10 +732,14 @@ export const AdminProperties: React.FC = () => {
                                     <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-[#1E293B]/70 transition-colors">
                                         <td className="p-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-lg bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 flex items-center justify-center text-[#D62C5E] shrink-0">
-                                                    <span className="material-icons-round">
-                                                        {prop.type === 'Apartamento' ? 'apartment' : prop.type === 'Casa' ? 'house' : 'storefront'}
-                                                    </span>
+                                                <div className="h-12 w-12 rounded-lg bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 flex items-center justify-center text-[#D62C5E] shrink-0 overflow-hidden">
+                                                    {prop.image ? (
+                                                        <img src={prop.image} alt={prop.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <span className="material-icons-round">
+                                                            {prop.type === 'Apartamento' ? 'apartment' : prop.type === 'Casa' ? 'house' : 'storefront'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-[#111827] dark:text-[#F9FAFB] text-sm">{prop.name}</p>
