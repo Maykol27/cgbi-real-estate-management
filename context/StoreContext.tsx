@@ -1392,6 +1392,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             if (data) {
                 console.log("✅ Visit created successfully:", data.id);
+                
+                // Notificar a los administradores si el creador es un colaborador
+                if (user?.role === 'Colaborador') {
+                    try {
+                        const { data: adminUsers } = await supabase.from('users').select('id').eq('role', 'Admin');
+                        if (adminUsers && adminUsers.length > 0) {
+                            for (const admin of adminUsers) {
+                                await supabase.from('notifications').insert({
+                                    user_id: admin.id,
+                                    title: 'Nueva Visita Programada',
+                                    body: `El colaborador ${user.name} ha programado una visita para el inmueble ${v.propertyName}.`,
+                                    type: 'info',
+                                    is_read: false
+                                });
+                            }
+                        }
+                    } catch (notifyErr) {
+                        console.error("Error creating persistent notification for visit:", notifyErr);
+                    }
+                }
+
                 const newVisit: Visit = {
                     id: data.id,
                     propertyId: data.property_id,

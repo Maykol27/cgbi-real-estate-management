@@ -1032,7 +1032,7 @@ text - xs font - bold py - 1 px - 2 rounded - full border - none
                         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
                                 <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Inmueble</label>
-                                <p className="text-sm font-semibold dark:text-white">Residencial Las Palmas #40{selectedTenantProfile.id}</p>
+                                <p className="text-sm font-semibold dark:text-white">{properties.find(p => String(p.id) === String(selectedTenantProfile.propertyId))?.name || 'Sin Inmueble'}</p>
                             </div>
                             <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
                                 <label className="text-xs text-gray-500 uppercase font-bold block mb-1">Email</label>

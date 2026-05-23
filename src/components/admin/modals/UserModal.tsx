@@ -155,7 +155,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                                 className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
                             >
                                 <option value="">Seleccionar propiedad...</option>
-                                {properties?.map(p => (
+                                {properties?.filter(p => p.listingType === 'Arriendo').map(p => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                             </select>

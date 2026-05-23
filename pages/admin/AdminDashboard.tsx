@@ -46,10 +46,11 @@ const AdminDashboard: React.FC = () => {
   const openTicketsPercentage = tickets.length > 0 ? (openTickets / tickets.length) * 100 : 0;
 
 
-  // Let's assume 'Ocupado' or 'Alquilada' based on previous context.
-  // Checking StoreContext logic, Property status can be 'Disponible', 'Alquilada', 'Vendida', 'Mantenimiento'.
-  const rentedProperties = properties.filter(p => p.status === 'Arrendado').length;
-  const occupancyRate = totalProperties > 0 ? Math.round((rentedProperties / totalProperties) * 100) : 0;
+  // Filter to only include rental properties (Arriendo)
+  const rentalProperties = properties.filter(p => p.listingType === 'Arriendo');
+  const totalRentalProperties = rentalProperties.length;
+  const rentedProperties = rentalProperties.filter(p => p.status === 'Arrendado').length;
+  const occupancyRate = totalRentalProperties > 0 ? Math.round((rentedProperties / totalRentalProperties) * 100) : 0;
 
   /* Removed AI Summary Logic */
 
