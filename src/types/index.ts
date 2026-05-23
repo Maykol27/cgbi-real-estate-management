@@ -15,6 +15,7 @@ export interface User {
     photoUrl?: string; // Nuevo campo para foto
     phone?: string;    // Nuevo campo para teléfono
     financialStatus?: 'Al Día' | 'Pendiente de Pago' | 'En Mora';
+    propertyId?: string | number;
 }
 
 export interface Ticket {

@@ -218,7 +218,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     permissions: p.permissions || [],
                     financialStatus: p.financial_status || 'Al Día',
                     photoUrl: p.avatar_url,
-                    phone: p.phone
+                    phone: p.phone,
+                    propertyId: p.property_id
                 })) as unknown as User[];
                 setUsers(allUsers);
                 console.log("✅ Loaded", allUsers.length, "users");
