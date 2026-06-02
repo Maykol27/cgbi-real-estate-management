@@ -26,6 +26,7 @@ export interface Ticket {
     type?: 'Mantenimiento' | 'Administrativo' | 'PQRS / Felicitaciones' | 'Tareas CGBI';
     priority?: 'Alta' | 'Media' | 'Baja';
     requester: string;
+    requester_id?: string; // ✅ FIX: UUID del creador para match con DB
     requesterRole: 'Propietario' | 'Inquilino' | 'Admin' | 'Colaborador';
     date: string;
     propertyId?: string | number;
@@ -67,7 +68,10 @@ export interface Document {
     type: 'Factura / Recibo' | 'Contrato' | 'Comunicación' | 'Solicitud' | 'Documento Personal';
     target: string; // Display name: "Todos", "Juan Pérez", etc.
     targetIds?: (string | number)[]; // Array de UUIDs para RLS
-    targetId?: string; // Single UUID helper for specific client
+    targetId?: string | number; // Single UUID helper for specific client
+    sharedWithId?: string | number; // ✅ FIX: Alias para match de propietario específico
+    sharedWith?: string; // Display name del destinatario
+    owner?: string; // Nombre del propietario
     date: string;
     size: string;
     fileUrl?: string;

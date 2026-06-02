@@ -178,14 +178,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             if (userRole === 'Colaborador' && userId) {
                 console.log('👀 Aplicando filtro de Colaborador');
-                // Tickets use UUID
+                // Tickets: solo los asignados al colaborador
                 ticketsQuery = ticketsQuery.eq('assigned_to', userId);
 
-                // Visits: Allow Collaborators to see ALL visits (User Request)
-                // visitsQuery = visitsQuery.eq('advisor', userName);
+                // Finance Requests: Colaborador ve todas (para gestionar)
+                // financeQuery sin filtro extra - RLS debe manejar
 
-                // Finance Requests use UUID
-                financeQuery = financeQuery.eq('requester_id', userId);
+                // Visits: Colaborador ve todas las visitas (requerido por flujo)
+                // visitsQuery sin filtro extra
             }
 
             // Independent Fetches using Promise.allSettled
@@ -274,6 +274,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         status: t.status,
                         priority: t.priority,
                         requester: requester ? requester.name : 'Unknown',
+                        requester_id: t.requester_id, // ✅ FIX: incluir para filtros por UUID
                         requesterRole: requester ? requester.role : 'Usuario',
                         date: new Date(t.created_at).toLocaleDateString(),
                         propertyId: t.property_id,
@@ -305,9 +306,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         name: d.name,
                         type: d.type,
                         target: displayTarget,
+                        targetId: d.target_user_id || d.target_id || null, // ✅ FIX: incluir targetId UUID
+                        sharedWithId: d.target_user_id || d.target_id || null, // ✅ FIX: alias para filtro propietario
                         date: new Date(d.created_at).toLocaleDateString(),
                         size: d.size,
-                        fileUrl: d.url,
+                        fileUrl: d.file_url || d.url, // ✅ FIX: revisar ambos campos posibles
                         createdBy: d.created_by // Track document creator
                     };
                 }) as Document[];
@@ -353,7 +356,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         requester: requester ? requester.name : 'Unknown',
                         date: new Date(f.created_at).toLocaleDateString(),
                         rejectionReason: f.rejection_reason,
-                        propertyId: f.property_id
+                        propertyId: f.property_id,
+                        attachmentUrl: f.attachment_url || null // ✅ FIX: incluir adjunto
                     };
                 }) as FinanceRequest[];
                 setFinanceRequests(mappedFin);
@@ -582,19 +586,28 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                             requesterRole: 'Inquilino',
                             date: new Date(t.created_at).toLocaleDateString(),
                             propertyId: t.property_id,
+                            assigned_to: t.assigned_to, // ✅ FIX: Incluir assigned_to
                             messages: t.messages || []
                         };
 
                         setTickets(prev => {
                             if (prev.find(x => x.id === newTicket.id)) return prev;
+                            // ✅ FIX: Si es Colaborador, solo agregar si este ticket le está asignado
+                            if (userRef.current?.role === 'Colaborador') {
+                                if (String(t.assigned_to) !== String(userRef.current?.id)) return prev;
+                            }
                             return [newTicket, ...prev];
                         });
 
-                        // NOTIFICATION: New Ticket (For Admins)
-                        if (user.role === 'Administrador' || user.role === 'Admin' || user.role === 'Colaborador') {
+                        // NOTIFICATION: New Ticket
+                        if (user.role === 'Administrador' || user.role === 'Admin') {
                             if (t.requester_id !== user.id) {
                                 notify("Nuevo Ticket", `Se ha creado un nuevo ticket: ${t.title}`);
                             }
+                        }
+                        // ✅ FIX: Notificar al colaborador asignado específicamente
+                        if (user.role === 'Colaborador' && String(t.assigned_to) === String(user.id)) {
+                            notify("Ticket Asignado", `Se te ha asignado un nuevo ticket: ${t.title}`);
                         }
                     }
                     else if (eventType === 'UPDATE') {
@@ -947,7 +960,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 status: 'Pendiente',
                 priority: t.priority || 'Media',
                 requester_id: user?.id,
-                property_id: t.propertyId
+                property_id: t.propertyId || null,
+                assigned_to: t.assigned_to || null // ✅ FIX: Guardar assigned_to en Supabase
             }).select().single();
 
             if (error) {
@@ -1140,11 +1154,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const { data, error } = await supabase.from('documents').insert({
                 name: d.name,
                 type: d.type,
-                target: d.target, // "Todos", "Inquilinos", "Propietarios" for display/reference
+                target: d.target, // "Todos", "Inquilinos", "Propietarios" para display
                 size: d.size,
                 url: publicUrl,
+                file_url: publicUrl, // ✅ FIX: Guardar en ambos campos
                 created_by: user?.id,
-                target_user_ids: targetIds.length > 0 ? targetIds : null // Array for RLS
+                target_user_id: d.targetId || null, // ✅ FIX: UUID único para propietario específico
+                target_user_ids: targetIds.length > 0 ? targetIds : null // Array para grupos
             }).select().single();
 
             console.log('📡 [DB_RESPONSE] Documento registrado:', data);
@@ -1161,8 +1177,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     ...d,
                     id: data.id,
                     date: new Date(data.created_at).toLocaleDateString(),
-                    fileUrl: data.url,
-                    targetIds: targetIds // Keep local consistency
+                    fileUrl: data.file_url || data.url, // ✅ FIX: leer ambos campos
+                    targetId: data.target_user_id || d.targetId || null, // ✅ FIX
+                    sharedWithId: data.target_user_id || d.targetId || null,
+                    targetIds: targetIds
                 };
                 setDocuments(prev => [newDoc, ...prev]);
                 // Refetch all data to ensure it appears for all users
@@ -1381,8 +1399,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             const { data, error } = await supabase.from('visits').insert({
                 property_id: v.propertyId,
                 visitor_name: v.visitorName,
+                advisor: v.advisor || null, // ✅ FIX: Guardar advisor en Supabase
                 date: v.date.toISOString(),
-                status: v.status
+                status: v.status,
+                feedback: v.feedback || null
             }).select().single();
 
             if (error) {
@@ -1397,7 +1417,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 // Notificar a los administradores si el creador es un colaborador
                 if (user?.role === 'Colaborador') {
                     try {
-                        const { data: adminUsers } = await supabase.from('users').select('id').eq('role', 'Admin');
+                        // ✅ FIX: Tabla correcta es 'profiles', no 'users'
+                        const { data: adminUsers } = await supabase.from('profiles').select('id').in('role', ['Admin', 'Administrador']);
                         if (adminUsers && adminUsers.length > 0) {
                             for (const admin of adminUsers) {
                                 await supabase.from('notifications').insert({
@@ -1411,6 +1432,30 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         }
                     } catch (notifyErr) {
                         console.error("Error creating persistent notification for visit:", notifyErr);
+                    }
+                }
+
+                // ✅ FIX: Notificar al asesor asignado (Colaborador) cuando Admin agenda una visita
+                if (v.advisor && (user?.role === 'Admin' || user?.role === 'Administrador')) {
+                    try {
+                        // Buscar el perfil del asesor por nombre
+                        const { data: advisorProfile } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('full_name', v.advisor)
+                            .single();
+
+                        if (advisorProfile?.id) {
+                            await supabase.from('notifications').insert({
+                                user_id: advisorProfile.id,
+                                title: '📅 Visita Asignada',
+                                body: `Se te ha asignado una visita para el inmueble ${v.propertyName} el ${v.date.toLocaleDateString('es-ES')}.`,
+                                type: 'info',
+                                is_read: false
+                            });
+                        }
+                    } catch (notifyErr) {
+                        console.error("Error notifying advisor for visit:", notifyErr);
                     }
                 }
 
@@ -1517,7 +1562,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 cost: r.cost,
                 status: 'Pendiente',
                 requester_id: user?.id,
-                property_id: r.propertyId // Insert property_id
+                property_id: r.propertyId || null,
+                attachment_url: r.attachmentUrl || null // ✅ FIX: Guardar adjunto en DB
             }).select().single();
 
             if (error) {
@@ -1648,8 +1694,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     id: data.user.id,
                     permissions: u.permissions || []
                 };
-                setUsers(prev => [...prev, newUser]);
-                setUsers(prev => [...prev, newUser]);
+                setUsers(prev => [...prev, newUser]); // ✅ FIX: Solo una llamada (eliminado duplicado)
 
                 // If Property ID is provided (Tenant Check-in), update Property Record
                 if (u.propertyId) {

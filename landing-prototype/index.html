@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGBI | Inteligencia Inmobiliaria Premium · Bogotá</title>
+    <meta name="description" content="Perfila tu propiedad en Bogotá. Arriendo o venta con tecnología, póliza garantizada y acceso a la App Premium CGBI para propietarios.">
+    <meta name="keywords" content="CGBI, Camila Gutierrez, Inmobiliaria Bogota, Arriendo Bogota, App Premium Inmobiliaria, Propietarios Vivienda">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cgbi-blue': '#1D194B',
+                        'cgbi-fuchsia': '#E2235E',
+                        'cgbi-dark': '#03020e',
+                        'cgbi-panel': '#07061a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['DM Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --fuchsia: #E2235E;
+            --fuchsia-dim: rgba(226,35,94,0.18);
+            --teal: #26d8c4;
+            --blue-deep: #1D194B;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: #03020e;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* ── CUSTOM CURSOR ─────────────────────────────── */
+        #cursor-dot {
+            width: 8px; height: 8px;
+            background: var(--fuchsia);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease, opacity 0.3s;
+            transform: translate(-50%, -50%);
+        }
+        #cursor-ring {
+            width: 36px; height: 36px;
+            border: 1.5px solid rgba(226,35,94,0.5);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.18s cubic-bezier(0.16,1,0.3,1), width 0.3s, height 0.3s, border-color 0.3s;
+            transform: translate(-50%, -50%);
+        }
+        body:has(a:hover) #cursor-ring,
+        body:has(button:hover) #cursor-ring {
+            width: 56px; height: 56px;
+            border-color: var(--fuchsia);
+        }
+
+        /* ── AURORA MESH BACKGROUND ───────────────────── */
+        #aurora-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -30;
+            pointer-events: none;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -25;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.022;
+            pointer-events: none;
+        }
+
+        /* ── GRID PATTERN ─────────────────────────────── */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -20; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(29,25,75,0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(29,25,75,0.12) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+        }
+
+        /* ── ULTRA-PREMIUM NAVBAR ─────────────────────── */
+        .navbar {
+            position: fixed; top: 18px; left: 50%;
+            transform: translateX(-50%);
+            width: 92%; max-width: 1180px;
+            z-index: 200;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px 12px 20px;
+            border-radius: 18px;
+            background: rgba(6, 5, 20, 0.6);
+            backdrop-filter: blur(36px) saturate(200%);
+            -webkit-backdrop-filter: blur(36px) saturate(200%);
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.4),
+                0 8px 32px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.07);
+            transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        .navbar.scrolled {
+            top: 8px; padding: 9px 12px 9px 18px;
+            background: rgba(3, 2, 14, 0.88);
+            border-color: rgba(226,35,94,0.18);
+            border-radius: 14px;
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.6),
+                0 4px 24px rgba(0,0,0,0.6),
+                0 0 60px rgba(226,35,94,0.06),
+                inset 0 1px 0 rgba(226,35,94,0.1);
+        }
+        .nav-logo-mark {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, #1D194B 0%, #3a2f9f 100%);
+            border: 1px solid rgba(226,35,94,0.45);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(226,35,94,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: box-shadow 0.3s, transform 0.3s;
+            cursor: default;
+        }
+        .nav-logo-mark:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 30px rgba(226,35,94,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .nav-pill {
+            display: flex; align-items: center; gap: 2px;
+            padding: 5px; border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-link {
+            position: relative;
+            padding: 6px 13px; border-radius: 9px;
+            font-size: 12px; font-weight: 600;
+            color: rgba(200,200,230,0.75);
+            transition: color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        .nav-link.active {
+            color: #fff;
+            background: rgba(226,35,94,0.14);
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute; bottom: 4px; left: 50%;
+            transform: translateX(-50%);
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--fuchsia);
+        }
+        .nav-cta {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 20px; border-radius: 11px;
+            font-size: 12px; font-weight: 700;
+            background: linear-gradient(130deg, #E2235E 0%, #ff5a87 100%);
+            box-shadow: 0 0 24px rgba(226,35,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            color: #fff;
+        }
+        .nav-cta:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 0 40px rgba(226,35,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+
+        /* ── HERO ANIMATED GRADIENT TEXT ─────────────── */
+        @keyframes gradient-shift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .text-gradient-animate {
+            background: linear-gradient(135deg, #ff7fa6, #E2235E, #9b5de5, #ff7fa6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 5s ease infinite;
+        }
+        .text-gradient-teal {
+            background: linear-gradient(135deg, #fff 40%, #26d8c4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── SCROLL REVEAL ────────────────────────────── */
+        .reveal {
+            opacity: 0; transform: translateY(50px);
+            transition: opacity 0.95s cubic-bezier(0.16,1,0.3,1), transform 0.95s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal.active { opacity: 1; transform: none; }
+
+        .reveal-children > * {
+            opacity: 0; transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal-children.active > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.05s; }
+        .reveal-children.active > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.15s; }
+        .reveal-children.active > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.25s; }
+        .reveal-children.active > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.35s; }
+
+        /* ── GLASS CARDS (3D TILT) ────────────────────── */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(29,25,75,0.18) 0%, rgba(8,7,25,0.5) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s, border-color 0.4s;
+            position: relative; overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background: radial-gradient(circle 300px at var(--mx,50%) var(--my,50%), rgba(226,35,94,0.12), transparent 80%);
+            opacity: 0; transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .glass-card:hover::before { opacity: 1; }
+        .glass-card:hover {
+            border-color: rgba(226,35,94,0.45);
+            box-shadow: 0 20px 60px rgba(226,35,94,0.18), 0 0 0 1px rgba(226,35,94,0.1), inset 0 1px 0 rgba(226,35,94,0.15);
+        }
+
+        /* ── GLASS PANEL (BIGGER SECTION CONTAINER) ──── */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(29,25,75,0.18) 0%, rgba(7,6,22,0.65) 100%);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(226,35,94,0.16);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+
+        /* ── INPUTS ───────────────────────────────────── */
+        .glass-input {
+            background: rgba(7,6,22,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: #fff; width: 100%; padding: 14px 16px;
+            border-radius: 14px; font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .glass-input::placeholder { color: rgba(255,255,255,0.28); }
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--fuchsia);
+            background: rgba(29,25,75,0.35);
+            box-shadow: 0 0 30px rgba(226,35,94,0.3), inset 0 0 0 1px rgba(226,35,94,0.25), inset 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .glass-select { background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; appearance: none; padding-right: 44px !important; }
+
+        /* ── BUTTONS ──────────────────────────────────── */
+        .btn-fuchsia {
+            background: linear-gradient(130deg, #E2235E 0%, #ff5a87 100%);
+            box-shadow: 0 0 24px rgba(226,35,94,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            color: #fff; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-fuchsia:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 50px rgba(226,35,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .btn-teal {
+            background: linear-gradient(130deg, #0d8f84 0%, #26d8c4 100%);
+            box-shadow: 0 0 24px rgba(38,216,196,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            color: #fff; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-teal:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 50px rgba(38,216,196,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .btn-ghost {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(200,200,230,0.8);
+            transition: all 0.25s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        /* ── SECTION CHIP / BADGE ─────────────────────── */
+        .section-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; border-radius: 100px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+            border: 1px solid rgba(226,35,94,0.3);
+            background: rgba(226,35,94,0.08);
+            color: var(--fuchsia);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* ── SECTION DIVIDER ──────────────────────────── */
+        .divider {
+            width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(226,35,94,0.3) 30%, rgba(38,216,196,0.25) 70%, transparent);
+            position: relative;
+        }
+        .divider::after {
+            content: ''; position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--fuchsia);
+            box-shadow: 0 0 14px rgba(226,35,94,0.9);
+        }
+
+        /* ── MARQUEE TESTIMONIALS ─────────────────────── */
+        .marquee-wrap { overflow: hidden; width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; }
+        .marquee-track { display: flex; width: max-content; gap: 24px; padding: 8px 0; animation: marquee-scroll 40s linear infinite; }
+        .marquee-track:hover { animation-play-state: paused; }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-50% - 12px)); }
+        }
+
+        /* ── FLOAT ANIMATION ──────────────────────────── */
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
+        }
+        @keyframes float2 {
+            0%,100% { transform: translateY(0) rotate(3deg); }
+            50%      { transform: translateY(-12px) rotate(3deg); }
+        }
+        .anim-float  { animation: float  7s ease-in-out infinite; }
+        .anim-float2 { animation: float2 9s ease-in-out infinite; }
+
+        /* ── PING BADGE ───────────────────────────────── */
+        @keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }
+        .ping-dot { position: relative; display: inline-flex; }
+        .ping-dot::before {
+            content: ''; position: absolute;
+            inset: 0; border-radius: 50%;
+            background: var(--fuchsia);
+            animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
+        }
+
+        /* ── COUNTER NUMBER ───────────────────────────── */
+        .counter-num { display: inline-block; transition: transform 0.5s; }
+
+        /* ── WIZARD STEPS ─────────────────────────────── */
+        .wizard-step { display: none; }
+        .wizard-step.show { display: block; animation: step-in 0.5s cubic-bezier(0.16,1,0.3,1); }
+        @keyframes step-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── RADAR SCAN ───────────────────────────────── */
+        @keyframes radar-spin { to { transform: rotate(360deg); } }
+        .radar-sweep {
+            position: absolute; top: 50%; left: 50%; width: 50%; height: 50%;
+            transform-origin: 0 0;
+            background: linear-gradient(135deg, rgba(226,35,94,0.6), transparent 70%);
+            animation: radar-spin 2s linear infinite;
+        }
+
+        /* ── CUSTOM SCROLLBAR ─────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #03020e; }
+        ::-webkit-scrollbar-thumb { background: rgba(226,35,94,0.35); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(226,35,94,0.65); }
+
+        .no-scroll::-webkit-scrollbar { display: none; }
+        .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ── PHONE GLOW ───────────────────────────────── */
+        @keyframes pulse-glow {
+            0%,100% { opacity: 0.3; }
+            50%      { opacity: 0.7; }
+        }
+        .phone-glow { animation: pulse-glow 4s ease-in-out infinite; }
+
+        /* ── TABLE ROW HOVER ──────────────────────────── */
+        .compare-row { transition: background 0.25s; }
+        .compare-row:hover { background: rgba(29,25,75,0.25); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- Aurora Canvas Background -->
+    <canvas id="aurora-canvas"></canvas>
+    <div class="bg-grid"></div>
+
+    <!-- Ambient Blobs -->
+    <div class="fixed top-[-80px] left-[-80px] w-[600px] h-[600px] rounded-full blur-[160px] opacity-20 pointer-events-none" style="background: radial-gradient(circle, #E2235E, transparent 70%); animation: pulse-glow 6s ease-in-out infinite; z-index: -15;"></div>
+    <div class="fixed top-[40%] right-[-120px] w-[500px] h-[500px] rounded-full blur-[140px] opacity-15 pointer-events-none" style="background: radial-gradient(circle, #26d8c4, transparent 70%); animation: pulse-glow 8s ease-in-out 2s infinite; z-index: -15;"></div>
+    <div class="fixed bottom-[-100px] left-[20%] w-[700px] h-[700px] rounded-full blur-[180px] opacity-12 pointer-events-none" style="background: radial-gradient(circle, #1D194B, transparent 70%); animation: pulse-glow 10s ease-in-out 4s infinite; z-index: -15;"></div>
+
+    <!-- ═══════ NAVBAR ═══════ -->
+    <header class="navbar" id="navbar">
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="nav-logo-mark">
+                <span class="font-black text-xs text-white tracking-tight">CG</span>
+            </div>
+            <div class="leading-none">
+                <div class="font-display font-extrabold text-[13px] tracking-[0.18em] text-white">CGBI</div>
+                <div class="text-[8px] tracking-[0.3em] uppercase font-bold mt-0.5" style="color: var(--fuchsia);">Real Estate</div>
+            </div>
+        </div>
+
+        <nav class="hidden lg:flex nav-pill" id="nav-links">
+            <a href="#expertis"   class="nav-link" data-section="expertis">Experiencia</a>
+            <a href="#servicios"  class="nav-link" data-section="servicios">Servicios</a>
+            <a href="#app-premium" class="nav-link flex items-center gap-1.5" data-section="app-premium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>App Premium
+            </a>
+            <a href="#comparativa" class="nav-link" data-section="comparativa">¿Por qué CGBI?</a>
+            <a href="#testimonios" class="nav-link" data-section="testimonios">Testimonios</a>
+        </nav>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="../#/login" class="hidden md:flex btn-ghost text-[11px] font-semibold px-4 py-2.5 rounded-xl">
+                <span class="material-icons-round text-xs" style="color: var(--fuchsia);">login</span>
+                Acceso
+            </a>
+            <a href="#profiler" class="nav-cta rounded-xl text-[11px]">
+                <span class="material-icons-round text-sm">radar</span>
+                Perfilar Inmueble
+            </a>
+        </div>
+    </header>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main class="pt-36 pb-24 px-4 md:px-10 max-w-7xl mx-auto space-y-44">
+
+        <!-- ═══ HERO ═══ -->
+        <section class="grid lg:grid-cols-12 gap-16 items-center min-h-[88vh] reveal">
+            <div class="lg:col-span-7 space-y-8 relative z-10">
+
+                <!-- Live badge -->
+                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-widest" style="border-color: rgba(226,35,94,0.35); background: rgba(226,35,94,0.07); color: var(--fuchsia); font-family: 'DM Mono', monospace;">
+                    <span class="ping-dot w-2 h-2 rounded-full shrink-0" style="background: var(--fuchsia);"></span>
+                    Exclusivo · Propietarios Bogotá D.C.
+                </div>
+
+                <h1 class="font-display font-extrabold tracking-tight leading-[1.03]" style="font-size: clamp(2.8rem, 5.5vw, 5rem);">
+                    Arrienda o vende tu propiedad con la
+                    <span class="text-gradient-animate"> App Premium CGBI</span>
+                </h1>
+
+                <p class="text-[17px] text-gray-400 max-w-xl leading-relaxed font-light">
+                    Deja atrás los chats infinitos. Perfila tu inmueble hoy y obtén <span class="text-white font-semibold">acceso gratuito de por vida</span> a nuestra app para controlar contratos, rentas e inventarios desde tu celular.
+                </p>
+
+                <div class="flex flex-wrap gap-4 pt-1">
+                    <a href="#profiler" class="btn-fuchsia px-7 py-4 rounded-2xl text-[13px] shadow-xl">
+                        <span class="material-icons-round">radar</span>
+                        Perfilar mi Inmueble
+                    </a>
+                    <a href="#app-premium" class="btn-teal px-7 py-4 rounded-2xl text-[13px] shadow-xl">
+                        <span class="material-icons-round">smartphone</span>
+                        Ver la App Premium
+                    </a>
+                </div>
+
+                <!-- Hero KPIs -->
+                <div class="grid grid-cols-3 gap-6 pt-6 border-t max-w-lg" style="border-color: rgba(255,255,255,0.07);">
+                    <div>
+                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="65" data-suffix="%">65%</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Menos chats basura</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold font-display leading-none" style="color: var(--fuchsia);">Día 5</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Pago garantizado</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="100" data-suffix="%">100%</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Póliza El Libertador</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone Mockup -->
+            <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]">
+                <div class="relative w-[310px] h-[480px] anim-float">
+                    <!-- Glow -->
+                    <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #E2235E 0%, #9b5de5 50%, #26d8c4 100%); opacity: 0.35;"></div>
+
+                    <!-- Frame -->
+                    <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3">
+                        <!-- Notch -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-28 bg-[#07061a] rounded-b-2xl border-x border-b border-white/5 z-20 flex items-center justify-center">
+                            <div class="w-10 h-1 rounded-full bg-white/20"></div>
+                        </div>
+                        <!-- Screen -->
+                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 flex flex-col p-4 pt-8">
+                            <!-- App header -->
+                            <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-[#E2235E] flex items-center justify-center">
+                                        <span class="text-white font-black text-[9px]">CG</span>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-white tracking-wider">App Premium CGBI</span>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400" style="box-shadow: 0 0 8px #34d399;"></span>
+                            </div>
+                            <!-- App content -->
+                            <div class="flex-1 py-3 space-y-3 overflow-y-auto no-scroll text-[10px]">
+                                <div class="space-y-1">
+                                    <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
+                                    <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                        <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
+                                        <p class="font-bold text-white mt-0.5">$3.500.000</p>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                        <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
+                                        <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
+                                    </div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-400 font-mono text-[7px]">
+                                        <span>Canon: 100% cubierto</span>
+                                        <span>Servicios: ✓</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
+                                    </div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-icons-round text-emerald-400 text-sm">construction</span>
+                                        <div>
+                                            <p class="font-bold text-white text-[8px]">Revisión calentador</p>
+                                            <p class="text-gray-500 text-[7px]">Técnico programado hoy</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[7px] font-bold">OK</span>
+                                </div>
+                            </div>
+                            <!-- Bottom nav -->
+                            <div class="border-t border-white/5 pt-2.5 flex justify-around text-gray-500">
+                                <span class="material-icons-round text-lg" style="color: var(--fuchsia);">dashboard</span>
+                                <span class="material-icons-round text-lg">business</span>
+                                <span class="material-icons-round text-lg">receipt_long</span>
+                                <span class="material-icons-round text-lg">settings</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating badges -->
+                <div class="absolute top-[12%] left-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[120px] anim-float2">
+                    <span class="material-icons-round text-[#E2235E] text-xl block mb-1">lock</span>
+                    <span class="font-bold text-[9px] text-white block">Cero Riesgos</span>
+                    <span class="text-[8px] text-gray-400 font-mono block">Blindaje Jurídico</span>
+                </div>
+                <div class="absolute bottom-[12%] right-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[130px]" style="animation: float2 8s ease-in-out 1s infinite;">
+                    <span class="material-icons-round text-emerald-400 text-xl block mb-1">home</span>
+                    <span class="font-bold text-[9px] text-white block">Tu Hogar Seguro</span>
+                    <span class="text-[8px] text-gray-400 font-mono block">Inquilinos Verificados</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ EXPERTIS & KPIs ═══ -->
+        <section id="expertis" class="space-y-20 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit">
+                    <span class="material-icons-round text-xs">timeline</span>
+                    Nuestra Trayectoria en Bogotá
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">
+                    Especialistas en Proteger<br>
+                    <span class="text-gradient-teal">tu Patrimonio Familiar</span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-base leading-relaxed">
+                    Con más de una década gestionando vivienda premium en Bogotá, combinamos tecnología, blindaje jurídico y marketing de alto impacto.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 reveal-children">
+                <!-- KPI 1 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.2);">
+                        <span class="material-icons-round text-2xl" style="color: var(--fuchsia);">home</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="4.2" data-prefix="+" data-suffix="B" data-symbol="$">+$4.2B</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Pesos Administrados</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">En apartamentos y casas en Bogotá Norte y Sabana.</p>
+                </div>
+                <!-- KPI 2 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">
+                        <span class="material-icons-round text-2xl text-emerald-400">speed</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none">18 Días</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Tiempo de Arriendo</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Vs. 65 días promedio del mercado tradicional.</p>
+                </div>
+                <!-- KPI 3 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
+                        <span class="material-icons-round text-2xl text-indigo-400">mood</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none">98.4%</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Satisfacción</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Nivel de recomendación de propietarios activos.</p>
+                </div>
+                <!-- KPI 4 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);">
+                        <span class="material-icons-round text-2xl text-amber-400">verified_user</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none">100%</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Cero Impagos</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Póliza integral que garantiza tu renta pase lo que pase.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ SERVICIOS ═══ -->
+        <section id="servicios" class="space-y-16 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit">
+                    <span class="material-icons-round text-xs">menu_book</span>
+                    Oferta Comercial CGBI
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Esquemas Transparentes<br><span class="text-gradient-animate">a tu Medida</span></h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">Define cómo deseas que administremos tu vivienda. Sin letra pequeña.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- ARRIENDOS -->
+                <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-20" style="background: var(--fuchsia);"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="section-chip mb-3">Línea 01</div>
+                            <h3 class="font-display text-3xl font-extrabold text-white">Arrendamiento</h3>
+                        </div>
+                        <span class="material-icons-round text-4xl" style="color: var(--fuchsia);">key</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-[#E2235E]/40 transition-all space-y-2 cursor-default group">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-[#E2235E] text-base">account_balance</span>
+                                    Esquema Delegador
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono" style="background: rgba(226,35,94,0.15); color: var(--fuchsia);">10.57% TOTAL</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                <strong class="text-white">Administración Integral + Póliza El Libertador.</strong> CGBI cobra el canon, gestiona reparaciones y garantiza tu transferencia puntual el día 5. Tú solo recibes el dinero.
+                            </p>
+                        </div>
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-white/20 transition-all space-y-2 cursor-default group">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-gray-400 text-base">manage_accounts</span>
+                                    Esquema Gestor
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-white/10 text-white">1 CANON + IVA</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                <strong class="text-white">Corretaje Inmobiliario.</strong> Fotos, video, pauta digital y estudio jurídico riguroso del arrendatario. Firmado el contrato, retomas la administración directa.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="#profiler" onclick="selectProfile('arriendo')" class="btn-fuchsia w-full justify-center py-4 rounded-2xl text-sm">Perfilar Inmueble en Arriendo</a>
+                </div>
+
+                <!-- VENTAS -->
+                <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-15" style="background: #26d8c4;"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="section-chip mb-3" style="color: #26d8c4; border-color: rgba(38,216,196,0.35); background: rgba(38,216,196,0.07);">Línea 02</div>
+                            <h3 class="font-display text-3xl font-extrabold text-white">Venta de Vivienda</h3>
+                        </div>
+                        <span class="material-icons-round text-4xl text-indigo-400">corporate_fare</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-indigo-400/40 transition-all space-y-2 cursor-default">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-indigo-400 text-base">verified</span>
+                                    Con Exclusividad
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono text-indigo-400" style="background: rgba(99,102,241,0.15);">3% COMISIÓN</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                <strong class="text-indigo-300">Prioridad Comercial Absoluta.</strong> Campaña Google + Meta dedicada, producción audiovisual premium, drones si aplica y filtro de solvencia estricto del comprador.
+                            </p>
+                        </div>
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-white/20 transition-all space-y-2 cursor-default">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-gray-400 text-base">published_with_changes</span>
+                                    Sin Exclusividad
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-white/10 text-white">3% COMISIÓN</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                <strong class="text-white">Flexibilidad total.</strong> Promovemos tu vivienda en nuestros canales mientras mantienes libertad de gestionarla con otras inmobiliarias.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="#profiler" onclick="selectProfile('venta')" class="btn-teal w-full justify-center py-4 rounded-2xl text-sm">Perfilar Inmueble en Venta</a>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ APP PREMIUM ═══ -->
+        <section id="app-premium" class="space-y-16 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit" style="color: #26d8c4; border-color: rgba(38,216,196,0.35); background: rgba(38,216,196,0.07);">
+                    <span class="material-icons-round text-xs">smartphone</span>
+                    Ventaja Exclusiva Propietarios
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Tu Propiedad bajo Control<br><span class="text-gradient-teal">en la App Premium</span></h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">Olvídate de archivadores y Excel. Todo centralizado, en tiempo real, desde tu celular.</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 reveal-children">
+                <div class="glass-card rounded-3xl p-7 space-y-5 group cursor-default">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.18);">
+                        <span class="material-icons-round text-xl" style="color: var(--fuchsia);">receipt_long</span>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-white mb-2">Liquidación de Cánones</h3>
+                        <p class="text-[12px] text-gray-400 leading-relaxed">Canon neto, deducciones de pólizas y cuotas de administración desglosadas mes a mes.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-7 space-y-5 group cursor-default">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.18);">
+                        <span class="material-icons-round text-xl text-indigo-400">engineering</span>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-white mb-2">Gestión de Arreglos</h3>
+                        <p class="text-[12px] text-gray-400 leading-relaxed">Inquilino reporta daños con foto. Tú apruebas y nosotros enviamos al técnico verificado. Cero llamadas.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-7 space-y-5 group cursor-default">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.18);">
+                        <span class="material-icons-round text-xl text-emerald-400">text_snippet</span>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-white mb-2">Bóveda de Documentos</h3>
+                        <p class="text-[12px] text-gray-400 leading-relaxed">Contrato, póliza El Libertador y actas de inventario con fotografía, siempre disponibles en PDF.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-3xl p-7 space-y-5 group cursor-default">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.18);">
+                        <span class="material-icons-round text-xl text-amber-400">notifications_active</span>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base text-white mb-2">Notificaciones en Vivo</h3>
+                        <p class="text-[12px] text-gray-400 leading-relaxed">Alertas push inmediatas cuando el inquilino pague, se apruebe una póliza o se complete un mantenimiento.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ LEAD PROFILER ═══ -->
+        <section id="profiler" class="scroll-mt-32 reveal">
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div class="text-center space-y-4">
+                    <div class="section-chip mx-auto w-fit">
+                        <span class="material-icons-round text-xs">radar</span>
+                        Filtro Inteligente
+                    </div>
+                    <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">
+                        CGBI <span class="text-gradient-animate">Lead Profiler</span>
+                    </h2>
+                    <p class="text-gray-400 max-w-md mx-auto text-base">Ingresa los parámetros de tu propiedad en nuestras cajas glass y recibe tu ficha digital al instante.</p>
+                </div>
+
+                <!-- Wizard Container -->
+                <div class="glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden" style="min-height: 500px;">
+                    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at center, rgba(226,35,94,0.05), transparent 65%);"></div>
+
+                    <!-- Progress -->
+                    <div class="relative z-10 mb-10 flex justify-between items-center border-b pb-7" style="border-color: rgba(255,255,255,0.06);">
+                        <div>
+                            <span class="text-[9px] text-gray-500 font-mono uppercase tracking-wider">Asistente de Captación</span>
+                            <h4 id="wizard-title" class="font-display font-bold text-white text-lg mt-0.5">Paso 1: Tu Meta Comercial</h4>
+                        </div>
+                        <div class="text-right">
+                            <span id="wizard-pct" class="font-display font-extrabold text-sm" style="color: var(--fuchsia);">25% Completo</span>
+                            <div class="w-28 h-1.5 rounded-full overflow-hidden mt-1.5" style="background: rgba(255,255,255,0.08);">
+                                <div id="wizard-bar" class="h-full rounded-full transition-all duration-600" style="width:25%; background: linear-gradient(90deg, #E2235E, #ff7fa6);"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div id="step-1" class="wizard-step show">
+                        <p class="text-center text-sm text-gray-400 mb-8">Selecciona el tipo de operación que deseas estructurar con CGBI.</p>
+                        <div class="grid sm:grid-cols-2 gap-6">
+                            <div onclick="setServiceType('arriendo')" class="glass-card p-8 rounded-2xl cursor-pointer text-center group">
+                                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.2);">
+                                    <span class="material-icons-round text-3xl" style="color: var(--fuchsia);">key</span>
+                                </div>
+                                <h4 class="font-display font-extrabold text-lg text-white mb-2">Poner en Arriendo</h4>
+                                <p class="text-[12px] text-gray-400">Delegar administración con póliza o contratar corretaje rápido.</p>
+                            </div>
+                            <div onclick="setServiceType('venta')" class="glass-card p-8 rounded-2xl cursor-pointer text-center group">
+                                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
+                                    <span class="material-icons-round text-3xl text-indigo-400">corporate_fare</span>
+                                </div>
+                                <h4 class="font-display font-extrabold text-lg text-white mb-2">Poner en Venta</h4>
+                                <p class="text-[12px] text-gray-400">Marketing premium e integración jurídica total para vender rápido.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div id="step-2" class="wizard-step">
+                        <p id="step-2-desc" class="text-center text-sm text-gray-400 mb-8"></p>
+                        <div id="step-2-options" class="grid sm:grid-cols-2 gap-6"></div>
+                        <div class="flex justify-start mt-8">
+                            <button onclick="prevStep()" class="btn-ghost text-xs font-semibold px-5 py-2.5 rounded-xl">
+                                <span class="material-icons-round text-sm">arrow_back</span> Atrás
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div id="step-3" class="wizard-step">
+                        <p class="text-center text-sm text-gray-400 mb-8">Ingresa las características de tu propiedad en Bogotá.</p>
+                        <div class="grid sm:grid-cols-2 gap-5 text-left">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Tipo de Propiedad</label>
+                                <select id="prop-type" class="glass-input glass-select">
+                                    <option value="Apartamento">Apartamento Residencial</option>
+                                    <option value="Casa">Casa Urbana / Campestre</option>
+                                    <option value="Penthouse">Penthouse Premium</option>
+                                    <option value="Oficina">Oficina Corporativa</option>
+                                    <option value="Local Comercial">Local Comercial</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Zona en Bogotá</label>
+                                <select id="prop-zone" class="glass-input glass-select">
+                                    <option>Usaquén / Santa Bárbara / Cedritos</option>
+                                    <option>Chicó / Virrey / Rosales / Cabrera</option>
+                                    <option>Suba / Colina Campestre / Gratamira</option>
+                                    <option>Ciudad Salitre / Modelia / Teusaquillo</option>
+                                    <option>Chapinero / Chapinero Alto / Rosales</option>
+                                    <option>Chía / Cajicá / Sopó (Sabana)</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2 space-y-2">
+                                <label id="price-label" class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Valor Estimado ($ COP)</label>
+                                <input type="number" id="prop-price" placeholder="Ej: 3500000" class="glass-input font-mono">
+                                <p id="price-helper" class="text-[10px] text-gray-500 font-mono mt-1">El valor del canon de arriendo mensual estimado.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-8">
+                            <button onclick="prevStep()" class="btn-ghost text-xs font-semibold px-5 py-2.5 rounded-xl">
+                                <span class="material-icons-round text-sm">arrow_back</span> Atrás
+                            </button>
+                            <button onclick="nextStep()" class="btn-fuchsia text-xs px-6 py-3 rounded-xl">
+                                Siguiente <span class="material-icons-round text-sm">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div id="step-4" class="wizard-step">
+                        <p class="text-center text-sm text-gray-400 mb-8">Completa tus datos para recibir tu cotización personalizada.</p>
+                        <div class="grid sm:grid-cols-2 gap-5 text-left">
+                            <div class="sm:col-span-2 space-y-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Nombre del Propietario</label>
+                                <input type="text" id="lead-name" placeholder="Ej: Camila Gutiérrez" class="glass-input">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">WhatsApp de Contacto</label>
+                                <input type="tel" id="lead-phone" placeholder="Ej: 3107853333" class="glass-input font-mono">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Correo Electrónico</label>
+                                <input type="email" id="lead-email" placeholder="propietario@mail.com" class="glass-input font-mono">
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-8">
+                            <button onclick="prevStep()" class="btn-ghost text-xs font-semibold px-5 py-2.5 rounded-xl">
+                                <span class="material-icons-round text-sm">arrow_back</span> Atrás
+                            </button>
+                            <button onclick="runAnalysis()" class="btn-fuchsia text-xs px-6 py-3 rounded-xl">
+                                Finalizar Análisis <span class="material-icons-round text-sm">check</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="loader-screen" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center text-center" style="background: rgba(3,2,14,0.95);">
+                        <div class="relative w-40 h-40 mb-6 rounded-full flex items-center justify-center overflow-hidden" style="background: rgba(29,25,75,0.4); border: 1px solid rgba(226,35,94,0.4);">
+                            <div class="radar-sweep"></div>
+                            <span class="material-icons-round text-5xl z-10" style="color: var(--fuchsia);">psychology</span>
+                        </div>
+                        <h4 class="font-display font-bold text-lg text-white">Cruzando Directorio CGBI</h4>
+                        <p class="text-xs text-gray-500 font-mono mt-2 animate-pulse">Calculando parámetros predictivos...</p>
+                    </div>
+
+                    <!-- Result -->
+                    <div id="result-screen" class="wizard-step space-y-7">
+                        <div class="text-center space-y-2">
+                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-bold uppercase">
+                                <span class="material-icons-round text-xs">verified</span> Análisis Finalizado
+                            </span>
+                            <h3 class="font-display font-extrabold text-2xl text-white">¡Perfil y Estrategia Listos!</h3>
+                            <p class="text-xs text-gray-400 max-w-md mx-auto">Tu acceso a la App Premium CGBI ya fue pre-aprobado.</p>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-5 text-left">
+                            <div class="p-5 rounded-2xl" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase font-mono block mb-1">Tu Perfil</span>
+                                <p id="res-profile" class="font-display font-bold text-white text-base">Propietario Delegador</p>
+                            </div>
+                            <div class="p-5 rounded-2xl" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase font-mono block mb-1">Estrategia CGBI</span>
+                                <p id="res-strategy" class="font-display font-bold text-sm" style="color: var(--fuchsia);">Administración Integral</p>
+                            </div>
+                            <div class="p-5 rounded-2xl" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase font-mono block mb-1">Costo del Servicio</span>
+                                <p id="res-rate" class="font-display font-bold text-white text-sm">10.57% mensual</p>
+                            </div>
+                        </div>
+                        <div class="p-5 rounded-2xl flex gap-4 items-center" style="background: linear-gradient(135deg, rgba(29,25,75,0.4), rgba(5,50,40,0.2)); border: 1px solid rgba(52,211,153,0.25);">
+                            <span class="material-icons-round text-3xl text-emerald-400 shrink-0" style="background: rgba(52,211,153,0.1); padding: 10px; border-radius: 14px;">verified_user</span>
+                            <div>
+                                <h5 class="font-bold text-xs text-white uppercase font-mono mb-1">Bono Exclusivo de Cierre</h5>
+                                <p class="text-[11px] text-gray-400">Por comercializar con CGBI, recibirás <strong class="text-emerald-400">acceso gratuito de por vida</strong> a la <strong class="text-white">App Premium CGBI</strong> para controlar todos tus inmuebles desde el celular.</p>
+                            </div>
+                        </div>
+                        <div class="p-5 rounded-2xl space-y-2" style="background: rgba(7,6,26,0.8); border: 1px solid rgba(255,255,255,0.05);">
+                            <span class="text-[9px] text-gray-500 font-bold uppercase font-mono block">Ficha para WhatsApp</span>
+                            <div id="wp-preview" class="text-xs text-gray-400 font-mono whitespace-pre-line leading-relaxed"></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                            <button onclick="restartWizard()" class="btn-ghost text-xs font-semibold px-6 py-3.5 rounded-xl">Volver a Intentar</button>
+                            <a id="wa-btn" target="_blank" class="btn-fuchsia px-8 py-4 rounded-2xl text-sm shadow-xl cursor-pointer">
+                                <svg class="w-5 h-5 fill-white shrink-0" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.13-1.347a9.924 9.924 0 0 0 4.877 1.282h.005c5.505 0 9.99-4.478 9.99-9.985a9.97 9.97 0 0 0-2.923-7.062A9.914 9.914 0 0 0 12.012 2zm4.721 14.19c-.212.597-1.229 1.137-1.688 1.2-1.258.175-2.73-.284-4.87-1.18-3.037-1.272-5.006-4.364-5.158-4.568-.151-.203-1.233-1.64-1.233-3.13 0-1.49.778-2.222 1.055-2.528.277-.305.607-.382.81-.382h.577c.183 0 .432-.016.671.564.244.59.833 2.03.905 2.18.072.15.12.326.02.527-.1.2-.15.326-.3.502-.15.176-.316.393-.45.526-.148.147-.303.308-.13.606.173.298.768 1.267 1.647 2.049.88.783 1.623 1.025 1.923 1.176.3.151.474.126.652-.075.178-.201.768-.892.972-1.194.203-.301.407-.251.686-.15.28.1.1.768 1.776.845.88.077 1.488.427 1.71.553.22.126.24.252.12.597z"/></svg>
+                                Enviar Ficha · Abrir WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ COMPARATIVA ═══ -->
+        <section id="comparativa" class="space-y-16 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit">
+                    <span class="material-icons-round text-xs">bolt</span>
+                    Ventaja Competitiva
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">¿Por qué los Propietarios<br><span class="text-gradient-animate">Escogen CGBI?</span></h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">No operamos como una inmobiliaria del siglo pasado. Tecnología + blindaje jurídico + marketing de impacto.</p>
+            </div>
+            <div class="glass-panel rounded-3xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b" style="background: rgba(29,25,75,0.4); border-color: rgba(255,255,255,0.07);">
+                                <th class="p-6 font-display font-bold uppercase tracking-wider text-white">Propuesta de Servicio</th>
+                                <th class="p-6 font-display font-bold uppercase tracking-wider text-gray-500">Inmobiliarias Tradicionales</th>
+                                <th class="p-6 font-display font-bold uppercase tracking-wider flex items-center gap-2" style="color: var(--fuchsia);">
+                                    <span class="material-icons-round text-sm">bolt</span> CGBI Real Estate
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y" style="border-color: rgba(255,255,255,0.04);">
+                            <tr class="compare-row">
+                                <td class="p-6 font-semibold text-white">Tranquilidad & Riesgo Cero</td>
+                                <td class="p-6 text-gray-400 font-light">Riesgo de impago y servicios públicos no cubiertos.</td>
+                                <td class="p-6 text-white font-medium">
+                                    <div class="flex items-start gap-2"><span class="material-icons-round text-emerald-400 text-sm mt-0.5">check_circle</span><span>Póliza 100% de arriendo, administración y servicios con El Libertador.</span></div>
+                                </td>
+                            </tr>
+                            <tr class="compare-row">
+                                <td class="p-6 font-semibold text-white">Transparencia & Gestión</td>
+                                <td class="p-6 text-gray-400 font-light">PDFs por correo o carpetas físicas desactualizadas.</td>
+                                <td class="p-6 text-white font-medium">
+                                    <div class="flex items-start gap-2"><span class="material-icons-round text-emerald-400 text-sm mt-0.5">check_circle</span><span><strong style="color: var(--fuchsia);">App Premium CGBI</strong> exclusiva para propietarios. Todo en vivo.</span></div>
+                                </td>
+                            </tr>
+                            <tr class="compare-row">
+                                <td class="p-6 font-semibold text-white">Puntualidad de Ingresos</td>
+                                <td class="p-6 text-gray-400 font-light">Sujeto a la consignación exacta del inquilino.</td>
+                                <td class="p-6 text-white font-medium">
+                                    <div class="flex items-start gap-2"><span class="material-icons-round text-emerald-400 text-sm mt-0.5 animate-pulse">check_circle</span><span>Transferencia bancaria garantizada el <strong class="text-white">día 5</strong> de cada mes.</span></div>
+                                </td>
+                            </tr>
+                            <tr class="compare-row">
+                                <td class="p-6 font-semibold text-white">Calidad del Marketing</td>
+                                <td class="p-6 text-gray-400 font-light">Fotos oscuras con celular y publicación sin pauta.</td>
+                                <td class="p-6 text-white font-medium">
+                                    <div class="flex items-start gap-2"><span class="material-icons-round text-emerald-400 text-sm mt-0.5">check_circle</span><span>Fotografía réflex, video 4K, drone y pauta segmentada Google + Meta.</span></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ TESTIMONIOS ═══ -->
+        <section id="testimonios" class="space-y-16 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit">
+                    <span class="material-icons-round text-xs">format_quote</span>
+                    Casos de Éxito en Bogotá
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Experiencias Reales<br><span class="text-gradient-teal">de Propietarios</span></h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">Propietarios que delegaron y hoy solo reciben dinero puntual el día 5.</p>
+            </div>
+
+            <div class="marquee-wrap py-4">
+                <div class="marquee-track">
+                    <!-- Cards × 2 for infinite loop -->
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Antes tenía mi WhatsApp inundado de llamadas por daños. Con CGBI elegí el esquema Delegador y me olvidé por completo. La App Premium es un sueño."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">MA</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Mauricio Albarracín</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Propietario · Virrey / Chicó</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"CGBI realizó una producción audiovisual excepcional para mi casa en Chía. La vendieron en 38 días al precio esperado. Servicio totalmente profesional."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">CL</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Claudia Londoño</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Propietaria · Chía, Cundinamarca</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Vivo en el exterior. La póliza garantizada y la App Premium me dan certeza total de recibir mi renta a tiempo sin dolores de cabeza. Altamente recomendados."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">FH</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Felipe Herrera</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Inversionista de Apartamentos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Tenía tres apartamentos y la gestión era un caos. Con CGBI centralicé todo en la App y ahora monitoreo cada propiedad desde una sola pantalla. Increíble."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: #0d4f3c;">SR</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Santiago Restrepo</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Multi-propietario · Suba / Usaquén</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Duplicates -->
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Antes tenía mi WhatsApp inundado de llamadas por daños. Con CGBI elegí el esquema Delegador y me olvidé por completo. La App Premium es un sueño."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">MA</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Mauricio Albarracín</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Propietario · Virrey / Chicó</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"CGBI realizó una producción audiovisual excepcional para mi casa en Chía. La vendieron en 38 días al precio esperado. Servicio totalmente profesional."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">CL</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Claudia Londoño</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Propietaria · Chía, Cundinamarca</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Vivo en el exterior. La póliza garantizada y la App Premium me dan certeza total de recibir mi renta a tiempo sin dolores de cabeza. Altamente recomendados."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: var(--blue-deep);">FH</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Felipe Herrera</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Inversionista de Apartamentos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-7 rounded-2xl flex flex-col justify-between shrink-0 w-[380px] md:w-[420px]">
+                        <div class="space-y-4">
+                            <div class="flex text-amber-400 gap-0.5">★★★★★</div>
+                            <p class="text-[13px] text-gray-400 italic leading-relaxed">"Tenía tres apartamentos y la gestión era un caos. Con CGBI centralicé todo en la App y ahora monitoreo cada propiedad desde una sola pantalla. Increíble."</p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-6 mt-6 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white" style="background: #0d4f3c;">SR</div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Santiago Restrepo</p>
+                                <p class="text-[9px] text-gray-500 font-mono uppercase">Multi-propietario · Suba / Usaquén</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="border-t mt-24 py-16 px-6 md:px-10 text-gray-500 text-xs" style="border-color: rgba(255,255,255,0.05); background: rgba(7,6,26,0.6);">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <div class="nav-logo-mark">
+                    <span class="font-black text-xs text-white tracking-tight">CG</span>
+                </div>
+                <div>
+                    <span class="font-display font-bold text-white tracking-wider text-sm block">CGBI</span>
+                    <span class="text-[8px] uppercase font-mono tracking-widest block font-bold" style="color: var(--fuchsia);">Brokers Inmobiliarios</span>
+                </div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 font-medium">
+                <a href="#expertis"   class="hover:text-white transition-colors">Experiencia</a>
+                <a href="#servicios"  class="hover:text-white transition-colors">Servicios</a>
+                <a href="#app-premium" class="hover:text-white transition-colors">App Premium</a>
+                <a href="#comparativa" class="hover:text-white transition-colors">Diferenciales</a>
+                <a href="../#/login" class="hover:text-white transition-colors" style="color: var(--fuchsia);">Acceso Mandato</a>
+            </div>
+            <div class="text-center md:text-right space-y-1">
+                <p>© 2026 CGBI Colombia · Todos los derechos reservados.</p>
+                <p class="text-[9px] text-gray-600">CGBI Real Estate Corporativo & Residencial · Bogotá D.C.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // ─── CUSTOM CURSOR ─────────────────────────────────────────
+    const dot  = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function animCursor() {
+        dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
+        rx += (mx - rx) * 0.12;     ry += (my - ry) * 0.12;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+        requestAnimationFrame(animCursor);
+    })();
+
+    // ─── AURORA CANVAS ─────────────────────────────────────────
+    const ac = document.getElementById('aurora-canvas');
+    const actx = ac.getContext('2d');
+    let blobs = [];
+    function resizeAurora() { ac.width = innerWidth; ac.height = innerHeight; }
+    window.addEventListener('resize', resizeAurora);
+    resizeAurora();
+    const BLOB_COLORS = [
+        [226,35,94], [29,25,75], [38,216,196], [155,93,229], [226,35,94]
+    ];
+    for (let i = 0; i < 5; i++) {
+        blobs.push({
+            x: Math.random() * innerWidth,
+            y: Math.random() * innerHeight,
+            r: 300 + Math.random() * 300,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            c: BLOB_COLORS[i]
+        });
+    }
+    function drawAurora() {
+        actx.clearRect(0, 0, ac.width, ac.height);
+        blobs.forEach(b => {
+            b.x += b.vx; b.y += b.vy;
+            if (b.x < -b.r) b.x = ac.width + b.r;
+            if (b.x > ac.width + b.r) b.x = -b.r;
+            if (b.y < -b.r) b.y = ac.height + b.r;
+            if (b.y > ac.height + b.r) b.y = -b.r;
+            const g = actx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.08)`);
+            g.addColorStop(1, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0)`);
+            actx.fillStyle = g;
+            actx.beginPath();
+            actx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+            actx.fill();
+        });
+        requestAnimationFrame(drawAurora);
+    }
+    drawAurora();
+
+    // ─── NAVBAR SCROLL ─────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', scrollY > 50);
+        updateActiveNav();
+    });
+
+    // ─── ACTIVE NAV LINK ───────────────────────────────────────
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+    function updateActiveNav() {
+        let curr = '';
+        sections.forEach(s => { if (scrollY >= s.offsetTop - 180) curr = s.id; });
+        navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === curr));
+    }
+
+    // ─── SCROLL REVEAL ─────────────────────────────────────────
+    const revealObs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal, .reveal-children').forEach(el => revealObs.observe(el));
+
+    // ─── 3D TILT CARDS ─────────────────────────────────────────
+    document.querySelectorAll('.glass-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+            const cx = r.width / 2, cy = r.height / 2;
+            const rotX = ((y - cy) / cy) * -6;
+            const rotY = ((x - cx) / cx) *  6;
+            card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
+            card.style.setProperty('--mx', `${x}px`);
+            card.style.setProperty('--my', `${y}px`);
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+
+    // ─── COUNTER ANIMATIONS ────────────────────────────────────
+    const counterObs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            obs.unobserve(e.target);
+        });
+    }, { threshold: 0.5 });
+    // (counters are mostly static in this version, numbers shown directly)
+
+    // ─── WIZARD ENGINE ─────────────────────────────────────────
+    let step = 1, serviceType = '', subProfile = '';
+    const serviceDB = {
+        arriendo: {
+            desc: 'Define tu expectativa de involucramiento en la gestión diaria.',
+            options: [
+                { key: 'delegador', icon: 'account_balance', title: 'Esquema Delegador', sub: 'Administración Integral · 10.57%', desc: 'Cero preocupaciones. CGBI asume todo: liquidaciones, reparaciones y canon garantizado con póliza El Libertador.' },
+                { key: 'gestor',    icon: 'manage_accounts', title: 'Esquema Gestor',    sub: 'Corretaje · 1 Canon + IVA',       desc: 'CGBI realiza toda la labor comercial: fotos, pauta y estudio jurídico. Firmado el contrato, tú asumes la administración.' }
+            ],
+            resProfile: 'Propietario Delegador', resStrategy: 'Administración Integral + Póliza El Libertador', resRate: '10.57% mensual deducible del canon'
+        },
+        venta: {
+            desc: 'A mayor prioridad de pauta digital, menor tiempo de vacancia del inmueble.',
+            options: [
+                { key: 'exclusivo',    icon: 'verified',             title: 'Con Exclusividad',  sub: 'Máxima Prioridad · 3%',      desc: 'Inversión 100% de pauta dedicada en Google y Meta, sesión audiovisual premium y filtro estricto de compradores.' },
+                { key: 'no-exclusivo', icon: 'published_with_changes', title: 'Sin Exclusividad', sub: 'Esquema Abierto · 3%',        desc: 'Promovemos en nuestros canales mientras mantienes libertad de venderlo directamente o con otras inmobiliarias.' }
+            ],
+            resProfile: 'Vendedor Exclusivo', resStrategy: 'Venta con Inversión de Pauta Paga', resRate: '3% al firmar promesa de compraventa'
+        }
+    };
+
+    function showStep(n) {
+        document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('show'));
+        const el = document.getElementById(n < 5 ? `step-${n}` : 'result-screen');
+        if (el) el.classList.add('show');
+        const pct = Math.min(n * 25, 100);
+        document.getElementById('wizard-bar').style.width = pct + '%';
+        document.getElementById('wizard-pct').textContent = pct + '% Completo';
+        const titles = { 1:'Paso 1: Tu Meta Comercial', 2:'Paso 2: Tipo de Esquema', 3:'Paso 3: Datos del Inmueble', 4:'Paso 4: Tus Datos de Contacto' };
+        document.getElementById('wizard-title').textContent = titles[n] || 'Análisis Finalizado';
+    }
+
+    function setServiceType(type) {
+        serviceType = type;
+        const cfg = serviceDB[type];
+        document.getElementById('step-2-desc').textContent = cfg.desc;
+        const container = document.getElementById('step-2-options');
+        container.innerHTML = cfg.options.map(o => `
+            <div onclick="setSubProfile('${o.key}')" class="glass-card p-6 rounded-2xl cursor-pointer group">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-icons-round text-lg p-3 rounded-xl" style="color:#E2235E; background:rgba(226,35,94,0.1);">${o.icon}</span>
+                    <div>
+                        <h4 class="font-display font-extrabold text-white text-base">${o.title}</h4>
+                        <p class="text-[10px] font-mono" style="color:#E2235E;">${o.sub}</p>
+                    </div>
+                </div>
+                <p class="text-[12px] text-gray-400 leading-relaxed">${o.desc}</p>
+            </div>
+        `).join('');
+        // rebind tilt
+        container.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                const x = e.clientX - r.left, y = e.clientY - r.top;
+                const cx = r.width/2, cy = r.height/2;
+                card.style.transform = `perspective(800px) rotateX(${((y-cy)/cy)*-5}deg) rotateY(${((x-cx)/cx)*5}deg) scale(1.02)`;
+                card.style.setProperty('--mx', `${x}px`); card.style.setProperty('--my', `${y}px`);
+            });
+            card.addEventListener('mouseleave', () => card.style.transform = '');
+        });
+        // price label
+        if (type === 'venta') {
+            document.getElementById('price-label').textContent = 'Valor de Venta Comercial Estimado ($ COP)';
+            document.getElementById('prop-price').placeholder = 'Ej: 450000000';
+            document.getElementById('price-helper').textContent = 'Precio en el que aspiras a vender la propiedad.';
+        } else {
+            document.getElementById('price-label').textContent = 'Valor de Arriendo Mensual Estimado ($ COP)';
+            document.getElementById('prop-price').placeholder = 'Ej: 3500000';
+            document.getElementById('price-helper').textContent = 'Canon mensual neto que esperas percibir.';
+        }
+        step = 2; showStep(2);
+    }
+
+    function setSubProfile(sp) {
+        subProfile = sp; step = 3; showStep(3);
+    }
+
+    function nextStep() {
+        if (step < 4) { step++; showStep(step); }
+    }
+    function prevStep() {
+        if (step > 1) { step--; showStep(step); }
+    }
+
+    function selectProfile(type) { setServiceType(type); }
+
+    function runAnalysis() {
+        const name  = document.getElementById('lead-name').value.trim();
+        const phone = document.getElementById('lead-phone').value.trim();
+        const email = document.getElementById('lead-email').value.trim();
+        const price = document.getElementById('prop-price').value.trim();
+        if (!name || !phone || !email || !price) {
+            alert('Por favor completa todas las cajas de texto glass antes de continuar.');
+            return;
+        }
+        const loader = document.getElementById('loader-screen');
+        loader.classList.remove('hidden');
+        setTimeout(() => {
+            loader.classList.add('hidden');
+            const cfg = serviceDB[serviceType];
+            document.getElementById('res-profile').textContent  = cfg.resProfile;
+            document.getElementById('res-strategy').textContent = cfg.resStrategy;
+            document.getElementById('res-rate').textContent     = cfg.resRate;
+            const zone = document.getElementById('prop-zone').value;
+            const type = document.getElementById('prop-type').value;
+            const priceFmt = Number(price).toLocaleString('es-CO');
+            const msg = `🏠 *FICHA CGBI — LEAD PROFILER*\n\n👤 Propietario: ${name}\n📞 WhatsApp: ${phone}\n📧 Email: ${email}\n\n📋 *Inmueble:*\n• Tipo: ${type}\n• Zona: ${zone}\n• ${serviceType === 'venta' ? 'Precio venta' : 'Canon mensual'}: $${priceFmt} COP\n\n🎯 *Servicio CGBI:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ Acceso App Premium CGBI: PRE-APROBADO`;
+            document.getElementById('wp-preview').textContent = msg;
+            document.getElementById('wa-btn').href = 'https://wa.me/573107853333?text=' + encodeURIComponent(msg);
+            step = 5; showStep(5);
+        }, 3000);
+    }
+
+    function restartWizard() {
+        step = 1; serviceType = ''; subProfile = '';
+        ['lead-name','lead-phone','lead-email','prop-price'].forEach(id => document.getElementById(id).value = '');
+        showStep(1);
+    }
+
+    // ─── INTERSECTION FOR REVEAL CHILDREN ──────────────────────
+    const childObs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
+    }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal-children').forEach(el => childObs.observe(el));
+    </script>
+</body>
+</html>

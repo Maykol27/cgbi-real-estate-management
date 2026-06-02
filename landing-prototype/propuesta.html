@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta Estratégica | CGBI × SIKAI CX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --fuchsia: #E2235E;
+            --teal: #26d8c4;
+            --bg: #03020e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ── AURORA BG ─── */
+        #aurora { position: fixed; inset: 0; z-index: -30; pointer-events: none; }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -20; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(29,25,75,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(29,25,75,0.1) 1px, transparent 1px);
+            background-size: 55px 55px;
+        }
+        /* Noise */
+        body::before {
+            content: ''; position: fixed; inset: 0; z-index: -10; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.02;
+        }
+
+        /* ── HEADER ────────────────────────── */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 14px 36px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(3,2,14,0.75);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo-mark {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, #1D194B, #3a2f9f);
+            border: 1px solid rgba(226,35,94,0.5);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(226,35,94,0.25);
+        }
+        .tab-bar {
+            display: flex; gap: 4px; align-items: center;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 4px;
+        }
+        .tab-btn {
+            padding: 6px 16px; border-radius: 10px;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+            color: rgba(180,180,210,0.7);
+            transition: all 0.25s;
+            font-family: 'DM Mono', monospace;
+            border: none; background: transparent;
+        }
+        .tab-btn.active {
+            color: #fff;
+            background: rgba(226,35,94,0.18);
+            border: 1px solid rgba(226,35,94,0.3);
+        }
+        .tab-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.07); }
+
+        /* ── SLIDES ────────────────────────── */
+        .slide-viewport {
+            position: fixed; inset: 0;
+            padding-top: 74px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .slide {
+            position: absolute; inset: 0; padding-top: 74px;
+            display: flex; align-items: center; justify-content: center;
+            padding-left: 48px; padding-right: 48px; padding-bottom: 24px;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+            transform: scale(0.97) translateY(18px);
+            pointer-events: none;
+        }
+        .slide.active {
+            opacity: 1; visibility: visible;
+            transform: scale(1) translateY(0);
+            pointer-events: all;
+        }
+        .slide-inner {
+            width: 100%; max-width: 1200px;
+            height: calc(100vh - 74px - 48px);
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* ── GLASS PANEL ───────────────────── */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(29,25,75,0.2) 0%, rgba(7,6,22,0.65) 100%);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(226,35,94,0.15);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07);
+            border-radius: 28px;
+        }
+        .glass-card {
+            background: rgba(29,25,75,0.15);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-radius: 20px;
+            transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        .glass-card:hover {
+            border-color: rgba(226,35,94,0.4);
+            box-shadow: 0 16px 48px rgba(226,35,94,0.15), inset 0 1px 0 rgba(226,35,94,0.12);
+            transform: translateY(-3px);
+        }
+
+        /* ── TEXT ──────────────────────────── */
+        @keyframes grad-shift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .text-grad {
+            background: linear-gradient(135deg, #ff7fa6, #E2235E, #9b5de5, #ff7fa6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; animation: grad-shift 5s ease infinite;
+        }
+        .text-teal {
+            background: linear-gradient(135deg, #fff 40%, #26d8c4 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* ── CHIP / BADGE ──────────────────── */
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 100px;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+            border: 1px solid rgba(226,35,94,0.3);
+            background: rgba(226,35,94,0.08);
+            color: var(--fuchsia);
+            font-family: 'DM Mono', monospace;
+        }
+        .chip-emerald {
+            border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.08); color: #34d399;
+        }
+
+        /* ── DOTS NAV ──────────────────────── */
+        .dots-nav {
+            position: fixed; bottom: 28px; left: 50%;
+            transform: translateX(-50%); z-index: 200;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .dot {
+            width: 7px; height: 7px; border-radius: 100px;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer; transition: all 0.3s;
+            border: none;
+        }
+        .dot.active {
+            width: 22px;
+            background: var(--fuchsia);
+            box-shadow: 0 0 10px rgba(226,35,94,0.7);
+        }
+
+        /* ── CLICK ZONES ───────────────────── */
+        .click-zone {
+            position: fixed; top: 74px; bottom: 60px; width: 12%;
+            z-index: 50; cursor: pointer; opacity: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.3s;
+        }
+        .click-zone:hover { opacity: 0.4; }
+        .click-zone-l { left: 0; background: linear-gradient(to right, rgba(226,35,94,0.08), transparent); }
+        .click-zone-r { right: 0; background: linear-gradient(to left, rgba(226,35,94,0.08), transparent); }
+
+        /* ── PRICE TAG ─────────────────────── */
+        .price-tag-old { text-decoration: line-through; color: rgba(255,255,255,0.35); font-family: 'DM Mono', monospace; }
+        .price-big {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.8rem, 5vw, 4.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 40%, #ff7fa6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* ── PULSE ─────────────────────────── */
+        @keyframes pulse { 0%,100% { opacity:0.3; } 50% { opacity:0.7; } }
+        .pulse { animation: pulse 3s ease-in-out infinite; }
+
+        /* ── FOOTER BAR ────────────────────── */
+        .footer-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+            padding: 0 36px 8px;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 56px;
+        }
+        .footer-bar span { font-size: 10px; color: rgba(255,255,255,0.2); font-family: 'DM Mono', monospace; }
+
+        /* ── BOUNCE ────────────────────────── */
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .bounce { animation: bounce 1.8s ease-in-out infinite; }
+
+        /* ── TABLE ─────────────────────────── */
+        .comp-row { transition: background 0.2s; }
+        .comp-row:hover { background: rgba(29,25,75,0.3); }
+    </style>
+</head>
+<body>
+
+    <!-- Aurora -->
+    <canvas id="aurora"></canvas>
+    <div class="bg-grid"></div>
+    <!-- Ambient blobs -->
+    <div style="position:fixed;top:-100px;left:-80px;width:600px;height:600px;border-radius:50%;filter:blur(160px);background:radial-gradient(circle,rgba(226,35,94,0.15),transparent);z-index:-15;animation:pulse 7s ease-in-out infinite;pointer-events:none;"></div>
+    <div style="position:fixed;bottom:-80px;right:-60px;width:500px;height:500px;border-radius:50%;filter:blur(140px);background:radial-gradient(circle,rgba(38,216,196,0.1),transparent);z-index:-15;animation:pulse 9s ease-in-out 2s infinite;pointer-events:none;"></div>
+
+    <!-- Click Zones -->
+    <div class="click-zone click-zone-l" onclick="prevSlide()">
+        <span class="material-icons-round text-5xl text-white" style="opacity:0.6;">chevron_left</span>
+    </div>
+    <div class="click-zone click-zone-r" onclick="nextSlide()">
+        <span class="material-icons-round text-5xl text-white" style="opacity:0.6;">chevron_right</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="logo-mark">
+                <span style="font-weight:900;font-size:11px;color:#fff;letter-spacing:-0.5px;">CG</span>
+            </div>
+            <div style="line-height:1;">
+                <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.15em;color:#fff;">CGBI</div>
+                <div style="font-size:8px;letter-spacing:0.3em;text-transform:uppercase;font-weight:700;font-family:'DM Mono',monospace;color:#E2235E;margin-top:2px;">Founders Pitch Deck</div>
+            </div>
+        </div>
+
+        <div class="tab-bar" id="tab-bar">
+            <button class="tab-btn active" onclick="goToSlide(0)">01 · Portada</button>
+            <button class="tab-btn" onclick="goToSlide(1)">02 · Diagnóstico</button>
+            <button class="tab-btn" onclick="goToSlide(2)">03 · Beneficios</button>
+            <button class="tab-btn" onclick="goToSlide(3)">04 · Diferenciales</button>
+            <button class="tab-btn" onclick="goToSlide(4)">05 · Presupuesto</button>
+            <button class="tab-btn" onclick="goToSlide(5)">06 · Cierre</button>
+        </div>
+
+        <a href="index.html" style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:rgba(200,200,230,0.7);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);padding:7px 16px;border-radius:10px;transition:all 0.25s;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='rgba(200,200,230,0.7)'">
+            <span class="material-icons-round" style="font-size:14px;color:#E2235E;">visibility</span>
+            Ver Landing
+        </a>
+    </header>
+
+    <!-- ═══════ SLIDE 1: PORTADA ═══════ -->
+    <div class="slide active" id="slide-0">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:32px;">
+                <div class="chip">
+                    <span class="material-icons-round" style="font-size:10px;">auto_awesome</span>
+                    Propuesta Tecnológica de Captación Inmobiliaria
+                </div>
+                <h1 style="font-family:'Outfit',sans-serif;font-weight:900;line-height:1.03;letter-spacing:-0.02em;" class="text-white" style="font-size: clamp(2.8rem,6vw,5.5rem);">
+                    <span style="font-size: clamp(2.8rem,5.5vw,5.2rem);display:block;">Estrategia de Captación Inmobiliaria</span>
+                    <span class="text-grad" style="font-size: clamp(3rem,6vw,5.5rem);">& Lead Profiling Digital</span>
+                </h1>
+                <p style="color:rgba(200,200,230,0.65);font-size:18px;max-width:680px;line-height:1.75;font-weight:300;">
+                    Una propuesta comercial preferencial diseñada para los fundadores de <strong style="color:#fff;font-weight:700;">CGBI</strong>. El portal web que redefine cómo captar propiedades premium en Bogotá D.C. sin fricción operativa.
+                </p>
+                <div style="display:flex;gap:48px;margin-top:8px;">
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,200,230,0.4);text-transform:uppercase;letter-spacing:0.1em;">Preparado para</div>
+                        <div style="font-weight:700;color:#fff;font-size:14px;margin-top:4px;">Camila Gutiérrez & Socios</div>
+                    </div>
+                    <div style="width:1px;background:rgba(255,255,255,0.08);"></div>
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,200,230,0.4);text-transform:uppercase;letter-spacing:0.1em;">Desarrollado por</div>
+                        <div style="font-weight:700;color:#E2235E;font-size:14px;margin-top:4px;">SIKAI CX</div>
+                    </div>
+                    <div style="width:1px;background:rgba(255,255,255,0.08);"></div>
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,200,230,0.4);text-transform:uppercase;letter-spacing:0.1em;">Fecha</div>
+                        <div style="font-weight:700;color:#fff;font-size:14px;margin-top:4px;">Mayo 2026</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>Confidencial · Uso exclusivo fundadores CGBI</span>
+                <span>Slide 1 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SLIDE 2: DIAGNÓSTICO ═══════ -->
+    <div class="slide" id="slide-1">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:36px;">
+                <div>
+                    <div class="chip" style="margin-bottom:12px;">El Desafío Inmobiliario</div>
+                    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;color:#fff;">
+                        WhatsApp como canal principal<br><span class="text-grad">frena el crecimiento de CGBI</span>
+                    </h2>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                    <div class="glass-card" style="padding:32px;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                            <span class="material-icons-round" style="color:#ef4444;background:rgba(239,68,68,0.1);padding:12px;border-radius:16px;font-size:22px;">sms_failed</span>
+                            <h3 style="font-weight:700;color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;">El Problema: WhatsApp Saturado</h3>
+                        </div>
+                        <p style="color:rgba(200,200,230,0.65);font-size:13px;line-height:1.75;font-weight:300;">
+                            Los asesores CGBI gestionan captación de propietarios mediante chats desordenados. Cada lead requiere preguntar manualmente <strong style="color:#fff;">¿arrienda o vende?</strong>, <strong style="color:#fff;">¿zona?</strong>, <strong style="color:#fff;">¿precio?</strong>... generando retrasos, datos perdidos y una percepción de poca profesionalidad ante propietarios de vivienda premium.
+                        </p>
+                    </div>
+                    <div class="glass-card" style="padding:32px;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                            <span class="material-icons-round" style="color:#34d399;background:rgba(52,211,153,0.1);padding:12px;border-radius:16px;font-size:22px;">insights</span>
+                            <h3 style="font-weight:700;color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;">La Solución: Estatus & Percepción Premium</h3>
+                        </div>
+                        <p style="color:rgba(200,200,230,0.65);font-size:13px;line-height:1.75;font-weight:300;">
+                            Una landing page al estilo de <strong style="color:#26d8c4;">sikaiconsulting.com</strong> transforma radicalmente la percepción de CGBI. De inmobiliaria tradicional a <strong style="color:#fff;">líder de tecnología inmobiliaria en Bogotá</strong>. Un punto de llegada élite, exclusivo y 100% profesional que valida las tarifas premium de la marca.
+                        </p>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                    <div style="padding:20px 24px;border-radius:18px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;gap:14px;">
+                        <span class="material-icons-round" style="color:#ef4444;">trending_down</span>
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.4);text-transform:uppercase;">Conversión actual</div>
+                            <div style="font-weight:800;font-size:22px;font-family:'Outfit',sans-serif;color:#fff;">~12%</div>
+                        </div>
+                    </div>
+                    <div style="padding:20px 24px;border-radius:18px;background:rgba(226,35,94,0.08);border:1px solid rgba(226,35,94,0.2);display:flex;align-items:center;gap:14px;">
+                        <span class="material-icons-round" style="color:#E2235E;">timer</span>
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.4);text-transform:uppercase;">Tiempo calificación</div>
+                            <div style="font-weight:800;font-size:22px;font-family:'Outfit',sans-serif;color:#fff;">+8 min</div>
+                        </div>
+                    </div>
+                    <div style="padding:20px 24px;border-radius:18px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);display:flex;align-items:center;gap:14px;">
+                        <span class="material-icons-round" style="color:#34d399;">trending_up</span>
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.4);text-transform:uppercase;">Meta con landing</div>
+                            <div style="font-weight:800;font-size:22px;font-family:'Outfit',sans-serif;color:#34d399;">+65%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>Análisis de Percepción Digital · Bogotá 2026</span>
+                <span>Slide 2 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SLIDE 3: BENEFICIOS ═══════ -->
+    <div class="slide" id="slide-2">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:36px;">
+                <div>
+                    <div class="chip" style="margin-bottom:12px;">Beneficios del Portal</div>
+                    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;color:#fff;">
+                        Estatus de marca + Conversión<br><span class="text-teal">en un solo activo digital</span>
+                    </h2>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                    <div class="glass-card" style="padding:28px;display:flex;flex-direction:column;gap:16px;">
+                        <span class="material-icons-round" style="color:#E2235E;font-size:28px;background:rgba(226,35,94,0.1);width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;">star_purple500</span>
+                        <h3 style="font-weight:700;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;">Estatus Premium</h3>
+                        <p style="color:rgba(200,200,230,0.6);font-size:12.5px;line-height:1.7;font-weight:300;">El diseño glassmorphic inspirado en <strong style="color:#E2235E;">sikaiconsulting.com</strong> proyecta autoridad tecnológica inmediata. Esto valida las tarifas de CGBI y genera confianza con propietarios en zonas premium como Chicó y Rosales.</p>
+                    </div>
+                    <div class="glass-card" style="padding:28px;display:flex;flex-direction:column;gap:16px;">
+                        <span class="material-icons-round" style="color:#34d399;font-size:28px;background:rgba(52,211,153,0.1);width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;">smartphone</span>
+                        <h3 style="font-weight:700;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;">Captación vía App Premium</h3>
+                        <p style="color:rgba(200,200,230,0.6);font-size:12.5px;line-height:1.7;font-weight:300;">La landing actúa como gancho de marketing, ofreciendo <strong style="color:#fff;">acceso gratuito de por vida</strong> a la App Premium CGBI. El propietario percibe que obtiene tecnología invaluable al entregar su mandato.</p>
+                    </div>
+                    <div class="glass-card" style="padding:28px;display:flex;flex-direction:column;gap:16px;">
+                        <span class="material-icons-round" style="color:#a78bfa;font-size:28px;background:rgba(167,139,250,0.1);width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;">verified_user</span>
+                        <h3 style="font-weight:700;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;">Flujo Garantizado Día 5</h3>
+                        <p style="color:rgba(200,200,230,0.6);font-size:12.5px;line-height:1.7;font-weight:300;">La landing educa al propietario sobre el <strong style="color:#E2235E;">día 5 de pago garantizado</strong> y la póliza integral de El Libertador, convirtiendo la promesa de tranquilidad en el cierre diferencial vs. inmobiliarias tradicionales.</p>
+                    </div>
+                </div>
+                <!-- Highlight bar -->
+                <div style="padding:20px 28px;border-radius:20px;background:linear-gradient(135deg,rgba(29,25,75,0.4),rgba(5,40,35,0.25));border:1px solid rgba(52,211,153,0.25);display:flex;align-items:center;gap:20px;">
+                    <span class="material-icons-round" style="color:#34d399;font-size:32px;background:rgba(52,211,153,0.1);padding:12px;border-radius:16px;flex-shrink:0;">emoji_events</span>
+                    <p style="color:rgba(200,200,230,0.7);font-size:13px;line-height:1.6;">
+                        <strong style="color:#fff;">Benchmark de referencia:</strong> La landing page de sikaiconsulting.com demuestra cómo el diseño glassmorphic, la tipografía premium y los backgrounds dinámicos de partículas posicionan una consultora al mismo nivel visual de las mejores firmas tech de Latinoamérica.
+                    </p>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>Propuesta de Conversión · Captación Residencial Bogotá</span>
+                <span>Slide 3 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SLIDE 4: DIFERENCIALES ═══════ -->
+    <div class="slide" id="slide-3">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:32px;">
+                <div>
+                    <div class="chip" style="margin-bottom:12px;">Tabla Comparativa</div>
+                    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;color:#fff;">
+                        El diferencial tecnológico que<br><span class="text-grad">convence al propietario</span>
+                    </h2>
+                </div>
+                <div class="glass-card" style="overflow:hidden;border-radius:22px;">
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                        <thead>
+                            <tr style="background:rgba(29,25,75,0.45);border-bottom:1px solid rgba(255,255,255,0.07);">
+                                <th style="padding:18px 24px;text-align:left;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#fff;">Propuesta</th>
+                                <th style="padding:18px 24px;text-align:left;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,180,210,0.45);">Inmobiliarias Tradicionales</th>
+                                <th style="padding:18px 24px;text-align:left;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#E2235E;display:flex;align-items:center;gap:6px;">
+                                    <span class="material-icons-round" style="font-size:14px;">bolt</span> CGBI Real Estate
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-color:rgba(255,255,255,0.05);">
+                            <tr class="comp-row" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <td style="padding:18px 24px;font-weight:600;color:#fff;">Primer Contacto</td>
+                                <td style="padding:18px 24px;color:rgba(180,180,210,0.55);font-weight:300;">Llamadas intrusivas en frío o chats vacíos de WhatsApp.</td>
+                                <td style="padding:18px 24px;color:#fff;font-weight:500;"><span class="material-icons-round" style="color:#34d399;font-size:14px;vertical-align:middle;margin-right:6px;">check_circle</span>Lead Profiler en 4 pasos con cajas glass. Califica al instante.</td>
+                            </tr>
+                            <tr class="comp-row" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <td style="padding:18px 24px;font-weight:600;color:#fff;">Transparencia</td>
+                                <td style="padding:18px 24px;color:rgba(180,180,210,0.55);font-weight:300;">PDFs pesados por correo o carpetas físicas desactualizadas.</td>
+                                <td style="padding:18px 24px;color:#fff;font-weight:500;"><span class="material-icons-round" style="color:#34d399;font-size:14px;vertical-align:middle;margin-right:6px;">check_circle</span><strong style="color:#E2235E;">App Premium CGBI</strong> exclusiva: liquidaciones, documentos y alertas en vivo.</td>
+                            </tr>
+                            <tr class="comp-row" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <td style="padding:18px 24px;font-weight:600;color:#fff;">Seguridad de Pago</td>
+                                <td style="padding:18px 24px;color:rgba(180,180,210,0.55);font-weight:300;">Sujeto a la consignación del inquilino, sin garantía.</td>
+                                <td style="padding:18px 24px;color:#fff;font-weight:500;"><span class="material-icons-round" style="color:#34d399;font-size:14px;vertical-align:middle;margin-right:6px;">check_circle</span>Póliza 100% con El Libertador. Transferencia garantizada el <strong style="color:#fff;">día 5</strong>.</td>
+                            </tr>
+                            <tr class="comp-row">
+                                <td style="padding:18px 24px;font-weight:600;color:#fff;">Marketing</td>
+                                <td style="padding:18px 24px;color:rgba(180,180,210,0.55);font-weight:300;">Fotos oscuras con celular y publicación pasiva sin pauta.</td>
+                                <td style="padding:18px 24px;color:#fff;font-weight:500;"><span class="material-icons-round" style="color:#34d399;font-size:14px;vertical-align:middle;margin-right:6px;">check_circle</span>Fotografía réflex, video 4K, drone y pauta segmentada Google + Meta.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>Análisis Competitivo · Sector Residencial Bogotá D.C.</span>
+                <span>Slide 4 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SLIDE 5: PRESUPUESTO ═══════ -->
+    <div class="slide" id="slide-4">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:32px;">
+                <div>
+                    <div class="chip" style="margin-bottom:12px;">Inversión & Presupuesto</div>
+                    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;color:#fff;">
+                        Presupuesto Preferencial<br><span class="text-grad">Alianza Estratégica SIKAI × CGBI</span>
+                    </h2>
+                </div>
+                <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:stretch;">
+                    <!-- Entregables -->
+                    <div class="glass-card" style="padding:32px;display:flex;flex-direction:column;gap:16px;">
+                        <h3 style="font-weight:700;color:#fff;font-size:15px;margin-bottom:4px;">Portal Web de Captación Integral</h3>
+                        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:rgba(200,200,230,0.7);">
+                            <div style="display:flex;align-items:start;gap:10px;">
+                                <span class="material-icons-round" style="color:#34d399;font-size:18px;flex-shrink:0;margin-top:1px;">check_circle</span>
+                                <span>UI/UX Glassmorphic con aurora de partículas interactiva y noise texture overlay.</span>
+                            </div>
+                            <div style="display:flex;align-items:start;gap:10px;">
+                                <span class="material-icons-round" style="color:#34d399;font-size:18px;flex-shrink:0;margin-top:1px;">check_circle</span>
+                                <span>Lead Profiler de 4 pasos con cajas glass. Integración automática a WhatsApp.</span>
+                            </div>
+                            <div style="display:flex;align-items:start;gap:10px;">
+                                <span class="material-icons-round" style="color:#34d399;font-size:18px;flex-shrink:0;margin-top:1px;">check_circle</span>
+                                <span>Cinta de testimonios marquee infinita + secciones con stagger reveal animado.</span>
+                            </div>
+                            <div style="display:flex;align-items:start;gap:10px;">
+                                <span class="material-icons-round" style="color:#34d399;font-size:18px;flex-shrink:0;margin-top:1px;">check_circle</span>
+                                <span>Navbar premium con cursor personalizado + 3D tilt cards.</span>
+                            </div>
+                            <div style="display:flex;align-items:start;gap:10px;">
+                                <span class="material-icons-round" style="color:#a78bfa;font-size:18px;flex-shrink:0;margin-top:1px;">star</span>
+                                <strong style="color:#a78bfa;">BONO: Dominio propio + SEO + Deploy en hosting confiable.</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Price -->
+                    <div class="glass-card" style="padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:20px;background:rgba(3,2,14,0.5);">
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(200,200,230,0.35);text-transform:uppercase;letter-spacing:0.12em;">Valor Comercial Estándar</div>
+                            <div class="price-tag-old" style="font-size:18px;margin-top:4px;">$ 5,000,000 COP</div>
+                        </div>
+                        <div style="width:100%;height:1px;background:rgba(255,255,255,0.06);"></div>
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:9px;color:#34d399;text-transform:uppercase;letter-spacing:0.12em;">Descuento Alianza SIKAI × CGBI (50%)</div>
+                            <div style="color:#34d399;font-size:14px;font-family:'DM Mono',monospace;margin-top:4px;">− $ 2,500,000 COP</div>
+                        </div>
+                        <div style="width:100%;height:1px;background:rgba(255,255,255,0.06);"></div>
+                        <div>
+                            <div style="font-family:'DM Mono',monospace;font-size:9px;color:#E2235E;text-transform:uppercase;letter-spacing:0.12em;">Inversión Preferencial de Alianza</div>
+                            <div class="price-big">$ 2,500,000</div>
+                            <div style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,200,230,0.4);margin-top:4px;">COP · Precio alianza especial</div>
+                        </div>
+                        <div style="font-size:11px;color:rgba(200,200,230,0.4);font-style:italic;">50% anticipo al aprobar · Saldo en entrega</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>*Precio exclusivo aplicable por acuerdo de alianza comercial estratégica.</span>
+                <span>Slide 5 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SLIDE 6: CIERRE ═══════ -->
+    <div class="slide" id="slide-5">
+        <div class="slide-inner">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:32px;">
+                <span class="material-icons-round bounce" style="font-size:64px;color:#E2235E;background:rgba(226,35,94,0.1);padding:20px;border-radius:28px;border:1px solid rgba(226,35,94,0.3);">rocket_launch</span>
+                <div style="space-y:12px;">
+                    <div class="chip chip-emerald" style="margin-bottom:16px;margin:0 auto 16px;">Propuesta lista para aprobación</div>
+                    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;color:#fff;">
+                        ¿Listos para lanzar el Portal<br><span class="text-grad">de Captación de CGBI?</span>
+                    </h2>
+                </div>
+                <p style="color:rgba(200,200,230,0.65);font-size:16px;max-width:600px;line-height:1.75;font-weight:300;">
+                    Con un anticipo del <strong style="color:#fff;">50% ($ 1,250,000 COP)</strong> iniciamos el desarrollo formal. Plazo de entrega del sitio <strong style="color:#26d8c4;">llave en mano: 12 días hábiles</strong> desde la aprobación.
+                </p>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+                    <a href="https://wa.me/573107853333?text=%F0%9F%9A%80%20*APROBACIÓN%20PROPUESTA%20CGBI*%0A%0AHola%20equipo%20SIKAI%20CX%2C%20como%20fundadores%20de%20CGBI%20aprobamos%20formalmente%20la%20propuesta%20de%20desarrollo%20de%20nuestra%20landing%20page%20y%20Lead%20Profiler%20bajo%20el%20esquema%20preferencial%20de%20alianza%20de%20%242%2C000%2C000%20COP.%20¡Iniciemos!" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:10px;padding:16px 36px;border-radius:18px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(130deg,#E2235E,#ff5a87);box-shadow:0 0 40px rgba(226,35,94,0.4),inset 0 1px 0 rgba(255,255,255,0.2);transition:all 0.3s;text-decoration:none;"
+                       onmouseenter="this.style.transform='translateY(-2px) scale(1.02)';this.style.boxShadow='0 0 60px rgba(226,35,94,0.6),inset 0 1px 0 rgba(255,255,255,0.25)'"
+                       onmouseleave="this.style.transform='';this.style.boxShadow='0 0 40px rgba(226,35,94,0.4),inset 0 1px 0 rgba(255,255,255,0.2)'">
+                        <span class="material-icons-round">thumb_up</span>
+                        Aprobar & Iniciar Desarrollo
+                    </a>
+                    <a href="index.html"
+                       style="display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:18px;font-weight:600;font-size:14px;color:rgba(200,200,230,0.8);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);transition:all 0.25s;text-decoration:none;"
+                       onmouseenter="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'"
+                       onmouseleave="this.style.color='rgba(200,200,230,0.8)';this.style.background='rgba(255,255,255,0.05)'">
+                        <span class="material-icons-round" style="font-size:18px;">visibility</span>
+                        Ver Landing Completa
+                    </a>
+                </div>
+                <div style="display:flex;gap:40px;margin-top:8px;">
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.35);text-transform:uppercase;letter-spacing:0.1em;">Anticipo</div>
+                        <div style="font-weight:800;font-family:'Outfit',sans-serif;font-size:20px;color:#fff;margin-top:4px;">$ 1,250,000 COP</div>
+                    </div>
+                    <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.35);text-transform:uppercase;letter-spacing:0.1em;">Plazo entrega</div>
+                        <div style="font-weight:800;font-family:'Outfit',sans-serif;font-size:20px;color:#26d8c4;margin-top:4px;">12 días hábiles</div>
+                    </div>
+                    <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+                    <div style="text-align:center;">
+                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,200,230,0.35);text-transform:uppercase;letter-spacing:0.1em;">Saldo contra entrega</div>
+                        <div style="font-weight:800;font-family:'Outfit',sans-serif;font-size:20px;color:#fff;margin-top:4px;">$ 1,250,000 COP</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.1em;">
+                <span>*Desarrollo formal inicia tras confirmación del anticipo.</span>
+                <span>Slide 6 / 6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dots nav -->
+    <div class="dots-nav" id="dots-nav">
+        <button class="dot active" onclick="goToSlide(0)" id="dot-0"></button>
+        <button class="dot" onclick="goToSlide(1)" id="dot-1"></button>
+        <button class="dot" onclick="goToSlide(2)" id="dot-2"></button>
+        <button class="dot" onclick="goToSlide(3)" id="dot-3"></button>
+        <button class="dot" onclick="goToSlide(4)" id="dot-4"></button>
+        <button class="dot" onclick="goToSlide(5)" id="dot-5"></button>
+    </div>
+
+    <!-- Footer bar -->
+    <div class="footer-bar">
+        <span>© 2026 SIKAI CX & CGBI Colombia · Alianza Estratégica</span>
+        <span>Navega con flechas del teclado o clic a los lados</span>
+    </div>
+
+    <script>
+    // ─── AURORA ──────────────────────────────────────────────────
+    const ac = document.getElementById('aurora');
+    const actx = ac.getContext('2d');
+    function resizeAurora() { ac.width = innerWidth; ac.height = innerHeight; }
+    window.addEventListener('resize', resizeAurora); resizeAurora();
+    const blobs = [
+        { x: innerWidth*0.15, y: innerHeight*0.2, r: 400, vx:0.35, vy:0.25, c:[226,35,94] },
+        { x: innerWidth*0.75, y: innerHeight*0.6, r: 480, vx:-0.3, vy:0.2,  c:[29,25,75] },
+        { x: innerWidth*0.5,  y: innerHeight*0.8, r: 380, vx:0.2,  vy:-0.35, c:[38,216,196] },
+        { x: innerWidth*0.85, y: innerHeight*0.15, r:350, vx:-0.25, vy:0.3, c:[155,93,229] },
+    ];
+    function drawAurora() {
+        actx.clearRect(0,0,ac.width,ac.height);
+        blobs.forEach(b => {
+            b.x += b.vx; b.y += b.vy;
+            if (b.x < -b.r) b.x = ac.width+b.r; if (b.x > ac.width+b.r) b.x = -b.r;
+            if (b.y < -b.r) b.y = ac.height+b.r; if (b.y > ac.height+b.r) b.y = -b.r;
+            const g = actx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.09)`);
+            g.addColorStop(1, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0)`);
+            actx.fillStyle = g;
+            actx.beginPath(); actx.arc(b.x,b.y,b.r,0,Math.PI*2); actx.fill();
+        });
+        requestAnimationFrame(drawAurora);
+    }
+    drawAurora();
+
+    // ─── SLIDES ───────────────────────────────────────────────────
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots   = document.querySelectorAll('.dot');
+    const tabs   = document.querySelectorAll('.tab-btn');
+
+    function goToSlide(i) {
+        if (i < 0 || i >= slides.length) return;
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        tabs[current].classList.remove('active');
+        current = i;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        tabs[current].classList.add('active');
+    }
+    function nextSlide() { goToSlide(current < slides.length-1 ? current+1 : 0); }
+    function prevSlide() { goToSlide(current > 0 ? current-1 : slides.length-1); }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); prevSlide(); }
+    });
+    </script>
+</body>
+</html>

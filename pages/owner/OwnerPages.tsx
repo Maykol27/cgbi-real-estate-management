@@ -24,16 +24,19 @@ export const OwnerDashboard: React.FC = () => {
     const { user, documents, payments, properties, financeRequests } = useStore();
     const { showToast } = useToast();
 
-    // Filter documents
+    // Filter documents for this owner: general + specifically assigned to them
     const myDocs = documents.filter(d =>
+        d.target === 'Todos' ||
+        d.target === 'General (Todos)' ||
+        d.target === 'Propietarios' ||
+        d.target === 'All' ||
+        d.target === 'Owner' ||
         d.sharedWith === 'Todos' ||
         d.sharedWith === user?.name ||
-        d.sharedWithId === user?.id ||
         d.owner === user?.name ||
-        d.target === 'Todos' ||
-        d.target === 'Propietarios' ||
-        d.target === 'Owner' ||
-        d.target === 'All'
+        // ✅ FIX: Match by UUID (targetId/sharedWithId)
+        d.targetId === user?.id ||
+        d.sharedWithId === user?.id
     ).sort((a, b) => {
         const parseDate = (dateStr: string) => {
             if (dateStr.includes('/')) {
@@ -426,11 +429,15 @@ export const OwnerRequests: React.FC = () => {
     const { tickets, addTicket, financeRequests, updateFinanceRequestStatus, user, properties } = useStore();
     const { showToast } = useToast();
 
-    // Derived State: Find the first pending request FOR THIS OWNER
+    // Derived State: Finance requests for THIS OWNER - ALL statuses (including history)
     const myPropertyIds = properties.map(p => p.id);
-    const requestToApprove = financeRequests
-        .filter(r => r.status === 'Pendiente' && r.propertyId && myPropertyIds.some(id => String(id) === String(r.propertyId)))
-        .sort((a, b) => b.id - a.id)[0];
+    const myFinanceRequests = financeRequests
+        .filter(r => r.propertyId && myPropertyIds.some(id => String(id) === String(r.propertyId)))
+        .sort((a, b) => b.id - a.id);
+
+    // Only show the first PENDING request for the approval card
+    const requestToApprove = myFinanceRequests
+        .filter(r => r.status === 'Pendiente')[0];
 
     // UI State
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -438,8 +445,15 @@ export const OwnerRequests: React.FC = () => {
     const [rejectionReason, setRejectionReason] = useState("");
     const [file, setFile] = useState<File | null>(null);
 
-    // Filter tickets for this owner
-    const ownRequests = tickets.filter(t => t.requesterRole === 'Propietario').sort((a, b) => b.id - a.id);
+    // Filter tickets created by this owner (by user.id to match DB)
+    const ownRequests = tickets
+        .filter(t => {
+            // ✅ FIX: Filtrar por requester_id o requesterRole para compatibilidad
+            return t.requester_id === user?.id ||
+                   t.requester === user?.name ||
+                   t.requesterRole === 'Propietario';
+        })
+        .sort((a, b) => b.id - a.id);
 
     const handleApprove = () => {
         if (!requestToApprove) return;
@@ -676,6 +690,45 @@ export const OwnerRequests: React.FC = () => {
                             </div>
                         )}
                     </section>
+
+                    {/* SECTION 1b: Finance Request History (Aprobadas / Rechazadas) */}
+                    {myFinanceRequests.filter(r => r.status !== 'Pendiente').length > 0 && (
+                        <section>
+                            <h3 className="text-lg font-bold dark:text-white mb-4 flex items-center gap-2">
+                                <span className="material-icons-round text-gray-400">history</span>
+                                Historial de Aprobaciones
+                            </h3>
+                            <div className="space-y-3">
+                                {myFinanceRequests.filter(r => r.status !== 'Pendiente').map(r => (
+                                    <div key={r.id} className="bg-white dark:bg-card-dark p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${r.status === 'Aprobado' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                                                <span className="material-icons-round text-lg">{r.status === 'Aprobado' ? 'check_circle' : 'cancel'}</span>
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm text-gray-800 dark:text-white">{r.title}</p>
+                                                <p className="text-xs text-gray-400">{r.date} • {formatCurrency(Number(r.cost))}</p>
+                                                {r.rejectionReason && (
+                                                    <p className="text-xs text-red-500 mt-1">Motivo: {r.rejectionReason}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {r.attachmentUrl && (
+                                                <a href={r.attachmentUrl} target="_blank" rel="noreferrer" className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg" title="Ver adjunto">
+                                                    <span className="material-icons-round text-lg">attach_file</span>
+                                                </a>
+                                            )}
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                r.status === 'Aprobado' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                            }`}>{r.status}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* SECTION 2: My Requests (Outgoing) */}
                     <section>

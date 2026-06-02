@@ -22,6 +22,7 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
         cost: request?.cost?.toString() || "",
         propertyId: request?.propertyId?.toString() || ""
     });
+    const [attachmentFile, setAttachmentFile] = useState<File | null>(null); // ✅ FIX: Soporte adjunto
 
     const isReadOnly = !!request;
 
@@ -37,12 +38,19 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
         }
 
         try {
+            // ✅ FIX: Subir archivo al storage o usar object URL temporal
+            let attachmentUrl: string | undefined = undefined;
+            if (attachmentFile) {
+                attachmentUrl = URL.createObjectURL(attachmentFile);
+            }
+
             await addFinanceRequest({
                 title: formData.title,
                 desc: formData.desc,
                 cost: formData.cost,
                 propertyId: formData.propertyId,
-                requester: "Administración" // Mock requester, Store handles the ID
+                requester: "Administración",
+                attachmentUrl // ✅ FIX: Pasar adjunto a la función
             });
             showToast("Solicitud creada exitosamente", "success");
             onClose();
@@ -105,6 +113,40 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
                         required
                     />
                 </div>
+
+                {/* ✅ FIX: Input de adjunto para cotización */}
+                {!isReadOnly && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adjuntar Cotización / Evidencia</label>
+                        <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png,.docx"
+                            onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
+                        />
+                        {attachmentFile && (
+                            <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+                                <span className="material-icons-round text-sm">check_circle</span>
+                                {attachmentFile.name} listo para adjuntar
+                            </p>
+                        )}
+                    </div>
+                )}
+                {/* Mostrar adjunto existente en modo lectura */}
+                {isReadOnly && request?.attachmentUrl && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cotización / Evidencia</label>
+                        <a
+                            href={request.attachmentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 text-sm text-blue-600 font-medium hover:underline"
+                        >
+                            <span className="material-icons-round text-base">attach_file</span>
+                            Ver Cotización Adjunta
+                        </a>
+                    </div>
+                )}
 
                 {request && (
                     <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 mt-4">

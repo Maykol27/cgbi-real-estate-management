@@ -1548,8 +1548,13 @@ export const AdminCalendar: React.FC = () => {
         feedback: ''
     });
 
+    // ✅ FIX: Filtrar visitas por asesor para Colaboradores
+    const visibleVisits = user?.role === 'Colaborador'
+        ? visits.filter(v => v.advisor === user.name || v.advisor === user.email)
+        : visits;
+
     // Map visits to calendar events
-    const events = visits.map(v => ({
+    const events = visibleVisits.map(v => ({
         id: v.id,
         title: `${v.propertyName.split('#')[0]}... - ${v.visitorName}`,
         date: new Date(v.date), // Ensure it is a Date object
