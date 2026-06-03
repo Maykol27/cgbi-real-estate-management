@@ -250,6 +250,7 @@ export const AdminDocuments: React.FC = () => {
                                 <option value="">Seleccionar Tipo...</option>
                                 <option value="Factura / Recibo">Factura / Recibo</option>
                                 <option value="Contrato">Contrato</option>
+                                <option value="Contrato de Administración">Contrato de Administración</option>
                                 <option value="Comunicación">Comunicación</option>
                                 <option value="Solicitud">Solicitud</option>
                                 <option value="Documento Personal">Documento Personal</option>
@@ -379,6 +380,7 @@ export const AdminDocuments: React.FC = () => {
                                 <thead>
                                     <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
                                         <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Nombre Archivo</th>
+                                        <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Tipo</th>
                                         <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Dirigido A</th>
                                         <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Enviado por</th>
                                         <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha</th>
@@ -407,6 +409,9 @@ export const AdminDocuments: React.FC = () => {
                                                             <p className="text-xs text-gray-400">{file.size}</p>
                                                         </div>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                    {file.type}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
@@ -474,6 +479,7 @@ export const AdminDocuments: React.FC = () => {
                                     <thead>
                                         <tr className="bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 border-b border-[#D62C5E]/20 dark:border-[#D62C5E]/30">
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Nombre Archivo</th>
+                                            <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Tipo</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Dirigido A</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Fecha</th>
                                             <th className="p-5 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider text-right">Acciones</th>
@@ -494,6 +500,9 @@ export const AdminDocuments: React.FC = () => {
                                                             <p className="text-xs text-gray-400">{file.size}</p>
                                                         </div>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                    {file.type}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <Badge color={file.target.includes("Todos") ? "purple" : file.target.includes("Inquilinos") ? "blue" : "green"} text={file.target} />
@@ -580,6 +589,7 @@ export const AdminProperties: React.FC = () => {
             bathrooms: Number((form.elements.namedItem('bathrooms') as HTMLInputElement).value),
             parking: Number((form.elements.namedItem('parking') as HTMLInputElement).value),
             description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
+            contractEnd: (form.elements.namedItem('contractEnd') as HTMLInputElement)?.value || '',
             image: imageUrl, // Optimistic preview
             imageFile: propertyImage || undefined // The actual file
         };

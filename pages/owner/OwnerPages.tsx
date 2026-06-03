@@ -48,7 +48,6 @@ export const OwnerDashboard: React.FC = () => {
         return parseDate(b.date) - parseDate(a.date);
     });
 
-    // Find active contract
     const myContract = myDocs.find(d => d.name.toLowerCase().includes('contrato') || d.type.toLowerCase().includes('contrato'));
 
     // Derived Income (Payments for my properties)
@@ -63,11 +62,29 @@ export const OwnerDashboard: React.FC = () => {
     const myExpenses = financeRequests.filter(r => r.status === 'Aprobado' && r.propertyId && myPropertyIds.includes(r.propertyId))
         .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
+    const recentCommunication = myDocs.find(d => {
+        if (d.type !== 'Comunicación') return false;
+        const parts = d.date.split('/');
+        const docDate = parts.length === 3 ? new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime() : new Date(d.date).getTime();
+        return (new Date().getTime() - docDate) <= 86400000;
+    });
+
     return (
         <>
             <OwnerHeader title="Panel de Propietario" />
             <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {recentCommunication && (
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-xl shadow-sm animate-in fade-in">
+                            <div className="flex items-center gap-2">
+                                <span className="material-icons-round">campaign</span>
+                                <div>
+                                    <p className="font-bold text-sm">Aviso Importante</p>
+                                    <p className="text-sm">{recentCommunication.name}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {/* Welcome & Contract Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Welcome / News Feed */}

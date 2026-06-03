@@ -35,6 +35,9 @@ export const TenantDashboard: React.FC = () => {
 
     const myDocuments = documents
         .filter(d => {
+            const isForMe = d.target === 'Todos' || d.target === 'General (Todos)' || d.target === 'Inquilinos' || d.target === 'All' || d.target === 'Tenant' || d.sharedWith === 'Todos' || d.sharedWith === user?.name || d.targetId === user?.id || d.sharedWithId === user?.id;
+            if (!isForMe) return false;
+
             // Parse date "DD/MM/YYYY" or ISO
             const parts = d.date.split('/');
             const docDate = parts.length === 3
@@ -65,11 +68,29 @@ export const TenantDashboard: React.FC = () => {
         ? new Date(nextPayment.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
         : '---';
 
+    const recentCommunication = myDocuments.find(d => {
+        if (d.type !== 'Comunicación') return false;
+        const parts = d.date.split('/');
+        const docDate = parts.length === 3 ? new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime() : new Date(d.date).getTime();
+        return (new Date().getTime() - docDate) <= 86400000;
+    });
+
     return (
         <>
             <TenantHeader title="Inicio" />
             <main className="flex-1 flex flex-col items-center py-8 px-4 sm:px-6 overflow-y-auto">
                 <div className="w-full max-w-[640px] flex flex-col gap-8">
+                    {recentCommunication && (
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-xl shadow-sm animate-in fade-in">
+                            <div className="flex items-center gap-2">
+                                <span className="material-icons-round">campaign</span>
+                                <div>
+                                    <p className="font-bold text-sm">Aviso Importante</p>
+                                    <p className="text-sm">{recentCommunication.name}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <div className="flex flex-col gap-1">
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                             {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -216,12 +237,24 @@ export const TenantPayments: React.FC = () => {
 
 // --- Contracts ---
 export const TenantContracts: React.FC = () => {
-    const { documents } = useStore();
+    const { documents, user } = useStore();
     const { showToast } = useToast();
 
-    // RLS already filters documents - show all that the user is allowed to see
-    // No need for additional filtering, RLS handles security at DB level  
-    const myDocuments = [...documents].sort((a, b) => b.id - a.id);
+    // Apply strict filtering by UUID and role to ensure correct visibility
+    const myDocuments = [...documents]
+        .filter(d => 
+            d.target === 'Todos' || d.target === 'General (Todos)' || d.target === 'Inquilinos' || d.target === 'All' || d.target === 'Tenant' || d.sharedWith === 'Todos' || d.sharedWith === user?.name || d.targetId === user?.id || d.sharedWithId === user?.id
+        )
+        .sort((a, b) => {
+            const parseDate = (dateStr: string) => {
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
+                }
+                return new Date(dateStr).getTime();
+            };
+            return parseDate(b.date) - parseDate(a.date);
+        });
 
     const handleDownload = (doc: any) => {
         if (doc.fileUrl) {

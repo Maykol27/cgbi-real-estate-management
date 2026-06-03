@@ -18,7 +18,7 @@ serve(async (req) => {
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         )
 
-        const { email, role, full_name, policy_number, permissions } = await req.json()
+        const { email, role, full_name, policy_number, property_id, permissions } = await req.json()
 
         if (!email) {
             return new Response(
@@ -99,7 +99,9 @@ serve(async (req) => {
                             email: email,
                             full_name: full_name,
                             role: role,
-                            permissions: permissions || []
+                            permissions: permissions || [],
+                            policy_number: policy_number,
+                            property_id: property_id
                         })
 
                     if (profileError) console.error("Profile upsert error:", profileError);
@@ -129,7 +131,8 @@ serve(async (req) => {
                 full_name: full_name,
                 role: role,
                 permissions: permissions || [],
-                policy_number: policy_number
+                policy_number: policy_number,
+                property_id: property_id
             })
 
         if (profileError) {

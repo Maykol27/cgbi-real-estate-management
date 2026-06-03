@@ -1673,6 +1673,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     role: technicalRole, // Use mapped role
                     full_name: u.name,
                     policy_number: u.policyNumber,
+                    property_id: u.propertyId, // Add property ID
                     permissions: u.permissions
                 }
             });
