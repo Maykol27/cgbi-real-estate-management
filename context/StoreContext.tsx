@@ -1726,25 +1726,38 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 };
                 setUsers(prev => [...prev, newUser]); // ✅ FIX: Solo una llamada (eliminado duplicado)
 
-                // If Property ID is provided (Tenant Check-in), update Property Record
+                // If Property ID is provided (Tenant Check-in), update Profile and Property Record
                 if (u.propertyId) {
                     console.log(`🏠 Linking Property #${u.propertyId} to new Tenant ${data.user.id}`);
+                    
+                    // 1. Guardar explícitamente el property_id en el perfil del inquilino (Fallback robusto por si la Edge Function falla en el upsert)
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .update({ property_id: u.propertyId })
+                        .eq('id', data.user.id);
+                        
+                    if (profileError) {
+                        console.error("⚠️ Error guardando property_id en profiles:", profileError);
+                    }
+
+                    // 2. Actualizar el estado de la propiedad a 'Occupied' (Alquilado) SIN cambiar el owner_id (el owner es el Propietario, no el Inquilino)
                     const { error: propError } = await supabase
                         .from('properties')
                         .update({
-                            status: 'Occupied',
-                            owner_id: data.user.id // Assign tenant as "owner" of the rental unit (or use tenant_id col if exists, assume owner_id for now as implied by current schema usage)
+                            status: 'Occupied'
+                            // IMPORTANTE: NO se debe reescribir el owner_id aquí porque le quitaría la propiedad al verdadero dueño.
                         })
                         .eq('id', u.propertyId);
 
                     if (propError) {
                         console.error("⚠️ Error linking property:", propError);
-                        notify("Advertencia", "Usuario creado pero no se pudo vincular la propiedad.");
+                        notify("Advertencia", "Usuario creado pero no se pudo cambiar el estado de la propiedad.");
                     } else {
                         // Update local property state
-                        setProperties(prev => prev.map(p => p.id === u.propertyId ? { ...p, status: 'Occupied', owner_id: data.user.id, owner: u.name } : p));
+                        setProperties(prev => prev.map(p => p.id === u.propertyId ? { ...p, status: 'Occupied' } : p));
                     }
                 }
+
 
                 notify("Usuario Invitado", `Se ha enviado un correo de invitación a ${u.email}.`);
             } else {
