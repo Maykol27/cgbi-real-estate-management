@@ -38,22 +38,13 @@ export const TenantDashboard: React.FC = () => {
             const isForMe = d.target === 'Todos' || d.target === 'General (Todos)' || d.target === 'Inquilinos' || d.target === 'All' || d.target === 'Tenant' || d.sharedWith === 'Todos' || d.sharedWith === user?.name || d.targetId === user?.id || d.sharedWithId === user?.id;
             if (!isForMe) return false;
 
-            // Parse date "DD/MM/YYYY" or ISO
-            const parts = d.date.split('/');
-            const docDate = parts.length === 3
-                ? new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
-                : new Date(d.date);
+            // Use timestamp if available, fallback to basic parsing
+            const docDate = d.timestamp ? new Date(d.timestamp) : new Date(); // fallback
             return docDate >= sevenDaysAgo;
         })
         .sort((a, b) => {
-            const parseDate = (dateStr: string) => {
-                if (dateStr.includes('/')) {
-                    const parts = dateStr.split('/');
-                    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
-                }
-                return new Date(dateStr).getTime();
-            };
-            return parseDate(b.date) - parseDate(a.date);
+            if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+            return (b.id as number) - (a.id as number);
         })
         .slice(0, 3);
 
@@ -246,14 +237,8 @@ export const TenantContracts: React.FC = () => {
             d.target === 'Todos' || d.target === 'General (Todos)' || d.target === 'Inquilinos' || d.target === 'All' || d.target === 'Tenant' || d.sharedWith === 'Todos' || d.sharedWith === user?.name || d.targetId === user?.id || d.sharedWithId === user?.id
         )
         .sort((a, b) => {
-            const parseDate = (dateStr: string) => {
-                if (dateStr.includes('/')) {
-                    const parts = dateStr.split('/');
-                    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
-                }
-                return new Date(dateStr).getTime();
-            };
-            return parseDate(b.date) - parseDate(a.date);
+            if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+            return (b.id as number) - (a.id as number);
         });
 
     const handleDownload = (doc: any) => {

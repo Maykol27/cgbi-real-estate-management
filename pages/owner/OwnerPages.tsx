@@ -38,14 +38,8 @@ export const OwnerDashboard: React.FC = () => {
         d.targetId === user?.id ||
         d.sharedWithId === user?.id
     ).sort((a, b) => {
-        const parseDate = (dateStr: string) => {
-            if (dateStr.includes('/')) {
-                const parts = dateStr.split('/');
-                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime();
-            }
-            return new Date(dateStr).getTime();
-        };
-        return parseDate(b.date) - parseDate(a.date);
+        if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+        return (b.id as number) - (a.id as number);
     });
 
     const myContract = myDocs.find(d => d.name.toLowerCase().includes('contrato') || d.type.toLowerCase().includes('contrato'));

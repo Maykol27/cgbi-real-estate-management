@@ -94,8 +94,12 @@ export const AdminDocuments: React.FC = () => {
     };
 
     const handleUpload = () => {
-        if (!selectedFile) {
+        if (!selectedFile && docType !== 'Comunicación') {
             showToast("Por favor seleccione un archivo primero.", "error");
+            return;
+        }
+        if (docType === 'Comunicación' && !selectedFile && !desc) {
+            showToast("Para enviar un aviso de comunicación, escriba un mensaje o suba un archivo.", "error");
             return;
         }
         if (!docType) {
@@ -103,7 +107,7 @@ export const AdminDocuments: React.FC = () => {
             return;
         }
 
-        const fileUrl = URL.createObjectURL(selectedFile);
+        const fileUrl = selectedFile ? URL.createObjectURL(selectedFile) : undefined;
 
         if (docType === 'Solicitud') {
             if (!cost || !desc) {
@@ -119,7 +123,7 @@ export const AdminDocuments: React.FC = () => {
             const prop = properties.find(p => String(p.id) === String(selectedPropertyId));
 
             addFinanceRequest({
-                title: "Solicitud: " + selectedFile.name,
+                title: "Solicitud: " + (selectedFile?.name || 'Documento Adjunto'),
                 desc: desc,
                 cost: cost,
                 requester: "Admin CGBI",
@@ -132,14 +136,16 @@ export const AdminDocuments: React.FC = () => {
         // Use Store Action
         console.log('📤 [DOC_UPLOAD] Enviando documento a Target ID:', specificClientId || 'General');
 
+        const finalName = (docType === 'Comunicación' && desc) ? desc : (selectedFile?.name || 'Aviso de Comunicación');
+
         addDocument({
-            name: selectedFile.name,
-            size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
+            name: finalName,
+            size: selectedFile ? (selectedFile.size / 1024 / 1024).toFixed(2) + " MB" : "0 MB",
             type: docType as any,
             target: recipient === "Cliente Específico" ? specificClient : recipient, // For display
             targetId: recipient === "Cliente Específico" ? specificClientId : undefined, // UUID for RLS
             fileUrl: fileUrl,
-            file: selectedFile
+            file: selectedFile || undefined
         });
 
         // Reset Form
@@ -189,7 +195,7 @@ export const AdminDocuments: React.FC = () => {
 
             {/* Delete Confirmation Modal */}
             {showDeleteConfirm && (
-                <Modal title="Eliminar Documento" onClose={() => setShowDeleteConfirm(false)} maxWidth="max-w-sm">
+                <Modal isOpen={true} title="Eliminar Documento" onClose={() => setShowDeleteConfirm(false)} maxWidth="max-w-sm">
                     <div className="text-center p-2">
                         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="material-icons-round text-3xl">delete_forever</span>
@@ -244,7 +250,11 @@ export const AdminDocuments: React.FC = () => {
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Tipo de Documento</label>
                             <select
                                 value={docType}
-                                onChange={(e) => setDocType(e.target.value)}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setDocType(val);
+                                    if (val === 'Contrato de Administración') setRecipient('Propietarios');
+                                }}
                                 className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 transition-all py-2.5 dark:text-white"
                             >
                                 <option value="">Seleccionar Tipo...</option>
@@ -263,13 +273,29 @@ export const AdminDocuments: React.FC = () => {
                                 onChange={(e) => setRecipient(e.target.value)}
                                 className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 transition-all py-2.5 dark:text-white"
                             >
-                                <option value="Todos">General (Todos)</option>
-                                <option value="Inquilinos">Inquilinos</option>
+                                {docType !== 'Contrato de Administración' && <option value="Todos">General (Todos)</option>}
+                                {docType !== 'Contrato de Administración' && <option value="Inquilinos">Inquilinos</option>}
                                 <option value="Propietarios">Propietarios</option>
                                 <option value="Cliente Específico">Cliente Específico</option>
                             </select>
                         </div>
                     </div>
+
+                    {/* Conditional Field for Comunicación */}
+                    {docType === 'Comunicación' && (
+                        <div className="grid grid-cols-1 mb-6 animate-in fade-in slide-in-from-top-2">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Mensaje del Aviso (Opcional si sube archivo)</label>
+                                <textarea
+                                    value={desc}
+                                    onChange={(e) => setDesc(e.target.value)}
+                                    placeholder="Escriba el mensaje que se mostrará en el banner principal..."
+                                    rows={2}
+                                    className="w-full rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary/50 transition-all py-2.5 dark:text-white"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Conditional Fields for Approval Request */}
                     {docType === 'Solicitud' && (
@@ -684,7 +710,7 @@ export const AdminProperties: React.FC = () => {
 
             {/* Delete Confirmation Modal */}
             {showDeleteConfirm && (
-                <Modal title="Eliminar Propiedad" onClose={() => setShowDeleteConfirm(false)} maxWidth="max-w-sm">
+                <Modal isOpen={true} title="Eliminar Inmueble" onClose={() => setShowDeleteConfirm(false)} maxWidth="max-w-sm">
                     <div className="text-center p-2">
                         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="material-icons-round text-3xl">delete_forever</span>

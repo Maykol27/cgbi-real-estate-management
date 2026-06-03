@@ -304,11 +304,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     return {
                         id: d.id,
                         name: d.name,
-                        type: d.type,
+                        type: d.type as any,
                         target: displayTarget,
-                        targetId: d.target_user_id || d.target_id || null, // ✅ FIX: incluir targetId UUID
-                        sharedWithId: d.target_user_id || d.target_id || null, // ✅ FIX: alias para filtro propietario
+                        targetId: d.target_user_id || null,
+                        sharedWithId: d.target_user_id || null, // ✅ FIX: alias para filtro propietario
+                        targetIds: d.target_user_ids || [],
                         date: new Date(d.created_at).toLocaleDateString(),
+                        timestamp: new Date(d.created_at).getTime(),
                         size: d.size,
                         fileUrl: d.file_url || d.url, // ✅ FIX: revisar ambos campos posibles
                         createdBy: d.created_by // Track document creator
@@ -719,29 +721,36 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'documents' },
                 (payload) => {
-                    const doc = payload.new;
-                    // NOTIFICATION: New Document
-                    // Logic: Check if document is shared with me or my role
-                    const isForMe = doc.target === user.name || (doc.target_user_ids && doc.target_user_ids.includes(user.id));
-                    const isGlobal = doc.target === 'Todos' || doc.target === 'All';
-                    const isRoleBased = (user.role === 'Propietario' && (doc.target === 'Propietarios' || doc.target === 'Owner')) ||
-                        (user.role === 'Inquilino' && (doc.target === 'Inquilinos' || doc.target === 'Tenant'));
+                    if (payload.new) {
+                        const doc = payload.new as any;
+                        const newDoc: Document = {
+                            id: doc.id,
+                            name: doc.name,
+                            type: doc.type,
+                            target: doc.target,
+                            targetId: doc.target_user_id,
+                            targetIds: doc.target_user_ids || [],
+                            date: new Date(doc.created_at).toLocaleDateString(),
+                            timestamp: new Date(doc.created_at).getTime(),
+                            size: doc.size,
+                            fileUrl: doc.url,
+                            createdBy: doc.created_by
+                        };
 
-                    if (isForMe || isGlobal || isRoleBased) {
-                        // Don't notify if I uploaded it
-                        if (doc.created_by !== user.id) {
-                            notify("Nuevo Documento", `Se ha compartido un nuevo archivo: ${doc.name}`);
-                            // Update list locally
-                            setDocuments(prev => [{
-                                id: doc.id,
-                                name: doc.name,
-                                type: doc.type,
-                                target: doc.target,
-                                date: new Date(doc.created_at).toLocaleDateString(),
-                                size: doc.size,
-                                fileUrl: doc.url,
-                                createdBy: doc.created_by
-                            }, ...prev]);
+                        // NOTIFICATION: New Document
+                        // Logic: Check if document is shared with me or my role
+                        const isForMe = doc.target === user.name || (doc.target_user_ids && doc.target_user_ids.includes(user.id));
+                        const isGlobal = doc.target === 'Todos' || doc.target === 'All';
+                        const isRoleBased = (user.role === 'Propietario' && (doc.target === 'Propietarios' || doc.target === 'Owner')) ||
+                            (user.role === 'Inquilino' && (doc.target === 'Inquilinos' || doc.target === 'Tenant'));
+
+                        if (isForMe || isGlobal || isRoleBased) {
+                            // Don't notify if I uploaded it
+                            if (doc.created_by !== user.id) {
+                                notify("Nuevo Documento", `Se ha compartido un nuevo archivo: ${doc.name}`);
+                                // Update list locally
+                                setDocuments(prev => [newDoc, ...prev]);
+                            }
                         }
                     }
                 }
@@ -1177,6 +1186,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     ...d,
                     id: data.id,
                     date: new Date(data.created_at).toLocaleDateString(),
+                    timestamp: new Date(data.created_at).getTime(),
                     fileUrl: data.file_url || data.url, // ✅ FIX: leer ambos campos
                     targetId: data.target_user_id || d.targetId || null, // ✅ FIX
                     sharedWithId: data.target_user_id || d.targetId || null,
@@ -1185,6 +1195,25 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setDocuments(prev => [newDoc, ...prev]);
                 // Refetch all data to ensure it appears for all users
                 await fetchAllData();
+                
+                // ✅ Insert internal notifications for recipients
+                try {
+                    const notifyIds = targetIds.length > 0 ? targetIds : (d.targetId ? [d.targetId] : []);
+                    for (const targetId of notifyIds) {
+                        if (targetId && targetId !== user?.id) {
+                            await supabase.from('notifications').insert({
+                                user_id: targetId,
+                                title: 'Nuevo Documento',
+                                body: `Se ha compartido un nuevo archivo: ${newDoc.name}`,
+                                type: 'info',
+                                is_read: false
+                            });
+                        }
+                    }
+                } catch (notifErr) {
+                    console.error("Error creating document notifications", notifErr);
+                }
+
                 notify("Documento Registrado", `${newDoc.name} guardado exitosamente.`);
             }
         } catch (err: any) {

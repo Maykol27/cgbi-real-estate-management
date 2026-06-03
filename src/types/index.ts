@@ -73,6 +73,7 @@ export interface Document {
     sharedWith?: string; // Display name del destinatario
     owner?: string; // Nombre del propietario
     date: string;
+    timestamp?: number; // Used for reliable sorting
     size: string;
     fileUrl?: string;
     createdBy?: string | number;
