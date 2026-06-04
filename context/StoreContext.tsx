@@ -719,10 +719,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             )
             .on(
                 'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'documents' },
+                { event: '*', schema: 'public', table: 'documents' },
                 (payload) => {
-                    if (payload.new) {
-                        const doc = payload.new as any;
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+                    
+                    if (eventType === 'INSERT') {
+                        const doc = newRecord as any;
                         const newDoc: Document = {
                             id: doc.id,
                             name: doc.name,
@@ -738,20 +740,100 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         };
 
                         // NOTIFICATION: New Document
-                        // Logic: Check if document is shared with me or my role
                         const isForMe = doc.target === user.name || (doc.target_user_ids && doc.target_user_ids.includes(user.id));
                         const isGlobal = doc.target === 'Todos' || doc.target === 'All';
                         const isRoleBased = (user.role === 'Propietario' && (doc.target === 'Propietarios' || doc.target === 'Owner')) ||
                             (user.role === 'Inquilino' && (doc.target === 'Inquilinos' || doc.target === 'Tenant'));
 
                         if (isForMe || isGlobal || isRoleBased) {
-                            // Don't notify if I uploaded it
                             if (doc.created_by !== user.id) {
                                 notify("Nuevo Documento", `Se ha compartido un nuevo archivo: ${doc.name}`);
-                                // Update list locally
                                 setDocuments(prev => [newDoc, ...prev]);
                             }
                         }
+                    } else if (eventType === 'UPDATE') {
+                        setDocuments(prev => prev.map(d => d.id === newRecord.id ? { 
+                            ...d, 
+                            name: newRecord.name || d.name,
+                            fileUrl: newRecord.url || d.fileUrl
+                        } : d));
+                    } else if (eventType === 'DELETE') {
+                        setDocuments(prev => prev.filter(d => d.id !== oldRecord.id));
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'properties' },
+                (payload) => {
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+                    console.log('🏠 Realtime Property Event:', payload);
+                    
+                    if (eventType === 'INSERT') {
+                        const p = newRecord as any;
+                        // For a new property, try to find owner by scanning current users, though it might just say ID if users array not ready
+                        const newProp: Property = {
+                            id: p.id,
+                            name: p.name,
+                            address: p.address,
+                            type: p.type,
+                            status: p.status,
+                            listingType: p.listing_type,
+                            rent: p.rent,
+                            owner: 'Cargando...', // Name sync handled by full fetch or UI component using owner_id
+                            owner_id: p.owner_id,
+                            sqMeters: p.sq_meters,
+                            rooms: p.rooms,
+                            bathrooms: p.bathrooms,
+                            parking: p.parking,
+                            description: p.description,
+                            contractEnd: p.contract_end_date,
+                            image: p.image_url
+                        };
+                        setProperties(prev => {
+                            if (prev.find(x => x.id === newProp.id)) return prev;
+                            return [newProp, ...prev];
+                        });
+                    } else if (eventType === 'UPDATE') {
+                        setProperties(prev => prev.map(p => p.id === newRecord.id ? {
+                            ...p,
+                            name: newRecord.name || p.name,
+                            status: newRecord.status || p.status,
+                            rent: newRecord.rent || p.rent,
+                            listingType: newRecord.listing_type || p.listingType,
+                            image: newRecord.image_url || p.image,
+                            address: newRecord.address || p.address,
+                            owner_id: newRecord.owner_id || p.owner_id
+                        } : p));
+                    } else if (eventType === 'DELETE') {
+                        setProperties(prev => prev.filter(p => p.id !== oldRecord.id));
+                    }
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'profiles' },
+                (payload) => {
+                    const { new: newRecord } = payload;
+                    setUsers(prev => prev.map(u => u.id === newRecord.id ? {
+                        ...u,
+                        financialStatus: newRecord.financial_status || u.financialStatus,
+                        role: newRecord.role || u.role,
+                        photoUrl: newRecord.avatar_url || u.photoUrl,
+                        name: newRecord.full_name || u.name,
+                        phone: newRecord.phone || u.phone
+                    } : u));
+                    
+                    // Update current user locally if it's me
+                    if (user && user.id === newRecord.id) {
+                        setUser(prev => prev ? {
+                            ...prev,
+                            financialStatus: newRecord.financial_status || prev.financialStatus,
+                            role: newRecord.role || prev.role,
+                            photoUrl: newRecord.avatar_url || prev.photoUrl,
+                            name: newRecord.full_name || prev.name,
+                            phone: newRecord.phone || prev.phone
+                        } : prev);
                     }
                 }
             )
@@ -763,7 +845,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                     if (eventType === 'INSERT') {
                         // NOTIFICATION: New Visit (For Owner)
-                        // Check if property belongs to me
                         const isMyProperty = properties.some(p => String(p.id) === String(newRecord.property_id));
                         if ((user.role === 'Propietario' || user.role === 'Owner') && isMyProperty) {
                             notify("Nueva Visita", `Se ha agendado una visita para el ${new Date(newRecord.date).toLocaleDateString()}.`);
