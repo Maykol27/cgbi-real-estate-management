@@ -16,8 +16,9 @@
             theme: {
                 extend: {
                     colors: {
-                        'cgbi-blue': '#1D194B',
-                        'cgbi-fuchsia': '#E2235E',
+                        'cgbi-navy': '#1B2240',
+                        'cgbi-fuchsia': '#D62C5E',
+                        'cgbi-magenta': '#D62C5E',
                         'cgbi-dark': '#03020e',
                         'cgbi-panel': '#07061a',
                     },
@@ -33,10 +34,10 @@
 
     <style>
         :root {
-            --fuchsia: #E2235E;
-            --fuchsia-dim: rgba(226,35,94,0.18);
-            --teal: #26d8c4;
-            --blue-deep: #1D194B;
+            --fuchsia: #D62C5E;
+            --fuchsia-dim: rgba(214,44,94,0.18);
+            --navy: #1B2240;
+            --blue-deep: #1B2240;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -183,14 +184,14 @@
             display: flex; align-items: center; gap: 6px;
             padding: 9px 20px; border-radius: 11px;
             font-size: 12px; font-weight: 700;
-            background: linear-gradient(130deg, #E2235E 0%, #ff5a87 100%);
-            box-shadow: 0 0 24px rgba(226,35,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            background: linear-gradient(130deg, #D62C5E 0%, #f04d7a 100%);
+            box-shadow: 0 0 24px rgba(214,44,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
             transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
             color: #fff;
         }
         .nav-cta:hover {
             transform: translateY(-1px) scale(1.02);
-            box-shadow: 0 0 40px rgba(226,35,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+            box-shadow: 0 0 40px rgba(214,44,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
         }
 
         /* ── HERO ANIMATED GRADIENT TEXT ─────────────── */
@@ -200,7 +201,7 @@
             100% { background-position: 0% 50%; }
         }
         .text-gradient-animate {
-            background: linear-gradient(135deg, #ff7fa6, #E2235E, #9b5de5, #ff7fa6);
+            background: linear-gradient(135deg, #ffa0bf, #D62C5E, #a020a0, #ffa0bf);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -208,7 +209,7 @@
             animation: gradient-shift 5s ease infinite;
         }
         .text-gradient-teal {
-            background: linear-gradient(135deg, #fff 40%, #26d8c4 100%);
+            background: linear-gradient(135deg, #fff 40%, #D62C5E 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -244,22 +245,22 @@
         .glass-card::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
-            background: radial-gradient(circle 300px at var(--mx,50%) var(--my,50%), rgba(226,35,94,0.12), transparent 80%);
+            background: radial-gradient(circle 300px at var(--mx,50%) var(--my,50%), rgba(214,44,94,0.12), transparent 80%);
             opacity: 0; transition: opacity 0.4s;
             pointer-events: none;
         }
         .glass-card:hover::before { opacity: 1; }
         .glass-card:hover {
-            border-color: rgba(226,35,94,0.45);
-            box-shadow: 0 20px 60px rgba(226,35,94,0.18), 0 0 0 1px rgba(226,35,94,0.1), inset 0 1px 0 rgba(226,35,94,0.15);
+            border-color: rgba(214,44,94,0.45);
+            box-shadow: 0 20px 60px rgba(214,44,94,0.18), 0 0 0 1px rgba(214,44,94,0.1), inset 0 1px 0 rgba(214,44,94,0.15);
         }
 
         /* ── GLASS PANEL (BIGGER SECTION CONTAINER) ──── */
         .glass-panel {
-            background: linear-gradient(135deg, rgba(29,25,75,0.18) 0%, rgba(7,6,22,0.65) 100%);
+            background: linear-gradient(135deg, rgba(27,34,64,0.22) 0%, rgba(7,6,22,0.65) 100%);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(226,35,94,0.16);
+            border: 1px solid rgba(214,44,94,0.16);
             box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
         }
 
@@ -278,33 +279,48 @@
         .glass-input:focus {
             outline: none;
             border-color: var(--fuchsia);
-            background: rgba(29,25,75,0.35);
-            box-shadow: 0 0 30px rgba(226,35,94,0.3), inset 0 0 0 1px rgba(226,35,94,0.25), inset 0 2px 6px rgba(0,0,0,0.3);
+            background: rgba(27,34,64,0.35);
+            box-shadow: 0 0 30px rgba(214,44,94,0.3), inset 0 0 0 1px rgba(214,44,94,0.25), inset 0 2px 6px rgba(0,0,0,0.3);
         }
         .glass-select { background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; appearance: none; padding-right: 44px !important; }
 
         /* ── BUTTONS ──────────────────────────────────── */
         .btn-fuchsia {
-            background: linear-gradient(130deg, #E2235E 0%, #ff5a87 100%);
-            box-shadow: 0 0 24px rgba(226,35,94,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            background: linear-gradient(130deg, #D62C5E 0%, #f04d7a 100%);
+            box-shadow: 0 0 24px rgba(214,44,94,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
             transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
             color: #fff; font-weight: 700;
             display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-fuchsia:hover {
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 0 50px rgba(226,35,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+            box-shadow: 0 0 50px rgba(214,44,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
         }
         .btn-teal {
-            background: linear-gradient(130deg, #0d8f84 0%, #26d8c4 100%);
-            box-shadow: 0 0 24px rgba(38,216,196,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+            background: linear-gradient(130deg, #1B2240 0%, #2a3460 100%);
+            box-shadow: 0 0 24px rgba(27,34,64,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+            border: 1px solid rgba(214,44,94,0.3);
             transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
             color: #fff; font-weight: 700;
             display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-teal:hover {
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 0 50px rgba(38,216,196,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+            border-color: rgba(214,44,94,0.6);
+            box-shadow: 0 0 40px rgba(214,44,94,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .btn-navy {
+            background: linear-gradient(130deg, #1B2240 0%, #2a3460 100%);
+            box-shadow: 0 0 24px rgba(27,34,64,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+            border: 1px solid rgba(214,44,94,0.3);
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+            color: #fff; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-navy:hover {
+            transform: translateY(-2px) scale(1.02);
+            border-color: rgba(214,44,94,0.6);
+            box-shadow: 0 0 40px rgba(214,44,94,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
         }
         .btn-ghost {
             background: rgba(255,255,255,0.05);
@@ -320,8 +336,8 @@
             display: inline-flex; align-items: center; gap: 6px;
             padding: 5px 14px; border-radius: 100px;
             font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-            border: 1px solid rgba(226,35,94,0.3);
-            background: rgba(226,35,94,0.08);
+            border: 1px solid rgba(214,44,94,0.3);
+            background: rgba(214,44,94,0.08);
             color: var(--fuchsia);
             font-family: 'DM Mono', monospace;
         }
@@ -329,7 +345,7 @@
         /* ── SECTION DIVIDER ──────────────────────────── */
         .divider {
             width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(226,35,94,0.3) 30%, rgba(38,216,196,0.25) 70%, transparent);
+            background: linear-gradient(90deg, transparent, rgba(214,44,94,0.3) 30%, rgba(27,34,64,0.6) 70%, transparent);
             position: relative;
         }
         .divider::after {
@@ -337,7 +353,7 @@
             transform: translate(-50%,-50%);
             width: 6px; height: 6px; border-radius: 50%;
             background: var(--fuchsia);
-            box-shadow: 0 0 14px rgba(226,35,94,0.9);
+            box-shadow: 0 0 14px rgba(214,44,94,0.9);
         }
 
         /* ── MARQUEE TESTIMONIALS ─────────────────────── */
@@ -387,15 +403,15 @@
         .radar-sweep {
             position: absolute; top: 50%; left: 50%; width: 50%; height: 50%;
             transform-origin: 0 0;
-            background: linear-gradient(135deg, rgba(226,35,94,0.6), transparent 70%);
+            background: linear-gradient(135deg, rgba(214,44,94,0.6), transparent 70%);
             animation: radar-spin 2s linear infinite;
         }
 
         /* ── CUSTOM SCROLLBAR ─────────────────────────── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #03020e; }
-        ::-webkit-scrollbar-thumb { background: rgba(226,35,94,0.35); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(226,35,94,0.65); }
+        ::-webkit-scrollbar-thumb { background: rgba(214,44,94,0.35); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(214,44,94,0.65); }
 
         .no-scroll::-webkit-scrollbar { display: none; }
         .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -424,7 +440,7 @@
 
     <!-- Ambient Blobs -->
     <div class="fixed top-[-80px] left-[-80px] w-[600px] h-[600px] rounded-full blur-[160px] opacity-20 pointer-events-none" style="background: radial-gradient(circle, #E2235E, transparent 70%); animation: pulse-glow 6s ease-in-out infinite; z-index: -15;"></div>
-    <div class="fixed top-[40%] right-[-120px] w-[500px] h-[500px] rounded-full blur-[140px] opacity-15 pointer-events-none" style="background: radial-gradient(circle, #26d8c4, transparent 70%); animation: pulse-glow 8s ease-in-out 2s infinite; z-index: -15;"></div>
+    <div class="fixed top-[40%] right-[-120px] w-[500px] h-[500px] rounded-full blur-[140px] opacity-15 pointer-events-none" style="background: radial-gradient(circle, #1B2240, transparent 70%); animation: pulse-glow 8s ease-in-out 2s infinite; z-index: -15;"></div>
     <div class="fixed bottom-[-100px] left-[20%] w-[700px] h-[700px] rounded-full blur-[180px] opacity-12 pointer-events-none" style="background: radial-gradient(circle, #1D194B, transparent 70%); animation: pulse-glow 10s ease-in-out 4s infinite; z-index: -15;"></div>
 
     <!-- ═══════ NAVBAR ═══════ -->
@@ -515,7 +531,7 @@
             <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]">
                 <div class="relative w-[310px] h-[480px] anim-float">
                     <!-- Glow -->
-                    <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #E2235E 0%, #9b5de5 50%, #26d8c4 100%); opacity: 0.35;"></div>
+                    <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
 
                     <!-- Frame -->
                     <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3">
@@ -667,11 +683,11 @@
                     <span class="material-icons-round text-xs">menu_book</span>
                     Oferta Comercial CGBI
                 </div>
-                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Esquemas Transparentes<br><span class="text-gradient-animate">a tu Medida</span></h2>
-                <p class="text-gray-400 max-w-xl mx-auto text-base">Define cómo deseas que administremos tu vivienda. Sin letra pequeña.</p>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Soluciones Integrales<br><span class="text-gradient-animate">para tu Patrimonio</span></h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">Residencial o Corporativo, diseñamos el esquema ideal para tu propiedad o negocio. Sin letra pequeña.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- ARRIENDOS -->
                 <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-20" style="background: var(--fuchsia);"></div>
@@ -713,25 +729,25 @@
 
                 <!-- VENTAS -->
                 <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-15" style="background: #26d8c4;"></div>
+                    <div class="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-15" style="background: #1B2240;"></div>
                     <div class="flex justify-between items-start">
                         <div>
-                            <div class="section-chip mb-3" style="color: #26d8c4; border-color: rgba(38,216,196,0.35); background: rgba(38,216,196,0.07);">Línea 02</div>
+                            <div class="section-chip mb-3">Línea 02</div>
                             <h3 class="font-display text-3xl font-extrabold text-white">Venta de Vivienda</h3>
                         </div>
-                        <span class="material-icons-round text-4xl text-indigo-400">corporate_fare</span>
+                        <span class="material-icons-round text-4xl" style="color: #D62C5E;">real_estate_agent</span>
                     </div>
                     <div class="space-y-4">
-                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-indigo-400/40 transition-all space-y-2 cursor-default">
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-2 cursor-default">
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-white text-sm flex items-center gap-2">
-                                    <span class="material-icons-round text-indigo-400 text-base">verified</span>
+                                    <span class="material-icons-round text-base" style="color: #D62C5E;">verified</span>
                                     Con Exclusividad
                                 </span>
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono text-indigo-400" style="background: rgba(99,102,241,0.15);">3% COMISIÓN</span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono" style="background: rgba(214,44,94,0.15); color: #D62C5E;">3% COMISIÓN</span>
                             </div>
                             <p class="text-[12px] text-gray-400 leading-relaxed">
-                                <strong class="text-indigo-300">Prioridad Comercial Absoluta.</strong> Campaña Google + Meta dedicada, producción audiovisual premium, drones si aplica y filtro de solvencia estricto del comprador.
+                                <strong class="text-white">Prioridad Comercial Absoluta.</strong> Campaña Google + Meta dedicada, producción audiovisual premium, drones si aplica y filtro de solvencia estricto del comprador.
                             </p>
                         </div>
                         <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-white/20 transition-all space-y-2 cursor-default">
@@ -747,7 +763,42 @@
                             </p>
                         </div>
                     </div>
-                    <a href="#profiler" onclick="selectProfile('venta')" class="btn-teal w-full justify-center py-4 rounded-2xl text-sm">Perfilar Inmueble en Venta</a>
+                    <a href="#profiler" onclick="selectProfile('venta')" class="btn-fuchsia w-full justify-center py-4 rounded-2xl text-sm">Perfilar Inmueble en Venta</a>
+                </div>
+
+                <!-- CGBI CORPORATIVO -->
+                <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden lg:col-span-1 md:col-span-2">
+                    <div class="absolute top-0 left-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-12" style="background: #D62C5E;"></div>
+                    <div class="absolute bottom-0 right-0 w-40 h-40 rounded-full blur-[100px] pointer-events-none opacity-10" style="background: #1B2240;"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="section-chip mb-3" style="border-color: rgba(214,44,94,0.5); background: rgba(214,44,94,0.12); color: #D62C5E;">Línea 03 · Nuevo</div>
+                            <h3 class="font-display text-3xl font-extrabold text-white">CGBI Corporativo</h3>
+                            <p class="text-xs text-gray-400 font-mono mt-1 uppercase tracking-wider">Consultoría · Posicionamiento · Expansión</p>
+                        </div>
+                        <span class="material-icons-round text-4xl" style="color: #D62C5E;">business_center</span>
+                    </div>
+                    <p class="text-[13px] text-gray-400 leading-relaxed border-l-2 pl-4" style="border-color: #D62C5E;">Diseñamos, construimos e implementamos soluciones comerciales a la medida en estaciones de servicio y ubicaciones estratégicas, con consultoría y acompañamiento especializado durante todo el proceso.</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-1.5 cursor-default">
+                            <div class="flex items-center gap-2">
+                                <span class="material-icons-round text-base" style="color: #D62C5E;">location_on</span>
+                                <span class="font-bold text-white text-sm">Análisis de Ubicaciones</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">Evaluamos potencial comercial, requerimientos operativos y oportunidades de expansión para desarrollar espacios alineados con los objetivos de tu marca.</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-1.5 cursor-default">
+                            <div class="flex items-center gap-2">
+                                <span class="material-icons-round text-base" style="color: #D62C5E;">rocket_launch</span>
+                                <span class="font-bold text-white text-sm">Acompañamiento Integral</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">Desde la selección del punto hasta la implementación final, optimizando tiempo, inversión y crecimiento de tu marca.</p>
+                        </div>
+                    </div>
+                    <a href="#profiler" onclick="selectProfile('corporativo')" class="btn-fuchsia w-full justify-center py-4 rounded-2xl text-sm">
+                        <span class="material-icons-round text-sm">storefront</span>
+                        Consultar Solución Corporativa
+                    </a>
                 </div>
             </div>
         </section>
@@ -757,7 +808,7 @@
         <!-- ═══ APP PREMIUM ═══ -->
         <section id="app-premium" class="space-y-16 scroll-mt-32 reveal">
             <div class="text-center space-y-4">
-                <div class="section-chip mx-auto w-fit" style="color: #26d8c4; border-color: rgba(38,216,196,0.35); background: rgba(38,216,196,0.07);">
+                <div class="section-chip mx-auto w-fit">
                     <span class="material-icons-round text-xs">smartphone</span>
                     Ventaja Exclusiva Propietarios
                 </div>
@@ -842,20 +893,27 @@
                     <!-- Step 1 -->
                     <div id="step-1" class="wizard-step show">
                         <p class="text-center text-sm text-gray-400 mb-8">Selecciona el tipo de operación que deseas estructurar con CGBI.</p>
-                        <div class="grid sm:grid-cols-2 gap-6">
-                            <div onclick="setServiceType('arriendo')" class="glass-card p-8 rounded-2xl cursor-pointer text-center group">
-                                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.2);">
+                        <div class="grid sm:grid-cols-3 gap-5">
+                            <div onclick="setServiceType('arriendo')" class="glass-card p-7 rounded-2xl cursor-pointer text-center group">
+                                <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(214,44,94,0.1); border: 1px solid rgba(214,44,94,0.2);">
                                     <span class="material-icons-round text-3xl" style="color: var(--fuchsia);">key</span>
                                 </div>
                                 <h4 class="font-display font-extrabold text-lg text-white mb-2">Poner en Arriendo</h4>
                                 <p class="text-[12px] text-gray-400">Delegar administración con póliza o contratar corretaje rápido.</p>
                             </div>
-                            <div onclick="setServiceType('venta')" class="glass-card p-8 rounded-2xl cursor-pointer text-center group">
-                                <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
-                                    <span class="material-icons-round text-3xl text-indigo-400">corporate_fare</span>
+                            <div onclick="setServiceType('venta')" class="glass-card p-7 rounded-2xl cursor-pointer text-center group">
+                                <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(27,34,64,0.4); border: 1px solid rgba(214,44,94,0.25);">
+                                    <span class="material-icons-round text-3xl" style="color: var(--fuchsia);">real_estate_agent</span>
                                 </div>
                                 <h4 class="font-display font-extrabold text-lg text-white mb-2">Poner en Venta</h4>
                                 <p class="text-[12px] text-gray-400">Marketing premium e integración jurídica total para vender rápido.</p>
+                            </div>
+                            <div onclick="setServiceType('corporativo')" class="glass-card p-7 rounded-2xl cursor-pointer text-center group">
+                                <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style="background: rgba(214,44,94,0.12); border: 1px solid rgba(214,44,94,0.3);">
+                                    <span class="material-icons-round text-3xl" style="color: var(--fuchsia);">business_center</span>
+                                </div>
+                                <h4 class="font-display font-extrabold text-lg text-white mb-2">CGBI Corporativo</h4>
+                                <p class="text-[12px] text-gray-400">Consultoría, acompañamiento y posicionamiento de marcas comerciales.</p>
                             </div>
                         </div>
                     </div>
@@ -1063,7 +1121,7 @@
                     <span class="material-icons-round text-xs">format_quote</span>
                     Casos de Éxito en Bogotá
                 </div>
-                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Experiencias Reales<br><span class="text-gradient-teal">de Propietarios</span></h2>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">Experiencias Reales<br><span class="text-gradient-teal">de Clientes CGBI</span></h2>
                 <p class="text-gray-400 max-w-xl mx-auto text-base">Propietarios que delegaron y hoy solo reciben dinero puntual el día 5.</p>
             </div>
 
@@ -1228,7 +1286,7 @@
     window.addEventListener('resize', resizeAurora);
     resizeAurora();
     const BLOB_COLORS = [
-        [226,35,94], [29,25,75], [38,216,196], [155,93,229], [226,35,94]
+        [214,44,94], [27,34,64], [214,44,94], [27,34,64], [140,20,60]
     ];
     for (let i = 0; i < 5; i++) {
         blobs.push({
@@ -1326,6 +1384,14 @@
                 { key: 'no-exclusivo', icon: 'published_with_changes', title: 'Sin Exclusividad', sub: 'Esquema Abierto · 3%',        desc: 'Promovemos en nuestros canales mientras mantienes libertad de venderlo directamente o con otras inmobiliarias.' }
             ],
             resProfile: 'Vendedor Exclusivo', resStrategy: 'Venta con Inversión de Pauta Paga', resRate: '3% al firmar promesa de compraventa'
+        },
+        corporativo: {
+            desc: 'Selecciona el tipo de solución corporativa que necesitas para tu marca.',
+            options: [
+                { key: 'busqueda-local', icon: 'location_searching', title: 'Búsqueda de Local Estratégico', sub: 'Análisis · Selección · Negociación', desc: 'Analizamos ubicaciones, potencial comercial y requerimientos operativos. Conseguimos el espacio ideal para tu marca en estaciones de servicio u otras ubicaciones premium.' },
+                { key: 'implementacion', icon: 'construction',        title: 'Diseño e Implementación',      sub: 'Diseño · Build · Lanzamiento',       desc: 'Diseñamos, construimos e implementamos tu espacio comercial desde cero. Te acompañamos hasta la apertura, optimizando inversión y tiempos de entrega.' }
+            ],
+            resProfile: 'Marca Corporativa CGBI', resStrategy: 'Consultoría Comercial + Implementación de Espacio', resRate: 'A convenir según alcance del proyecto'
         }
     };
 
@@ -1373,6 +1439,10 @@
             document.getElementById('price-label').textContent = 'Valor de Venta Comercial Estimado ($ COP)';
             document.getElementById('prop-price').placeholder = 'Ej: 450000000';
             document.getElementById('price-helper').textContent = 'Precio en el que aspiras a vender la propiedad.';
+        } else if (type === 'corporativo') {
+            document.getElementById('price-label').textContent = 'Presupuesto de Inversión Estimado ($ COP)';
+            document.getElementById('prop-price').placeholder = 'Ej: 50000000';
+            document.getElementById('price-helper').textContent = 'Inversión aproximada disponible para el proyecto comercial.';
         } else {
             document.getElementById('price-label').textContent = 'Valor de Arriendo Mensual Estimado ($ COP)';
             document.getElementById('prop-price').placeholder = 'Ej: 3500000';
@@ -1414,7 +1484,14 @@
             const zone = document.getElementById('prop-zone').value;
             const type = document.getElementById('prop-type').value;
             const priceFmt = Number(price).toLocaleString('es-CO');
-            const msg = `🏠 *FICHA CGBI — LEAD PROFILER*\n\n👤 Propietario: ${name}\n📞 WhatsApp: ${phone}\n📧 Email: ${email}\n\n📋 *Inmueble:*\n• Tipo: ${type}\n• Zona: ${zone}\n• ${serviceType === 'venta' ? 'Precio venta' : 'Canon mensual'}: $${priceFmt} COP\n\n🎯 *Servicio CGBI:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ Acceso App Premium CGBI: PRE-APROBADO`;
+            const isCorpTipo = serviceType === 'corporativo';
+            const isVenta = serviceType === 'venta';
+            let msgLabel = isCorpTipo ? 'Presupuesto inversión' : (isVenta ? 'Precio venta' : 'Canon mensual');
+            let msgHeader = isCorpTipo ? '🏢 *FICHA CGBI CORPORATIVO — LEAD PROFILER*' : '🏠 *FICHA CGBI — LEAD PROFILER*';
+            let msgPropBlock = isCorpTipo
+                ? `📋 *Proyecto Corporativo:*\n• Tipo solicitud: ${type}\n• Zona objetivo: ${zone}\n• ${msgLabel}: $${priceFmt} COP`
+                : `📋 *Inmueble:*\n• Tipo: ${type}\n• Zona: ${zone}\n• ${msgLabel}: $${priceFmt} COP`;
+            const msg = `${msgHeader}\n\n👤 ${isCorpTipo ? 'Representante' : 'Propietario'}: ${name}\n📞 WhatsApp: ${phone}\n📧 Email: ${email}\n\n${msgPropBlock}\n\n🎯 *Servicio CGBI:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ ${isCorpTipo ? 'Asesor corporativo asignado: EN PROCESO' : 'Acceso App Premium CGBI: PRE-APROBADO'}`;
             document.getElementById('wp-preview').textContent = msg;
             document.getElementById('wa-btn').href = 'https://wa.me/573107853333?text=' + encodeURIComponent(msg);
             step = 5; showStep(5);
