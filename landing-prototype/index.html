@@ -508,12 +508,34 @@
                         Perfilar mi Inmueble
                     </a>
                     <a href="#app-premium" class="btn-teal px-7 py-4 rounded-2xl text-[13px] shadow-xl">
-                                   <!-- Phone Mockup -->
+                        <span class="material-icons-round">smartphone</span>
+                        Ver la App Premium
+                    </a>
+                </div>
+
+                <!-- Hero KPIs -->
+                <div class="grid grid-cols-3 gap-6 pt-6 border-t max-w-lg" style="border-color: rgba(255,255,255,0.07);">
+                    <div>
+                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="65" data-suffix="%">65%</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Menos chats basura</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold font-display leading-none" style="color: var(--fuchsia);">Día 5</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Pago garantizado</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="100" data-suffix="%">100%</p>
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Póliza El Libertador</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone Mockup -->
             <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]">
                 <div class="relative w-[310px] h-[480px] anim-float">
                     <!-- Glow -->
                     <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
- 
+  
                     <!-- Frame -->
                     <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3 font-sans">
                         <!-- Notch -->
@@ -521,88 +543,7 @@
                             <div class="w-10 h-1 rounded-full bg-white/20"></div>
                         </div>
                         <!-- Screen -->
-                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col">
-                            <!-- mode 1: Video View -->
-                            <div id="phone-video-view" class="absolute inset-0 w-full h-full z-0 block">
-                                <video src="app-preview.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
-                                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/75 z-10 pointer-events-none"></div>
-                            </div>
-                            
-                            <!-- mode 2: Interactive App UI -->
-                            <div id="phone-interactive-view" class="absolute inset-0 w-full h-full z-0 hidden flex-col p-4 pt-8 text-[10px] bg-[#090818]">
-                                <!-- Active Tab Content Container -->
-                                <div id="interactive-screen-content" class="flex-1 py-3 space-y-3 overflow-y-auto no-scroll">
-                                    <!-- Screen 1: Dashboard (Default) -->
-                                    <div id="screen-dashboard" class="space-y-3">
-                                        <div class="space-y-1">
-                                            <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
-                                            <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                                <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
-                                                <p class="font-bold text-white mt-0.5">$3.500.000</p>
-                                            </div>
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                                <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
-                                                <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
-                                            </div>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5">
-                                            <div class="flex justify-between items-center">
-                                                <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
-                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
-                                            </div>
-                                            <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                                <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Screen 2: Properties -->
-                                    <div id="screen-properties" class="hidden space-y-3">
-                                        <span class="text-gray-500 font-mono uppercase text-[8px]">Mis Propiedades</span>
-                                        <div class="space-y-2">
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-[#E2235E]/35 flex justify-between items-center">
-                                                <div class="text-left">
-                                                    <p class="font-bold text-white text-[9px]">Apto 402 · Usaquén</p>
-                                                    <p class="text-[7px] text-gray-500">Arrendado · Día 5 Pago</p>
-                                                </div>
-                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-400 text-[7px] font-bold">OK</span>
-                                            </div>
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
-                                                <div class="text-left">
-                                                    <p class="font-bold text-white text-[9px]">Casa Campestre · Chía</p>
-                                                    <p class="text-[7px] text-gray-500">En Venta Exclusiva</p>
-                                                </div>
-                                                <span class="px-1.5 py-0.5 rounded bg-blue-500/25 text-blue-400 text-[7px] font-bold">PROMO</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Screen 3: Documents -->
-                                    <div id="screen-documents" class="hidden space-y-3">
-                                        <span class="text-gray-500 font-mono uppercase text-[8px]">Bóveda de Documentos</span>
-                                        <div class="space-y-2">
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
-                                                    <span class="font-bold text-white text-[8px]">Contrato_Arriendo.pdf</span>
-                                                </div>
-                                                <span class="material-icons-round text-[10px] text-gray-500">download</span>
-                                            </div>
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
-                                                    <span class="font-bold text-white text-[8px]">Acta_Inventario.pdf</span>
-                                                </div>
-                                                <span class="material-icons-round text-[10px] text-gray-500">download</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
+                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col justify-between">
                             <!-- Overlaid App Header (Shared by both views) -->
                             <div class="relative z-20 flex justify-between items-center p-4 pt-8 border-b border-white/10 bg-black/30 backdrop-blur-[2px] shrink-0">
                                 <div class="flex items-center gap-2">
@@ -611,8 +552,103 @@
                                 </div>
                                 <span class="w-2 h-2 rounded-full bg-emerald-400" style="box-shadow: 0 0 8px #34d399;"></span>
                             </div>
+
+                            <!-- Screen Contents Container -->
+                            <div class="flex-1 relative overflow-hidden">
+                                <!-- mode 1: Video View -->
+                                <div id="phone-video-view" class="absolute inset-0 w-full h-full z-0 block">
+                                    <video src="app-preview.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/75 z-10 pointer-events-none"></div>
+                                </div>
+                                
+                                <!-- mode 2: Interactive App UI -->
+                                <div id="phone-interactive-view" class="absolute inset-0 w-full h-full z-0 hidden flex-col p-4 pt-3 text-[10px] bg-[#090818]">
+                                    <!-- Active Tab Content Container -->
+                                    <div id="interactive-screen-content" class="flex-1 space-y-3 overflow-y-auto no-scroll">
+                                        <!-- Screen 1: Dashboard (Default) -->
+                                        <div id="screen-dashboard" class="space-y-3">
+                                            <div class="space-y-1 text-left">
+                                                <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
+                                                <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2 text-left">
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                                    <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
+                                                    <p class="font-bold text-white mt-0.5">$3.500.000</p>
+                                                </div>
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                                    <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
+                                                    <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
+                                                </div>
+                                            </div>
+                                            <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5 text-left">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
+                                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
+                                                </div>
+                                                <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
+                                                </div>
+                                            </div>
+                                            <!-- Technical visit card -->
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="material-icons-round text-emerald-400 text-sm">construction</span>
+                                                    <div>
+                                                        <p class="font-bold text-white text-[8px]">Revisión calentador</p>
+                                                        <p class="text-gray-500 text-[7px]">Técnico programado hoy</p>
+                                                    </div>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[7px] font-bold">OK</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Screen 2: Properties -->
+                                        <div id="screen-properties" class="hidden space-y-3">
+                                            <span class="text-gray-500 font-mono uppercase text-[8px] text-left block">Mis Propiedades</span>
+                                            <div class="space-y-2">
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-[#E2235E]/35 flex justify-between items-center text-left">
+                                                    <div>
+                                                        <p class="font-bold text-white text-[9px]">Apto 402 · Usaquén</p>
+                                                        <p class="text-[7px] text-gray-500">Arrendado · Día 5 Pago</p>
+                                                    </div>
+                                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-400 text-[7px] font-bold">OK</span>
+                                                </div>
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
+                                                    <div>
+                                                        <p class="font-bold text-white text-[9px]">Casa Campestre · Chía</p>
+                                                        <p class="text-[7px] text-gray-500">En Venta Exclusiva</p>
+                                                    </div>
+                                                    <span class="px-1.5 py-0.5 rounded bg-blue-500/25 text-blue-400 text-[7px] font-bold">PROMO</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Screen 3: Documents -->
+                                        <div id="screen-documents" class="hidden space-y-3">
+                                            <span class="text-gray-500 font-mono uppercase text-[8px] text-left block">Bóveda de Documentos</span>
+                                            <div class="space-y-2">
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
+                                                        <span class="font-bold text-white text-[8px]">Contrato_Arriendo.pdf</span>
+                                                    </div>
+                                                    <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                                </div>
+                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
+                                                        <span class="font-bold text-white text-[8px]">Acta_Inventario.pdf</span>
+                                                    </div>
+                                                    <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             
-                            <!-- Bottom simulated nav (Shared by both views, acts as tab selectors in interactive mode) -->
+                            <!-- Bottom simulated nav -->
                             <div class="relative z-20 border-t border-white/10 p-3 bg-black/40 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
                                 <span id="tab-dashboard" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-lg cursor-pointer text-[#E2235E] hover:text-[#E2235E] transition-colors">dashboard</span>
                                 <span id="tab-properties" onclick="selectPhoneTab('properties')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">business</span>
@@ -627,33 +663,15 @@
                         <button id="btn-phone-video" onclick="switchPhoneMode('video')" class="px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300">Video Demo</button>
                         <button id="btn-phone-interactive" onclick="switchPhoneMode('interactive')" class="px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300">Interactiva</button>
                     </div>
-                </div>            <span class="material-icons-round text-emerald-400 text-sm">construction</span>
-                                        <div>
-                                            <p class="font-bold text-white text-[8px]">Revisión calentador</p>
-                                            <p class="text-gray-500 text-[7px]">Técnico programado hoy</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[7px] font-bold">OK</span>
-                                </div>
-                            </div>
-                            <!-- Bottom nav -->
-                            <div class="border-t border-white/5 pt-2.5 flex justify-around text-gray-500">
-                                <span class="material-icons-round text-lg" style="color: var(--fuchsia);">dashboard</span>
-                                <span class="material-icons-round text-lg">business</span>
-                                <span class="material-icons-round text-lg">receipt_long</span>
-                                <span class="material-icons-round text-lg">settings</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-
-                <!-- Floating badges -->
-                <div class="absolute top-[12%] left-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[120px] anim-float2">
+                
+                <!-- Floating badges (responsive) -->
+                <div class="absolute top-[12%] left-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[120px] anim-float2 hidden sm:block">
                     <span class="material-icons-round text-[#E2235E] text-xl block mb-1">lock</span>
                     <span class="font-bold text-[9px] text-white block">Cero Riesgos</span>
                     <span class="text-[8px] text-gray-400 font-mono block">Blindaje Jurídico</span>
                 </div>
-                <div class="absolute bottom-[12%] right-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[130px]" style="animation: float2 8s ease-in-out 1s infinite;">
+                <div class="absolute bottom-[12%] right-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[130px] hidden sm:block" style="animation: float2 8s ease-in-out 1s infinite;">
                     <span class="material-icons-round text-emerald-400 text-xl block mb-1">home</span>
                     <span class="font-bold text-[9px] text-white block">Tu Hogar Seguro</span>
                     <span class="text-[8px] text-gray-400 font-mono block">Inquilinos Verificados</span>
@@ -673,7 +691,23 @@
                 <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">
                     Especialistas en Proteger<br>
                     <span class="text-gradient-teal">tu Patrimonio Familiar</span>
-                   <!-- KPI 2 -->
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-base leading-relaxed">
+                    Con más de una década gestionando vivienda premium en Bogotá, combinamos tecnología, blindaje jurídico y marketing de alto impacto.
+                </p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6 reveal-children">
+                <!-- KPI 1 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.2);">
+                        <span class="material-icons-round text-2xl" style="color: var(--fuchsia);">home</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="4.2" data-prefix="+" data-suffix="B" data-symbol="$">+$4.2B</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Pesos Administrados</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">En apartamentos y casas en Bogotá Norte y Sabana.</p>
+                </div>
+                <!-- KPI 2 -->
                 <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
                     <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">
                         <span class="material-icons-round text-2xl text-emerald-400">speed</span>
@@ -699,23 +733,10 @@
                     <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="100" data-suffix="%">100%</p>
                     <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Cero Impagos</h4>
                     <p class="text-[11px] text-gray-500 mt-2 leading-normal">Póliza integral que garantiza tu renta pase lo que pase.</p>
-                </div>cons-round text-2xl text-indigo-400">mood</span>
-                    </div>
-                    <p class="text-5xl font-extrabold font-display text-white leading-none">98.4%</p>
-                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Satisfacción</h4>
-                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Nivel de recomendación de propietarios activos.</p>
-                </div>
-                <!-- KPI 4 -->
-                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
-                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);">
-                        <span class="material-icons-round text-2xl text-amber-400">verified_user</span>
-                    </div>
-                    <p class="text-5xl font-extrabold font-display text-white leading-none">100%</p>
-                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Cero Impagos</h4>
-                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Póliza integral que garantiza tu renta pase lo que pase.</p>
                 </div>
             </div>
         </section>
+
 
         <div class="divider reveal"></div>
 
@@ -1450,19 +1471,13 @@
         requestAnimationFrame(animCursor);
     })();
 
-    // ─── AURORA CANVAS (WITH CONSTELLATION WEB) ────────────────
+    // ─── AURORA CANVAS (SIMPLE RADIAL BLOBS) ───────────────────
     const ac = document.getElementById('aurora-canvas');
     const actx = ac.getContext('2d');
     let blobs = [];
-    let dots = [];
-    
-    function resizeAurora() { 
-        ac.width = window.innerWidth; 
-        ac.height = window.innerHeight; 
-    }
+    function resizeAurora() { ac.width = window.innerWidth; ac.height = window.innerHeight; }
     window.addEventListener('resize', resizeAurora);
     resizeAurora();
-    
     const BLOB_COLORS = [
         [214,44,94], [27,34,64], [214,44,94], [27,34,64], [140,20,60]
     ];
@@ -1476,72 +1491,22 @@
             c: BLOB_COLORS[i]
         });
     }
-    
-    for (let i = 0; i < 40; i++) {
-        dots.push({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            vx: (Math.random() - 0.5) * 0.8,
-            vy: (Math.random() - 0.5) * 0.8,
-            r: 1.5 + Math.random() * 2
-        });
-    }
-    
     function drawAurora() {
         actx.clearRect(0, 0, ac.width, ac.height);
-        
-        // Blobs
         blobs.forEach(b => {
             b.x += b.vx; b.y += b.vy;
             if (b.x < -b.r) b.x = ac.width + b.r;
             if (b.x > ac.width + b.r) b.x = -b.r;
             if (b.y < -b.r) b.y = ac.height + b.r;
             if (b.y > ac.height + b.r) b.y = -b.r;
-            
             const g = actx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.07)`);
+            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.08)`);
             g.addColorStop(1, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0)`);
             actx.fillStyle = g;
             actx.beginPath();
             actx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
             actx.fill();
         });
-        
-        // Nodes
-        actx.fillStyle = 'rgba(214,44,94,0.3)';
-        dots.forEach(d => {
-            d.x += d.vx; d.y += d.vy;
-            if (d.x < 0 || d.x > ac.width) d.vx *= -1;
-            if (d.y < 0 || d.y > ac.height) d.vy *= -1;
-            
-            actx.beginPath();
-            actx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-            actx.fill();
-        });
-        
-        // Connect nodes
-        actx.strokeStyle = 'rgba(214,44,94,0.06)';
-        actx.lineWidth = 0.8;
-        for (let i = 0; i < dots.length; i++) {
-            for (let j = i + 1; j < dots.length; j++) {
-                const dist = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
-                if (dist < 120) {
-                    actx.beginPath();
-                    actx.moveTo(dots[i].x, dots[i].y);
-                    actx.lineTo(dots[j].x, dots[j].y);
-                    actx.stroke();
-                }
-            }
-            // Connect to mouse
-            const mDist = Math.hypot(dots[i].x - mx, dots[i].y - my);
-            if (mDist < 150) {
-                actx.beginPath();
-                actx.moveTo(dots[i].x, dots[i].y);
-                actx.lineTo(mx, my);
-                actx.stroke();
-            }
-        }
-        
         requestAnimationFrame(drawAurora);
     }
     drawAurora();
