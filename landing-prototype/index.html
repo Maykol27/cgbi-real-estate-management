@@ -430,6 +430,11 @@
 </head>
 <body class="antialiased">
 
+    <!-- Scroll Progress Indicator -->
+    <div class="fixed top-0 left-0 w-full h-[3px] bg-white/5 z-[250] pointer-events-none">
+        <div id="scroll-progress" class="h-full w-0 transition-all duration-75" style="background: linear-gradient(90deg, #D62C5E, #f04d7a);"></div>
+    </div>
+
     <!-- Custom Cursor -->
     <div id="cursor-dot"></div>
     <div id="cursor-ring"></div>
@@ -446,9 +451,7 @@
     <!-- ═══════ NAVBAR ═══════ -->
     <header class="navbar" id="navbar">
         <div class="flex items-center gap-3 shrink-0">
-            <div class="nav-logo-mark">
-                <span class="font-black text-xs text-white tracking-tight">CG</span>
-            </div>
+            <img src="logo.png" alt="CGBI Logo" class="w-9 h-9 object-contain rounded-full bg-white p-0.5 shadow-md border border-white/10 hover:scale-105 transition-transform">
             <div class="leading-none">
                 <div class="font-display font-extrabold text-[13px] tracking-[0.18em] text-white">CGBI</div>
                 <div class="text-[8px] tracking-[0.3em] uppercase font-bold mt-0.5" style="color: var(--fuchsia);">Real Estate</div>
@@ -505,84 +508,126 @@
                         Perfilar mi Inmueble
                     </a>
                     <a href="#app-premium" class="btn-teal px-7 py-4 rounded-2xl text-[13px] shadow-xl">
-                        <span class="material-icons-round">smartphone</span>
-                        Ver la App Premium
-                    </a>
-                </div>
-
-                <!-- Hero KPIs -->
-                <div class="grid grid-cols-3 gap-6 pt-6 border-t max-w-lg" style="border-color: rgba(255,255,255,0.07);">
-                    <div>
-                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="65" data-suffix="%">65%</p>
-                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Menos chats basura</p>
-                    </div>
-                    <div>
-                        <p class="text-3xl font-extrabold font-display leading-none" style="color: var(--fuchsia);">Día 5</p>
-                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Pago garantizado</p>
-                    </div>
-                    <div>
-                        <p class="text-3xl font-extrabold font-display text-white leading-none counter" data-target="100" data-suffix="%">100%</p>
-                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mt-1">Póliza El Libertador</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Phone Mockup -->
+                                   <!-- Phone Mockup -->
             <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]">
                 <div class="relative w-[310px] h-[480px] anim-float">
                     <!-- Glow -->
                     <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
-
+ 
                     <!-- Frame -->
-                    <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3">
+                    <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3 font-sans">
                         <!-- Notch -->
                         <div class="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-28 bg-[#07061a] rounded-b-2xl border-x border-b border-white/5 z-20 flex items-center justify-center">
                             <div class="w-10 h-1 rounded-full bg-white/20"></div>
                         </div>
                         <!-- Screen -->
-                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 flex flex-col p-4 pt-8">
-                            <!-- App header -->
-                            <div class="flex justify-between items-center border-b border-white/5 pb-3">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded bg-[#E2235E] flex items-center justify-center">
-                                        <span class="text-white font-black text-[9px]">CG</span>
+                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col">
+                            <!-- mode 1: Video View -->
+                            <div id="phone-video-view" class="absolute inset-0 w-full h-full z-0 block">
+                                <video src="app-preview.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/75 z-10 pointer-events-none"></div>
+                            </div>
+                            
+                            <!-- mode 2: Interactive App UI -->
+                            <div id="phone-interactive-view" class="absolute inset-0 w-full h-full z-0 hidden flex-col p-4 pt-8 text-[10px] bg-[#090818]">
+                                <!-- Active Tab Content Container -->
+                                <div id="interactive-screen-content" class="flex-1 py-3 space-y-3 overflow-y-auto no-scroll">
+                                    <!-- Screen 1: Dashboard (Default) -->
+                                    <div id="screen-dashboard" class="space-y-3">
+                                        <div class="space-y-1">
+                                            <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
+                                            <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                                <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
+                                                <p class="font-bold text-white mt-0.5">$3.500.000</p>
+                                            </div>
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                                <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
+                                                <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
+                                            </div>
+                                        </div>
+                                        <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5">
+                                            <div class="flex justify-between items-center">
+                                                <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
+                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
+                                            </div>
+                                            <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                                <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- Screen 2: Properties -->
+                                    <div id="screen-properties" class="hidden space-y-3">
+                                        <span class="text-gray-500 font-mono uppercase text-[8px]">Mis Propiedades</span>
+                                        <div class="space-y-2">
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-[#E2235E]/35 flex justify-between items-center">
+                                                <div class="text-left">
+                                                    <p class="font-bold text-white text-[9px]">Apto 402 · Usaquén</p>
+                                                    <p class="text-[7px] text-gray-500">Arrendado · Día 5 Pago</p>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-400 text-[7px] font-bold">OK</span>
+                                            </div>
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
+                                                <div class="text-left">
+                                                    <p class="font-bold text-white text-[9px]">Casa Campestre · Chía</p>
+                                                    <p class="text-[7px] text-gray-500">En Venta Exclusiva</p>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-blue-500/25 text-blue-400 text-[7px] font-bold">PROMO</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Screen 3: Documents -->
+                                    <div id="screen-documents" class="hidden space-y-3">
+                                        <span class="text-gray-500 font-mono uppercase text-[8px]">Bóveda de Documentos</span>
+                                        <div class="space-y-2">
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
+                                                    <span class="font-bold text-white text-[8px]">Contrato_Arriendo.pdf</span>
+                                                </div>
+                                                <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                            </div>
+                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
+                                                    <span class="font-bold text-white text-[8px]">Acta_Inventario.pdf</span>
+                                                </div>
+                                                <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Overlaid App Header (Shared by both views) -->
+                            <div class="relative z-20 flex justify-between items-center p-4 pt-8 border-b border-white/10 bg-black/30 backdrop-blur-[2px] shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <img src="logo.png" alt="CGBI Logo" class="w-5 h-5 rounded-full bg-white p-0.5 object-contain">
                                     <span class="text-[11px] font-bold text-white tracking-wider">App Premium CGBI</span>
                                 </div>
                                 <span class="w-2 h-2 rounded-full bg-emerald-400" style="box-shadow: 0 0 8px #34d399;"></span>
                             </div>
-                            <!-- App content -->
-                            <div class="flex-1 py-3 space-y-3 overflow-y-auto no-scroll text-[10px]">
-                                <div class="space-y-1">
-                                    <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
-                                    <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                        <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
-                                        <p class="font-bold text-white mt-0.5">$3.500.000</p>
-                                    </div>
-                                    <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                        <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
-                                        <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
-                                    </div>
-                                </div>
-                                <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
-                                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
-                                    </div>
-                                    <div class="flex justify-between text-gray-400 font-mono text-[7px]">
-                                        <span>Canon: 100% cubierto</span>
-                                        <span>Servicios: ✓</span>
-                                    </div>
-                                    <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                        <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
-                                    </div>
-                                </div>
-                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center">
-                                    <div class="flex items-center gap-2">
-                                        <span class="material-icons-round text-emerald-400 text-sm">construction</span>
+                            
+                            <!-- Bottom simulated nav (Shared by both views, acts as tab selectors in interactive mode) -->
+                            <div class="relative z-20 border-t border-white/10 p-3 bg-black/40 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
+                                <span id="tab-dashboard" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-lg cursor-pointer text-[#E2235E] hover:text-[#E2235E] transition-colors">dashboard</span>
+                                <span id="tab-properties" onclick="selectPhoneTab('properties')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">business</span>
+                                <span id="tab-documents" onclick="selectPhoneTab('documents')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">receipt_long</span>
+                                <span id="tab-settings" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">settings</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Toggle Controls -->
+                    <div class="absolute bottom-[-55px] left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg text-[9px] font-extrabold uppercase tracking-wider z-30 w-[170px]">
+                        <button id="btn-phone-video" onclick="switchPhoneMode('video')" class="px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300">Video Demo</button>
+                        <button id="btn-phone-interactive" onclick="switchPhoneMode('interactive')" class="px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300">Interactiva</button>
+                    </div>
+                </div>            <span class="material-icons-round text-emerald-400 text-sm">construction</span>
                                         <div>
                                             <p class="font-bold text-white text-[8px]">Revisión calentador</p>
                                             <p class="text-gray-500 text-[7px]">Técnico programado hoy</p>
@@ -628,28 +673,12 @@
                 <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">
                     Especialistas en Proteger<br>
                     <span class="text-gradient-teal">tu Patrimonio Familiar</span>
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-base leading-relaxed">
-                    Con más de una década gestionando vivienda premium en Bogotá, combinamos tecnología, blindaje jurídico y marketing de alto impacto.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-4 gap-6 reveal-children">
-                <!-- KPI 1 -->
-                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
-                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(226,35,94,0.1); border: 1px solid rgba(226,35,94,0.2);">
-                        <span class="material-icons-round text-2xl" style="color: var(--fuchsia);">home</span>
-                    </div>
-                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="4.2" data-prefix="+" data-suffix="B" data-symbol="$">+$4.2B</p>
-                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Pesos Administrados</h4>
-                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">En apartamentos y casas en Bogotá Norte y Sabana.</p>
-                </div>
-                <!-- KPI 2 -->
+                   <!-- KPI 2 -->
                 <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
                     <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">
                         <span class="material-icons-round text-2xl text-emerald-400">speed</span>
                     </div>
-                    <p class="text-5xl font-extrabold font-display text-white leading-none">18 Días</p>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="18" data-suffix=" Días">18 Días</p>
                     <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Tiempo de Arriendo</h4>
                     <p class="text-[11px] text-gray-500 mt-2 leading-normal">Vs. 65 días promedio del mercado tradicional.</p>
                 </div>
@@ -657,6 +686,20 @@
                 <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
                     <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
                         <span class="material-icons-round text-2xl text-indigo-400">mood</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="98.4" data-suffix="%">98.4%</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Satisfacción</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Nivel de recomendación de propietarios activos.</p>
+                </div>
+                <!-- KPI 4 -->
+                <div class="glass-card rounded-3xl p-8 text-center group cursor-default">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);">
+                        <span class="material-icons-round text-2xl text-amber-400">verified_user</span>
+                    </div>
+                    <p class="text-5xl font-extrabold font-display text-white leading-none counter" data-target="100" data-suffix="%">100%</p>
+                    <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Cero Impagos</h4>
+                    <p class="text-[11px] text-gray-500 mt-2 leading-normal">Póliza integral que garantiza tu renta pase lo que pase.</p>
+                </div>cons-round text-2xl text-indigo-400">mood</span>
                     </div>
                     <p class="text-5xl font-extrabold font-display text-white leading-none">98.4%</p>
                     <h4 class="text-[10px] font-bold text-gray-300 uppercase tracking-wider font-mono mt-2">Satisfacción</h4>
@@ -799,6 +842,135 @@
                         <span class="material-icons-round text-sm">storefront</span>
                         Consultar Solución Corporativa
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider reveal"></div>
+
+        <!-- ═══ ROI CALCULATOR ═══ -->
+        <section id="calculadora" class="space-y-16 scroll-mt-32 reveal">
+            <div class="text-center space-y-4">
+                <div class="section-chip mx-auto w-fit">
+                    <span class="material-icons-round text-xs">calculate</span>
+                    Estimador de Ingresos y Ahorro
+                </div>
+                <h2 class="font-display font-extrabold tracking-tight text-white" style="font-size: clamp(2rem, 4vw, 3.5rem);">
+                    Calcula tu Retorno Seguro<br>
+                    <span class="text-gradient-animate">con el Esquema Delegador</span>
+                </h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-base">
+                    Compara en tiempo real los ingresos netos y la seguridad patrimonial que obtienes con CGBI frente a inmobiliarias tradicionales y la autogestión.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <!-- Slider Control -->
+                <div class="lg:col-span-5 glass-panel rounded-3xl p-8 space-y-8">
+                    <div class="space-y-4 text-left">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Canon de Arriendo Estimado</label>
+                            <span id="slider-val" class="font-display font-black text-xl text-white font-mono">$3.500.000 COP</span>
+                        </div>
+                        <input type="range" id="rent-slider" min="1500000" max="8000000" step="100000" value="3500000" class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#D62C5E]">
+                        <div class="flex justify-between text-[10px] text-gray-500 font-mono">
+                            <span>$1.5M</span>
+                            <span>$4.5M</span>
+                            <span>$8.0M</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-black/20 border border-white/5 space-y-3 text-left">
+                        <h4 class="font-bold text-white text-xs uppercase font-mono flex items-center gap-2">
+                            <span class="material-icons-round text-emerald-400 text-sm">info</span>
+                            Desglose de Costos CGBI
+                        </h4>
+                        <div class="flex justify-between text-[11px] text-gray-400 font-mono">
+                            <span>Tarifa Delegador (10.57%):</span>
+                            <span id="fee-val" class="text-white font-semibold">-$369.950 COP</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-gray-400 font-mono border-t pt-2 border-white/5">
+                            <span>Incluye:</span>
+                            <span class="text-[#D62C5E] font-bold uppercase tracking-wider text-[9px]">Póliza + Administración</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Cards -->
+                <div class="lg:col-span-7 grid md:grid-cols-3 gap-6">
+                    <!-- CGBI -->
+                    <div class="glass-panel rounded-3xl p-6 border border-[#D62C5E]/70 relative overflow-hidden flex flex-col justify-between space-y-6 text-left">
+                        <div class="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-30 bg-[#D62C5E]"></div>
+                        <div class="space-y-3">
+                            <div class="inline-flex px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[8px] font-bold font-mono tracking-wider uppercase">Recomendado</div>
+                            <h3 class="font-display font-extrabold text-white text-base flex items-center gap-2">
+                                <span class="material-icons-round text-[#D62C5E] text-lg">bolt</span>
+                                CGBI
+                            </h3>
+                            <p class="text-[10px] text-gray-400 leading-normal">Pago garantizado el día 5 y cobertura integral de daños.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="space-y-0.5">
+                                <span class="text-[8px] text-gray-500 uppercase font-mono">Ingreso Neto Mensual</span>
+                                <p id="cgbi-net" class="font-display font-black text-xl text-emerald-400 font-mono">$3.130.050</p>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] text-gray-400">
+                                    <span>Seguridad Patrimonial</span>
+                                    <span class="text-emerald-400 font-bold">100%</span>
+                                </div>
+                                <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tradicional -->
+                    <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-6 text-left">
+                        <div class="space-y-3">
+                            <h3 class="font-display font-bold text-white text-base">Inmobiliaria Tradicional</h3>
+                            <p class="text-[10px] text-gray-400 leading-normal">Sujeto a retrasos de pago y gestión lenta de reparaciones.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="space-y-0.5">
+                                <span class="text-[8px] text-gray-500 uppercase font-mono">Ingreso Promedio Neto</span>
+                                <p id="trad-net" class="font-display font-bold text-white text-base font-mono">$3.220.000</p>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] text-gray-400">
+                                    <span>Seguridad Patrimonial</span>
+                                    <span class="text-amber-400 font-bold">40%</span>
+                                </div>
+                                <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-400 w-[40%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autogestión -->
+                    <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-6 text-left">
+                        <div class="space-y-3">
+                            <h3 class="font-display font-bold text-white text-base">Autogestión Directa</h3>
+                            <p class="text-[10px] text-gray-400 leading-normal">Estrés telefónico por mantenimiento y sin póliza de impago.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="space-y-0.5">
+                                <span class="text-[8px] text-gray-500 uppercase font-mono">Ingreso en Riesgo</span>
+                                <p id="self-net" class="font-display font-bold text-white text-base font-mono">$3.500.000</p>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] text-gray-400">
+                                    <span>Seguridad Patrimonial</span>
+                                    <span class="text-red-500 font-bold">10%</span>
+                                </div>
+                                <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-red-500 w-[10%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1278,45 +1450,110 @@
         requestAnimationFrame(animCursor);
     })();
 
-    // ─── AURORA CANVAS ─────────────────────────────────────────
+    // ─── AURORA CANVAS (WITH CONSTELLATION WEB) ────────────────
     const ac = document.getElementById('aurora-canvas');
     const actx = ac.getContext('2d');
     let blobs = [];
-    function resizeAurora() { ac.width = innerWidth; ac.height = innerHeight; }
+    let dots = [];
+    
+    function resizeAurora() { 
+        ac.width = window.innerWidth; 
+        ac.height = window.innerHeight; 
+    }
     window.addEventListener('resize', resizeAurora);
     resizeAurora();
+    
     const BLOB_COLORS = [
         [214,44,94], [27,34,64], [214,44,94], [27,34,64], [140,20,60]
     ];
     for (let i = 0; i < 5; i++) {
         blobs.push({
-            x: Math.random() * innerWidth,
-            y: Math.random() * innerHeight,
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
             r: 300 + Math.random() * 300,
             vx: (Math.random() - 0.5) * 0.4,
             vy: (Math.random() - 0.5) * 0.4,
             c: BLOB_COLORS[i]
         });
     }
+    
+    for (let i = 0; i < 40; i++) {
+        dots.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            r: 1.5 + Math.random() * 2
+        });
+    }
+    
     function drawAurora() {
         actx.clearRect(0, 0, ac.width, ac.height);
+        
+        // Blobs
         blobs.forEach(b => {
             b.x += b.vx; b.y += b.vy;
             if (b.x < -b.r) b.x = ac.width + b.r;
             if (b.x > ac.width + b.r) b.x = -b.r;
             if (b.y < -b.r) b.y = ac.height + b.r;
             if (b.y > ac.height + b.r) b.y = -b.r;
+            
             const g = actx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.08)`);
+            g.addColorStop(0, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0.07)`);
             g.addColorStop(1, `rgba(${b.c[0]},${b.c[1]},${b.c[2]},0)`);
             actx.fillStyle = g;
             actx.beginPath();
             actx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
             actx.fill();
         });
+        
+        // Nodes
+        actx.fillStyle = 'rgba(214,44,94,0.3)';
+        dots.forEach(d => {
+            d.x += d.vx; d.y += d.vy;
+            if (d.x < 0 || d.x > ac.width) d.vx *= -1;
+            if (d.y < 0 || d.y > ac.height) d.vy *= -1;
+            
+            actx.beginPath();
+            actx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            actx.fill();
+        });
+        
+        // Connect nodes
+        actx.strokeStyle = 'rgba(214,44,94,0.06)';
+        actx.lineWidth = 0.8;
+        for (let i = 0; i < dots.length; i++) {
+            for (let j = i + 1; j < dots.length; j++) {
+                const dist = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y);
+                if (dist < 120) {
+                    actx.beginPath();
+                    actx.moveTo(dots[i].x, dots[i].y);
+                    actx.lineTo(dots[j].x, dots[j].y);
+                    actx.stroke();
+                }
+            }
+            // Connect to mouse
+            const mDist = Math.hypot(dots[i].x - mx, dots[i].y - my);
+            if (mDist < 150) {
+                actx.beginPath();
+                actx.moveTo(dots[i].x, dots[i].y);
+                actx.lineTo(mx, my);
+                actx.stroke();
+            }
+        }
+        
         requestAnimationFrame(drawAurora);
     }
     drawAurora();
+
+    // ─── SCROLL PROGRESS INDICATOR ─────────────────────────────
+    window.addEventListener('scroll', () => {
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (totalHeight > 0) {
+            const progress = (window.scrollY / totalHeight) * 100;
+            document.getElementById('scroll-progress').style.width = progress + '%';
+        }
+    });
 
     // ─── NAVBAR SCROLL ─────────────────────────────────────────
     const navbar = document.getElementById('navbar');
@@ -1358,13 +1595,44 @@
     });
 
     // ─── COUNTER ANIMATIONS ────────────────────────────────────
+    function animateCounter(el) {
+        const target = parseFloat(el.getAttribute('data-target'));
+        const suffix = el.getAttribute('data-suffix') || '';
+        const prefix = el.getAttribute('data-prefix') || '';
+        const symbol = el.getAttribute('data-symbol') || '';
+        
+        let start = 0;
+        const duration = 1500;
+        const startTime = performance.now();
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = progress * (2 - progress);
+            const current = start + ease * (target - start);
+            
+            if (target % 1 === 0) {
+                el.textContent = `${prefix}${symbol}${Math.floor(current).toLocaleString('es-CO')}${suffix}`;
+            } else {
+                el.textContent = `${prefix}${symbol}${current.toFixed(1).replace('.', ',')}${suffix}`;
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
     const counterObs = new IntersectionObserver((entries, obs) => {
         entries.forEach(e => {
-            if (!e.isIntersecting) return;
-            obs.unobserve(e.target);
+            if (e.isIntersecting) {
+                animateCounter(e.target);
+                obs.unobserve(e.target);
+            }
         });
-    }, { threshold: 0.5 });
-    // (counters are mostly static in this version, numbers shown directly)
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.counter').forEach(el => counterObs.observe(el));
 
     // ─── WIZARD ENGINE ─────────────────────────────────────────
     let step = 1, serviceType = '', subProfile = '';
@@ -1509,6 +1777,113 @@
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
     }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.reveal-children').forEach(el => childObs.observe(el));
+
+    // ─── FAQ ACCORDIONS ────────────────────────────────────────
+    function toggleFaq(btn) {
+        const item = btn.parentElement;
+        const answer = item.querySelector('.faq-answer');
+        const icon = btn.querySelector('.material-icons-round');
+        
+        const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+        
+        // Close all other FAQs
+        document.querySelectorAll('.faq-answer').forEach(el => {
+            el.style.maxHeight = '0px';
+            el.parentElement.classList.remove('border-[#D62C5E]');
+            el.parentElement.querySelector('.material-icons-round').style.transform = 'rotate(0deg)';
+        });
+        
+        if (!isOpen) {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            item.classList.add('border-[#D62C5E]');
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    // ─── ROI CALCULATOR ────────────────────────────────────────
+    const slider = document.getElementById('rent-slider');
+    if (slider) {
+        const sliderVal = document.getElementById('slider-val');
+        const feeVal = document.getElementById('fee-val');
+        const cgbiNet = document.getElementById('cgbi-net');
+        const tradNet = document.getElementById('trad-net');
+        const selfNet = document.getElementById('self-net');
+        
+        function updateROI() {
+            const val = parseInt(slider.value);
+            sliderVal.textContent = `$${val.toLocaleString('es-CO')} COP`;
+            
+            const fee = Math.round(val * 0.1057);
+            feeVal.textContent = `-$${fee.toLocaleString('es-CO')} COP`;
+            
+            const cgbi = val - fee;
+            cgbiNet.textContent = `$${cgbi.toLocaleString('es-CO')}`;
+            
+            const trad = Math.round(val * 0.92);
+            tradNet.textContent = `$${trad.toLocaleString('es-CO')}`;
+            
+            selfNet.textContent = `$${val.toLocaleString('es-CO')}`;
+        }
+        
+        slider.addEventListener('input', updateROI);
+        updateROI();
+    }
+
+    // ─── PHONE MOCKUP INTERACTIVITY ────────────────────────────
+    function switchPhoneMode(mode) {
+        const videoView = document.getElementById('phone-video-view');
+        const interactiveView = document.getElementById('phone-interactive-view');
+        const btnVideo = document.getElementById('btn-phone-video');
+        const btnInteractive = document.getElementById('btn-phone-interactive');
+        
+        if (mode === 'video') {
+            videoView.classList.remove('hidden');
+            videoView.classList.add('block');
+            interactiveView.classList.remove('flex');
+            interactiveView.classList.add('hidden');
+            
+            btnVideo.className = "px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300";
+            btnInteractive.className = "px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300";
+        } else {
+            videoView.classList.remove('block');
+            videoView.classList.add('hidden');
+            interactiveView.classList.remove('hidden');
+            interactiveView.classList.add('flex');
+            
+            btnVideo.className = "px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300";
+            btnInteractive.className = "px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300";
+            
+            selectPhoneTab('dashboard');
+        }
+    }
+    
+    function selectPhoneTab(tab) {
+        const screens = {
+            dashboard: document.getElementById('screen-dashboard'),
+            properties: document.getElementById('screen-properties'),
+            documents: document.getElementById('screen-documents')
+        };
+        
+        const tabs = {
+            dashboard: document.getElementById('tab-dashboard'),
+            properties: document.getElementById('tab-properties'),
+            documents: document.getElementById('tab-documents')
+        };
+        
+        Object.keys(screens).forEach(key => {
+            if (key === tab) {
+                screens[key].classList.remove('hidden');
+                screens[key].classList.add('block');
+                tabs[key].classList.add('text-[#E2235E]');
+                tabs[key].classList.remove('text-gray-500');
+            } else {
+                screens[key].classList.remove('block');
+                screens[key].classList.add('hidden');
+                tabs[key].classList.remove('text-[#E2235E]');
+                tabs[key].classList.add('text-gray-500');
+            }
+        });
+    }
     </script>
 </body>
 </html>
