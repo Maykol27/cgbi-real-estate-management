@@ -601,21 +601,26 @@ export const AdminProperties: React.FC = () => {
         const ownerName = ownerSelect.value;
         const ownerId = selectedOption?.getAttribute('data-id');
 
+        const parseNumber = (val: string) => Number(val.replace(/,/g, '')) || 0;
+
+        const contractEndRaw = (form.elements.namedItem('contractEnd') as HTMLInputElement)?.value;
+        const contractEndParsed = contractEndRaw ? contractEndRaw : null;
+
         const formData = {
             name: (form.elements.namedItem('name') as HTMLInputElement).value,
             address: (form.elements.namedItem('address') as HTMLInputElement).value,
             type: (form.elements.namedItem('type') as HTMLSelectElement).value,
-            rent: (form.elements.namedItem('rent') as HTMLInputElement).value,
+            rent: (form.elements.namedItem('rent') as HTMLInputElement).value.replace(/,/g, ''),
             owner: ownerName,
             owner_id: ownerId, // Pass the ID
             status: (form.elements.namedItem('status') as HTMLSelectElement)?.value as any, // 'Disponible' | 'Vendido' | ...
             listingType: formListingType, // Use controlled state value
-            sqMeters: Number((form.elements.namedItem('sqMeters') as HTMLInputElement).value),
-            rooms: Number((form.elements.namedItem('rooms') as HTMLInputElement).value),
-            bathrooms: Number((form.elements.namedItem('bathrooms') as HTMLInputElement).value),
-            parking: Number((form.elements.namedItem('parking') as HTMLInputElement).value),
+            sqMeters: parseNumber((form.elements.namedItem('sqMeters') as HTMLInputElement).value),
+            rooms: parseNumber((form.elements.namedItem('rooms') as HTMLInputElement).value),
+            bathrooms: parseNumber((form.elements.namedItem('bathrooms') as HTMLInputElement).value),
+            parking: parseNumber((form.elements.namedItem('parking') as HTMLInputElement).value),
             description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
-            contractEnd: (form.elements.namedItem('contractEnd') as HTMLInputElement)?.value || '',
+            contractEnd: contractEndParsed,
             image: imageUrl, // Optimistic preview
             imageFile: propertyImage || undefined // The actual file
         };
