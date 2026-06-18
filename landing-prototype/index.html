@@ -555,16 +555,16 @@
             </div>
 
             <!-- Phone Mockup -->
-            <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]" id="phone-mockup-wrapper">
-                <div class="relative w-[310px] h-[480px] anim-float" id="phone-mockup-inner" style="transition: transform 0.15s ease-out; transform-style: preserve-3d;">
+            <div class="lg:col-span-5 flex justify-center items-center relative min-h-[660px]" id="phone-mockup-wrapper">
+                <div class="relative w-[300px] h-[580px] anim-float" id="phone-mockup-inner" style="transition: transform 0.15s ease-out; transform-style: preserve-3d;">
                     <!-- Glow -->
-                    <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
+                    <div class="absolute inset-0 rounded-[48px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
   
                     <!-- Frame (iPhone 17 style - ultra-thin bezel & titanium border) -->
-                    <div class="absolute inset-0 rounded-[40px] border border-white/15 bg-[#07061a]/95 shadow-2xl backdrop-blur-sm p-2 font-sans" style="box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px rgba(0,0,0,0.8); transform: translateZ(10px);">
+                    <div class="absolute inset-0 rounded-[48px] border-[3.5px] border-neutral-800 bg-[#07061a]/95 shadow-2xl backdrop-blur-sm p-2 font-sans" style="box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px rgba(0,0,0,0.8); transform: translateZ(10px);">
                         
                         <!-- iPhone 17 Dynamic Island -->
-                        <div class="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-3 bg-black rounded-full z-30 flex items-center justify-center border border-white/5 shadow-inner">
+                        <div class="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-3 bg-black rounded-full z-30 flex items-center justify-center border border-white/5 shadow-inner">
                             <div class="w-1.5 h-1.5 rounded-full bg-[#111] absolute left-1 flex items-center justify-center">
                                 <div class="w-0.5 h-0.5 rounded-full bg-blue-900/60"></div>
                             </div>
@@ -572,7 +572,7 @@
                         </div>
 
                         <!-- Screen -->
-                        <div class="w-full h-full rounded-[32px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col justify-between">
+                        <div class="w-full h-full rounded-[40px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col justify-between">
                             
                             <!-- Overlaid App Header (Shared by both views) -->
                             <div class="relative z-25 flex justify-between items-center p-3 pt-6 border-b border-white/10 bg-black/45 backdrop-blur-md shrink-0">
@@ -697,8 +697,8 @@
                                 </div>
                             </div>
                             
-                            <!-- Bottom simulated nav -->
-                            <div class="relative z-25 border-t border-white/10 p-2 bg-black/45 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
+                            <!-- Bottom simulated nav (with home indicator area padding) -->
+                            <div class="relative z-25 border-t border-white/10 p-2.5 pb-4 bg-black/45 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
                                 <span id="tab-dashboard" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-[15px] cursor-pointer text-[#E2235E] hover:text-[#E2235E] transition-colors">dashboard</span>
                                 <span id="tab-properties" onclick="selectPhoneTab('properties')" class="material-icons-round text-[15px] cursor-pointer hover:text-white transition-colors">business</span>
                                 <span id="tab-documents" onclick="selectPhoneTab('documents')" class="material-icons-round text-[15px] cursor-pointer hover:text-white transition-colors">receipt_long</span>
@@ -708,7 +708,7 @@
                     </div>
                     
                     <!-- Toggle Controls -->
-                    <div class="absolute bottom-[-55px] left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg text-[9px] font-extrabold uppercase tracking-wider z-30 w-[170px]">
+                    <div class="absolute bottom-[-45px] left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg text-[9px] font-extrabold uppercase tracking-wider z-30 w-[170px]">
                         <button id="btn-phone-video" onclick="switchPhoneMode('auto')" class="px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300">Auto-Demo</button>
                         <button id="btn-phone-interactive" onclick="switchPhoneMode('interactive')" class="px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300">Interactiva</button>
                     </div>
