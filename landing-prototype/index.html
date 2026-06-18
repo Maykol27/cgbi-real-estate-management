@@ -423,6 +423,30 @@
         }
         .phone-glow { animation: pulse-glow 4s ease-in-out infinite; }
 
+        /* ── PHONE 3D TILT EFFECT ─────────────────────── */
+        .phone-container {
+            perspective: 1200px;
+            transform-style: preserve-3d;
+        }
+        .phone-tilt-card {
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            transform-style: preserve-3d;
+        }
+        
+        /* ── SIMULATED APP LOGIN SCREEN ──────────────── */
+        #mock-login-screen, #mock-dashboard-screen {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Glass Input inside phone */
+        .mock-input {
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .mock-input:focus {
+            border-color: #D62C5E;
+            background-color: rgba(255,255,255,0.08);
+        }
+
         /* ── TABLE ROW HOVER ──────────────────────────── */
         .compare-row { transition: background 0.25s; }
         .compare-row:hover { background: rgba(29,25,75,0.25); }
@@ -531,116 +555,141 @@
             </div>
 
             <!-- Phone Mockup -->
-            <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]">
-                <div class="relative w-[310px] h-[480px] anim-float">
+            <div class="lg:col-span-5 flex justify-center items-center relative h-[540px]" id="phone-mockup-wrapper">
+                <div class="relative w-[310px] h-[480px] anim-float" id="phone-mockup-inner" style="transition: transform 0.15s ease-out; transform-style: preserve-3d;">
                     <!-- Glow -->
                     <div class="absolute inset-0 rounded-[44px] blur-[60px] phone-glow" style="background: linear-gradient(135deg, #D62C5E 0%, #9b1040 50%, #1B2240 100%); opacity: 0.35;"></div>
   
-                    <!-- Frame -->
-                    <div class="absolute inset-0 rounded-[40px] border border-white/10 bg-[#07061a]/90 shadow-2xl backdrop-blur-sm p-3 font-sans">
-                        <!-- Notch -->
-                        <div class="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-28 bg-[#07061a] rounded-b-2xl border-x border-b border-white/5 z-20 flex items-center justify-center">
-                            <div class="w-10 h-1 rounded-full bg-white/20"></div>
+                    <!-- Frame (iPhone 17 style - ultra-thin bezel & titanium border) -->
+                    <div class="absolute inset-0 rounded-[40px] border border-white/15 bg-[#07061a]/95 shadow-2xl backdrop-blur-sm p-2 font-sans" style="box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 20px 50px rgba(0,0,0,0.8); transform: translateZ(10px);">
+                        
+                        <!-- iPhone 17 Dynamic Island -->
+                        <div class="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-3 bg-black rounded-full z-30 flex items-center justify-center border border-white/5 shadow-inner">
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#111] absolute left-1 flex items-center justify-center">
+                                <div class="w-0.5 h-0.5 rounded-full bg-blue-900/60"></div>
+                            </div>
+                            <div class="w-1 h-1 rounded-full bg-[#111] absolute right-2.5"></div>
                         </div>
+
                         <!-- Screen -->
-                        <div class="w-full h-full rounded-[30px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col justify-between">
+                        <div class="w-full h-full rounded-[32px] bg-[#090818] overflow-hidden border border-white/5 relative flex flex-col justify-between">
+                            
                             <!-- Overlaid App Header (Shared by both views) -->
-                            <div class="relative z-20 flex justify-between items-center p-4 pt-8 border-b border-white/10 bg-black/30 backdrop-blur-[2px] shrink-0">
-                                <div class="flex items-center gap-2">
-                                    <img src="logo.png" alt="CGBI Logo" class="w-5 h-5 rounded-full bg-white p-0.5 object-contain">
-                                    <span class="text-[11px] font-bold text-white tracking-wider">App Premium CGBI</span>
+                            <div class="relative z-25 flex justify-between items-center p-3 pt-6 border-b border-white/10 bg-black/45 backdrop-blur-md shrink-0">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="logo.png" alt="CGBI Logo" class="w-4 h-4 rounded-full bg-white p-0.5 object-contain">
+                                    <span class="text-[9px] font-bold text-white tracking-wider">App Premium CGBI</span>
                                 </div>
-                                <span class="w-2 h-2 rounded-full bg-emerald-400" style="box-shadow: 0 0 8px #34d399;"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" style="box-shadow: 0 0 8px #34d399;"></span>
                             </div>
 
                             <!-- Screen Contents Container -->
                             <div class="flex-1 relative overflow-hidden">
-                                <!-- mode 1: Video View -->
-                                <div id="phone-video-view" class="absolute inset-0 w-full h-full z-0 block">
-                                    <video src="app-preview.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
-                                    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/75 z-10 pointer-events-none"></div>
-                                </div>
                                 
-                                <!-- mode 2: Interactive App UI -->
-                                <div id="phone-interactive-view" class="absolute inset-0 w-full h-full z-0 hidden flex-col p-4 pt-3 text-[10px] bg-[#090818]">
+                                <!-- Simulated App Login Screen -->
+                                <div id="phone-login-view" class="absolute inset-0 w-full h-full z-20 bg-[#090818] flex flex-col justify-center items-center p-5 space-y-3.5 transition-all duration-500">
+                                    <div class="text-center space-y-1">
+                                        <div class="w-9 h-9 mx-auto rounded-full bg-white p-1.5 flex items-center justify-center shadow-lg border border-white/10">
+                                            <img src="logo.png" alt="CGBI Logo" class="w-6 h-6 object-contain">
+                                        </div>
+                                        <h4 class="font-display font-black text-white text-[9px] tracking-[0.25em] uppercase mt-1">CGBI App</h4>
+                                        <p class="text-[6px] text-gray-500 font-mono">Real Estate Management</p>
+                                    </div>
+                                    <div class="w-full space-y-2">
+                                        <div class="space-y-0.5 text-left">
+                                            <span class="text-[5px] text-gray-500 font-mono uppercase tracking-wider block">Correo Electrónico</span>
+                                            <div class="w-full h-6 bg-white/5 border border-white/5 rounded-lg px-2 text-[7px] font-mono text-white flex items-center" id="phone-login-email"></div>
+                                        </div>
+                                        <div class="space-y-0.5 text-left">
+                                            <span class="text-[5px] text-gray-500 font-mono uppercase tracking-wider block">Contraseña</span>
+                                            <div class="w-full h-6 bg-white/5 border border-white/5 rounded-lg px-2 text-[7px] font-mono text-white flex items-center" id="phone-login-password"></div>
+                                        </div>
+                                    </div>
+                                    <button id="phone-login-btn" class="w-full h-7 bg-[#D62C5E] text-white text-[7px] font-bold uppercase tracking-wider rounded-lg shadow-md flex items-center justify-center transition-all duration-300">
+                                        <span id="phone-login-btn-text">Iniciar Sesión</span>
+                                    </button>
+                                </div>
+
+                                <!-- Interactive App UI -->
+                                <div id="phone-interactive-view" class="absolute inset-0 w-full h-full z-10 flex flex-col p-3 pt-2 text-[10px] bg-[#090818]">
                                     <!-- Active Tab Content Container -->
-                                    <div id="interactive-screen-content" class="flex-1 space-y-3 overflow-y-auto no-scroll">
+                                    <div id="interactive-screen-content" class="flex-1 space-y-2.5 overflow-y-auto no-scroll pt-1">
                                         <!-- Screen 1: Dashboard (Default) -->
-                                        <div id="screen-dashboard" class="space-y-3">
-                                            <div class="space-y-1 text-left">
-                                                <span class="text-gray-500 font-mono uppercase text-[8px]">Ficha Activa</span>
-                                                <p class="font-display font-bold text-white text-xs">Apto en Chicó · Carrera 11</p>
+                                        <div id="screen-dashboard" class="space-y-2.5">
+                                            <div class="space-y-0.5 text-left">
+                                                <span class="text-gray-500 font-mono uppercase text-[7px]">Ficha Activa</span>
+                                                <p class="font-display font-bold text-white text-[11px]">Apto en Chicó · Carrera 11</p>
                                             </div>
-                                            <div class="grid grid-cols-2 gap-2 text-left">
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                                    <span class="text-gray-500 font-mono uppercase block text-[7px]">Canon Recaudado</span>
-                                                    <p class="font-bold text-white mt-0.5">$3.500.000</p>
+                                            <div class="grid grid-cols-2 gap-1.5 text-left">
+                                                <div class="p-2 rounded-xl bg-white/5 border border-white/5">
+                                                    <span class="text-gray-500 font-mono uppercase block text-[6px]">Canon Recaudado</span>
+                                                    <p class="font-bold text-white text-[9px] mt-0.5">$3.500.000</p>
                                                 </div>
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                                                    <span class="text-gray-500 font-mono uppercase block text-[7px]">Pago propietario</span>
-                                                    <p class="font-bold text-[#E2235E] mt-0.5">Día 5 ✓</p>
+                                                <div class="p-2 rounded-xl bg-white/5 border border-white/5">
+                                                    <span class="text-gray-500 font-mono uppercase block text-[6px]">Pago propietario</span>
+                                                    <p class="font-bold text-[#E2235E] text-[9px] mt-0.5">Día 5 ✓</p>
                                                 </div>
                                             </div>
-                                            <div class="p-2.5 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1.5 text-left">
+                                            <div class="p-2 rounded-xl bg-gradient-to-r from-[#1D194B]/60 to-[#090818] border border-[#E2235E]/20 space-y-1 text-left">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-white text-[9px]">Póliza El Libertador</span>
-                                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7px] font-bold">ACTIVA</span>
+                                                    <span class="font-bold text-white text-[8px]">Póliza El Libertador</span>
+                                                    <span class="px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[6px] font-bold">ACTIVA</span>
                                                 </div>
                                                 <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                                                     <div class="h-full bg-emerald-400 w-full" style="box-shadow: 0 0 6px #34d399;"></div>
                                                 </div>
                                             </div>
                                             <!-- Technical visit card -->
-                                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="material-icons-round text-emerald-400 text-sm">construction</span>
+                                            <div class="p-2 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="material-icons-round text-emerald-400 text-xs">construction</span>
                                                     <div>
-                                                        <p class="font-bold text-white text-[8px]">Revisión calentador</p>
-                                                        <p class="text-gray-500 text-[7px]">Técnico programado hoy</p>
+                                                        <p class="font-bold text-white text-[8px] leading-tight">Revisión calentador</p>
+                                                        <p class="text-gray-500 text-[6px] leading-tight">Técnico programado hoy</p>
                                                     </div>
                                                 </div>
-                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[7px] font-bold">OK</span>
+                                                <span class="px-1 py-0.2 rounded bg-emerald-500/15 text-emerald-400 text-[6px] font-bold">OK</span>
                                             </div>
                                         </div>
                                         
-                                        <!-- Screen 2: Properties -->
-                                        <div id="screen-properties" class="hidden space-y-3">
-                                            <span class="text-gray-500 font-mono uppercase text-[8px] text-left block">Mis Propiedades</span>
-                                            <div class="space-y-2">
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-[#E2235E]/35 flex justify-between items-center text-left">
+                                        <!-- Screen 2: Mis Propiedades -->
+                                        <div id="screen-properties" class="hidden space-y-2.5">
+                                            <span class="text-gray-500 font-mono uppercase text-[7px] text-left block">Mis Propiedades</span>
+                                            <div class="space-y-1.5">
+                                                <div class="p-2 rounded-xl bg-white/5 border border-[#E2235E]/35 flex justify-between items-center text-left">
                                                     <div>
-                                                        <p class="font-bold text-white text-[9px]">Apto 402 · Usaquén</p>
-                                                        <p class="text-[7px] text-gray-500">Arrendado · Día 5 Pago</p>
+                                                        <p class="font-bold text-white text-[8px]">Apto 402 · Usaquén</p>
+                                                        <p class="text-[6px] text-gray-500">Arrendado · Día 5 Pago</p>
                                                     </div>
-                                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-400 text-[7px] font-bold">OK</span>
+                                                    <span class="px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-400 text-[6px] font-bold">OK</span>
                                                 </div>
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
+                                                <div class="p-2 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-left">
                                                     <div>
-                                                        <p class="font-bold text-white text-[9px]">Casa Campestre · Chía</p>
-                                                        <p class="text-[7px] text-gray-500">En Venta Exclusiva</p>
+                                                        <p class="font-bold text-white text-[8px]">Casa Campestre · Chía</p>
+                                                        <p class="text-[6px] text-gray-500">En Venta Exclusiva</p>
                                                     </div>
-                                                    <span class="px-1.5 py-0.5 rounded bg-blue-500/25 text-blue-400 text-[7px] font-bold">PROMO</span>
+                                                    <span class="px-1 py-0.2 rounded bg-blue-500/25 text-blue-400 text-[6px] font-bold">PROMO</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Screen 3: Documents -->
-                                        <div id="screen-documents" class="hidden space-y-3">
-                                            <span class="text-gray-500 font-mono uppercase text-[8px] text-left block">Bóveda de Documentos</span>
-                                            <div class="space-y-2">
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
-                                                        <span class="font-bold text-white text-[8px]">Contrato_Arriendo.pdf</span>
+                                        <!-- Screen 3: Bóveda Documentos -->
+                                        <div id="screen-documents" class="hidden space-y-2.5">
+                                            <span class="text-gray-500 font-mono uppercase text-[7px] text-left block">Bóveda de Documentos</span>
+                                            <div class="space-y-1.5">
+                                                <div class="p-2 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="material-icons-round text-red-400 text-sm">picture_as_pdf</span>
+                                                        <span class="font-bold text-white text-[8px] truncate max-w-[140px]">Contrato_Arriendo.pdf</span>
                                                     </div>
-                                                    <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                                    <span class="material-icons-round text-[9px] text-gray-500">download</span>
                                                 </div>
-                                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="material-icons-round text-red-400 text-base">picture_as_pdf</span>
-                                                        <span class="font-bold text-white text-[8px]">Acta_Inventario.pdf</span>
+                                                <div class="p-2 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 cursor-pointer text-left">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="material-icons-round text-red-400 text-sm">picture_as_pdf</span>
+                                                        <span class="font-bold text-white text-[8px] truncate max-w-[140px]">Acta_Inventario.pdf</span>
                                                     </div>
-                                                    <span class="material-icons-round text-[10px] text-gray-500">download</span>
+                                                    <span class="material-icons-round text-[9px] text-gray-500">download</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -649,29 +698,29 @@
                             </div>
                             
                             <!-- Bottom simulated nav -->
-                            <div class="relative z-20 border-t border-white/10 p-3 bg-black/40 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
-                                <span id="tab-dashboard" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-lg cursor-pointer text-[#E2235E] hover:text-[#E2235E] transition-colors">dashboard</span>
-                                <span id="tab-properties" onclick="selectPhoneTab('properties')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">business</span>
-                                <span id="tab-documents" onclick="selectPhoneTab('documents')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">receipt_long</span>
-                                <span id="tab-settings" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-lg cursor-pointer hover:text-white transition-colors">settings</span>
+                            <div class="relative z-25 border-t border-white/10 p-2 bg-black/45 backdrop-blur-md flex justify-around text-gray-500 shrink-0">
+                                <span id="tab-dashboard" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-[15px] cursor-pointer text-[#E2235E] hover:text-[#E2235E] transition-colors">dashboard</span>
+                                <span id="tab-properties" onclick="selectPhoneTab('properties')" class="material-icons-round text-[15px] cursor-pointer hover:text-white transition-colors">business</span>
+                                <span id="tab-documents" onclick="selectPhoneTab('documents')" class="material-icons-round text-[15px] cursor-pointer hover:text-white transition-colors">receipt_long</span>
+                                <span id="tab-settings" onclick="selectPhoneTab('dashboard')" class="material-icons-round text-[15px] cursor-pointer hover:text-white transition-colors">settings</span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Toggle Controls -->
-                    <div class="absolute bottom-[-55px] left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg text-[9px] font-extrabold uppercase tracking-wider z-30 w-[170px]">
-                        <button id="btn-phone-video" onclick="switchPhoneMode('video')" class="px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300">Video Demo</button>
+                    <div class="absolute bottom-[-55px] left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg text-[9px] font-extrabold uppercase tracking-wider z-30 w-[170px]">
+                        <button id="btn-phone-video" onclick="switchPhoneMode('auto')" class="px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300">Auto-Demo</button>
                         <button id="btn-phone-interactive" onclick="switchPhoneMode('interactive')" class="px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300">Interactiva</button>
                     </div>
                 </div>
                 
                 <!-- Floating badges (responsive) -->
-                <div class="absolute top-[12%] left-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[120px] anim-float2 hidden sm:block">
+                <div class="absolute top-[12%] left-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[120px] anim-float2 hidden sm:block" style="transform: translateZ(20px);">
                     <span class="material-icons-round text-[#E2235E] text-xl block mb-1">lock</span>
                     <span class="font-bold text-[9px] text-white block">Cero Riesgos</span>
                     <span class="text-[8px] text-gray-400 font-mono block">Blindaje Jurídico</span>
                 </div>
-                <div class="absolute bottom-[12%] right-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[130px] hidden sm:block" style="animation: float2 8s ease-in-out 1s infinite;">
+                <div class="absolute bottom-[12%] right-[-20px] glass-card p-3.5 rounded-2xl z-20 w-[130px] hidden sm:block" style="animation: float2 8s ease-in-out 1s infinite; transform: translateZ(20px);">
                     <span class="material-icons-round text-emerald-400 text-xl block mb-1">home</span>
                     <span class="font-bold text-[9px] text-white block">Tu Hogar Seguro</span>
                     <span class="text-[8px] text-gray-400 font-mono block">Inquilinos Verificados</span>
@@ -831,38 +880,44 @@
                 </div>
 
                 <!-- CGBI CORPORATIVO -->
-                <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden lg:col-span-1 md:col-span-2">
+                <div class="glass-panel rounded-3xl p-8 md:p-10 space-y-7 relative overflow-hidden lg:col-span-1 md:col-span-2 flex flex-col justify-between h-full">
                     <div class="absolute top-0 left-0 w-48 h-48 rounded-full blur-[80px] pointer-events-none opacity-12" style="background: #D62C5E;"></div>
                     <div class="absolute bottom-0 right-0 w-40 h-40 rounded-full blur-[100px] pointer-events-none opacity-10" style="background: #1B2240;"></div>
                     <div class="flex justify-between items-start">
                         <div>
                             <div class="section-chip mb-3" style="border-color: rgba(214,44,94,0.5); background: rgba(214,44,94,0.12); color: #D62C5E;">Línea 03 · Nuevo</div>
                             <h3 class="font-display text-3xl font-extrabold text-white">CGBI Corporativo</h3>
-                            <p class="text-xs text-gray-400 font-mono mt-1 uppercase tracking-wider">Consultoría · Posicionamiento · Expansión</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-1 uppercase tracking-wider">Puntos Comerciales & Expansión</p>
                         </div>
                         <span class="material-icons-round text-4xl" style="color: #D62C5E;">business_center</span>
                     </div>
-                    <p class="text-[13px] text-gray-400 leading-relaxed border-l-2 pl-4" style="border-color: #D62C5E;">Diseñamos, construimos e implementamos soluciones comerciales a la medida en estaciones de servicio y ubicaciones estratégicas, con consultoría y acompañamiento especializado durante todo el proceso.</p>
-                    <div class="space-y-3">
-                        <div class="p-4 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-1.5 cursor-default">
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons-round text-base" style="color: #D62C5E;">location_on</span>
-                                <span class="font-bold text-white text-sm">Análisis de Ubicaciones</span>
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-2 cursor-default">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-base" style="color: #D62C5E;">location_on</span>
+                                    Búsqueda & Selección
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono" style="background: rgba(214,44,94,0.15); color: #D62C5E;">LOCAL ESTRATÉGICO</span>
                             </div>
-                            <p class="text-[12px] text-gray-400 leading-relaxed">Evaluamos potencial comercial, requerimientos operativos y oportunidades de expansión para desarrollar espacios alineados con los objetivos de tu marca.</p>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                Analizamos ubicaciones de alto potencial, viabilidad técnica y comercial en estaciones de servicio y puntos de alto tráfico en Bogotá.
+                            </p>
                         </div>
-                        <div class="p-4 rounded-2xl bg-black/20 border border-white/5 hover:border-[#D62C5E]/40 transition-all space-y-1.5 cursor-default">
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons-round text-base" style="color: #D62C5E;">rocket_launch</span>
-                                <span class="font-bold text-white text-sm">Acompañamiento Integral</span>
+                        <div class="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-white/20 transition-all space-y-2 cursor-default">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span class="material-icons-round text-base" style="color: #D62C5E;">construction</span>
+                                    Diseño & Construcción
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-white/10 text-white">LLAVE EN MANO</span>
                             </div>
-                            <p class="text-[12px] text-gray-400 leading-relaxed">Desde la selección del punto hasta la implementación final, optimizando tiempo, inversión y crecimiento de tu marca.</p>
+                            <p class="text-[12px] text-gray-400 leading-relaxed">
+                                Construcción e implementación comercial integral de tu marca, acelerando tiempos de apertura y optimizando la inversión de tu negocio.
+                            </p>
                         </div>
                     </div>
-                    <a href="#profiler" onclick="selectProfile('corporativo')" class="btn-fuchsia w-full justify-center py-4 rounded-2xl text-sm">
-                        <span class="material-icons-round text-sm">storefront</span>
-                        Consultar Solución Corporativa
-                    </a>
+                    <a href="#profiler" onclick="selectProfile('corporativo')" class="btn-fuchsia w-full justify-center py-4 rounded-2xl text-sm">Consultar Solución Corporativa</a>
                 </div>
             </div>
         </section>
@@ -1126,7 +1181,7 @@
                     <div id="step-3" class="wizard-step">
                         <p class="text-center text-sm text-gray-400 mb-8">Ingresa las características de tu propiedad en Bogotá.</p>
                         <div class="grid sm:grid-cols-2 gap-5 text-left">
-                            <div class="space-y-2">
+                            <div id="prop-type-wrapper" class="space-y-2">
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Tipo de Propiedad</label>
                                 <select id="prop-type" class="glass-input glass-select">
                                     <option value="Apartamento">Apartamento Residencial</option>
@@ -1136,8 +1191,12 @@
                                     <option value="Local Comercial">Local Comercial</option>
                                 </select>
                             </div>
+                            <div id="corp-business-wrapper" class="space-y-2 hidden">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">¿De qué es tu negocio / Marca comercial?</label>
+                                <input type="text" id="corp-business-type" placeholder="Ej: Cafetería Star, Farmacias Cruz, Tienda de Ropa" class="glass-input">
+                            </div>
                             <div class="space-y-2">
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Zona en Bogotá</label>
+                                <label id="prop-zone-label" class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Zona en Bogotá</label>
                                 <select id="prop-zone" class="glass-input glass-select">
                                     <option>Usaquén / Santa Bárbara / Cedritos</option>
                                     <option>Chicó / Virrey / Rosales / Cabrera</option>
@@ -1147,7 +1206,7 @@
                                     <option>Chía / Cajicá / Sopó (Sabana)</option>
                                 </select>
                             </div>
-                            <div class="sm:col-span-2 space-y-2">
+                            <div id="prop-price-wrapper" class="sm:col-span-2 space-y-2">
                                 <label id="price-label" class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Valor Estimado ($ COP)</label>
                                 <input type="number" id="prop-price" placeholder="Ej: 3500000" class="glass-input font-mono">
                                 <p id="price-helper" class="text-[10px] text-gray-500 font-mono mt-1">El valor del canon de arriendo mensual estimado.</p>
@@ -1168,14 +1227,14 @@
                         <p class="text-center text-sm text-gray-400 mb-8">Completa tus datos para recibir tu cotización personalizada.</p>
                         <div class="grid sm:grid-cols-2 gap-5 text-left">
                             <div class="sm:col-span-2 space-y-2">
-                                <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Nombre del Propietario</label>
+                                <label id="lead-name-label" class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Nombre del Propietario</label>
                                 <input type="text" id="lead-name" placeholder="Ej: Camila Gutiérrez" class="glass-input">
                             </div>
-                            <div class="space-y-2">
+                            <div id="lead-phone-wrapper" class="space-y-2">
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">WhatsApp de Contacto</label>
                                 <input type="tel" id="lead-phone" placeholder="Ej: 3107853333" class="glass-input font-mono">
                             </div>
-                            <div class="space-y-2">
+                            <div id="lead-email-wrapper" class="space-y-2">
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase font-mono tracking-wider">Correo Electrónico</label>
                                 <input type="email" id="lead-email" placeholder="propietario@mail.com" class="glass-input font-mono">
                             </div>
@@ -1599,6 +1658,34 @@
     }, { threshold: 0.1 });
     document.querySelectorAll('.counter').forEach(el => counterObs.observe(el));
 
+    // ─── 3D TILT EFFECT FOR PHONE MOCKUP ────────────────────────
+    const phoneContainer = document.querySelector('.phone-container');
+    const phoneCard = document.querySelector('.phone-tilt-card');
+    
+    if (phoneContainer && phoneCard) {
+        phoneContainer.addEventListener('mousemove', e => {
+            const rect = phoneContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Calculate tilt angles (max 8 degrees)
+            const rotateX = ((y - centerY) / centerY) * -8;
+            const rotateY = ((x - centerX) / centerX) * 8;
+            
+            phoneCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+        
+        phoneContainer.addEventListener('mouseleave', () => {
+            phoneCard.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+    }
+
+    // Start auto demo flow on page load
+    setTimeout(startAutoFlow, 800);
+
     // ─── WIZARD ENGINE ─────────────────────────────────────────
     let step = 1, serviceType = '', subProfile = '';
     const serviceDB = {
@@ -1635,8 +1722,50 @@
         const pct = Math.min(n * 25, 100);
         document.getElementById('wizard-bar').style.width = pct + '%';
         document.getElementById('wizard-pct').textContent = pct + '% Completo';
-        const titles = { 1:'Paso 1: Tu Meta Comercial', 2:'Paso 2: Tipo de Esquema', 3:'Paso 3: Datos del Inmueble', 4:'Paso 4: Tus Datos de Contacto' };
+        
+        const isCorp = serviceType === 'corporativo';
+        const titles = { 
+            1:'Paso 1: Tu Meta Comercial', 
+            2:'Paso 2: Tipo de Esquema', 
+            3: isCorp ? 'Paso 3: Proyecto Corporativo' : 'Paso 3: Datos del Inmueble', 
+            4: isCorp ? 'Paso 4: Contacto de la Marca' : 'Paso 4: Tus Datos de Contacto' 
+        };
         document.getElementById('wizard-title').textContent = titles[n] || 'Análisis Finalizado';
+
+        if (n === 3) {
+            const desc = document.querySelector('#step-3 p.text-center');
+            if (isCorp) {
+                desc.textContent = 'Ingresa las características de tu marca y zona de interés en Bogotá.';
+                document.getElementById('prop-type-wrapper').classList.add('hidden');
+                document.getElementById('corp-business-wrapper').classList.remove('hidden');
+                document.getElementById('prop-price-wrapper').classList.add('hidden');
+            } else {
+                desc.textContent = 'Ingresa las características de tu propiedad en Bogotá.';
+                document.getElementById('prop-type-wrapper').classList.remove('hidden');
+                document.getElementById('corp-business-wrapper').classList.add('hidden');
+                document.getElementById('prop-price-wrapper').classList.remove('hidden');
+            }
+        } else if (n === 4) {
+            const desc = document.querySelector('#step-4 p.text-center');
+            const nameLabel = document.getElementById('lead-name-label');
+            const nameInput = document.getElementById('lead-name');
+            const emailWrapper = document.getElementById('lead-email-wrapper');
+            const phoneWrapper = document.getElementById('lead-phone-wrapper');
+            
+            if (isCorp) {
+                desc.textContent = 'Ingresa tus datos de contacto para iniciar la consultoría de expansión.';
+                nameLabel.textContent = 'Nombre del Representante de la Marca';
+                nameInput.placeholder = 'Ej: Carlos Mendoza (Director de Expansión)';
+                emailWrapper.classList.add('hidden');
+                phoneWrapper.className = 'sm:col-span-2 space-y-2';
+            } else {
+                desc.textContent = 'Completa tus datos para recibir tu cotización personalizada.';
+                nameLabel.textContent = 'Nombre del Propietario';
+                nameInput.placeholder = 'Ej: Camila Gutiérrez';
+                emailWrapper.classList.remove('hidden');
+                phoneWrapper.className = 'space-y-2';
+            }
+        }
     }
 
     function setServiceType(type) {
@@ -1702,10 +1831,22 @@
         const phone = document.getElementById('lead-phone').value.trim();
         const email = document.getElementById('lead-email').value.trim();
         const price = document.getElementById('prop-price').value.trim();
-        if (!name || !phone || !email || !price) {
-            alert('Por favor completa todas las cajas de texto glass antes de continuar.');
-            return;
+        const bizType = document.getElementById('corp-business-type').value.trim();
+        
+        const isCorp = serviceType === 'corporativo';
+        
+        if (isCorp) {
+            if (!name || !phone || !bizType) {
+                alert('Por favor completa todas las cajas de texto glass antes de continuar.');
+                return;
+            }
+        } else {
+            if (!name || !phone || !email || !price) {
+                alert('Por favor completa todas las cajas de texto glass antes de continuar.');
+                return;
+            }
         }
+        
         const loader = document.getElementById('loader-screen');
         loader.classList.remove('hidden');
         setTimeout(() => {
@@ -1716,15 +1857,19 @@
             document.getElementById('res-rate').textContent     = cfg.resRate;
             const zone = document.getElementById('prop-zone').value;
             const type = document.getElementById('prop-type').value;
-            const priceFmt = Number(price).toLocaleString('es-CO');
-            const isCorpTipo = serviceType === 'corporativo';
-            const isVenta = serviceType === 'venta';
-            let msgLabel = isCorpTipo ? 'Presupuesto inversión' : (isVenta ? 'Precio venta' : 'Canon mensual');
-            let msgHeader = isCorpTipo ? '🏢 *FICHA CGBI CORPORATIVO — LEAD PROFILER*' : '🏠 *FICHA CGBI — LEAD PROFILER*';
-            let msgPropBlock = isCorpTipo
-                ? `📋 *Proyecto Corporativo:*\n• Tipo solicitud: ${type}\n• Zona objetivo: ${zone}\n• ${msgLabel}: $${priceFmt} COP`
-                : `📋 *Inmueble:*\n• Tipo: ${type}\n• Zona: ${zone}\n• ${msgLabel}: $${priceFmt} COP`;
-            const msg = `${msgHeader}\n\n👤 ${isCorpTipo ? 'Representante' : 'Propietario'}: ${name}\n📞 WhatsApp: ${phone}\n📧 Email: ${email}\n\n${msgPropBlock}\n\n🎯 *Servicio CGBI:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ ${isCorpTipo ? 'Asesor corporativo asignado: EN PROCESO' : 'Acceso App Premium CGBI: PRE-APROBADO'}`;
+            const priceFmt = price ? Number(price).toLocaleString('es-CO') : '0';
+            
+            let msg = '';
+            if (isCorp) {
+                msg = `🏢 *SOLICITUD CGBI CORPORATIVO — LEAD PROFILER*\n\n👤 Representante: ${name}\n📞 WhatsApp: ${phone}\n💼 Negocio/Marca: ${bizType}\n📍 Zona Objetivo: ${zone}\n\n🎯 *Solución Solicitada:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ Asesor corporativo asignado: EN PROCESO`;
+            } else {
+                const isVenta = serviceType === 'venta';
+                let msgLabel = isVenta ? 'Precio venta' : 'Canon mensual';
+                let msgHeader = '🏠 *FICHA CGBI — LEAD PROFILER*';
+                let msgPropBlock = `📋 *Inmueble:*\n• Tipo: ${type}\n• Zona: ${zone}\n• ${msgLabel}: $${priceFmt} COP`;
+                msg = `${msgHeader}\n\n👤 Propietario: ${name}\n📞 WhatsApp: ${phone}\n📧 Email: ${email}\n\n${msgPropBlock}\n\n🎯 *Servicio CGBI:*\n• Perfil: ${cfg.resProfile}\n• Estrategia: ${cfg.resStrategy}\n• Tarifa: ${cfg.resRate}\n\n✅ Acceso App Premium CGBI: PRE-APROBADO`;
+            }
+            
             document.getElementById('wp-preview').textContent = msg;
             document.getElementById('wa-btn').href = 'https://wa.me/573107853333?text=' + encodeURIComponent(msg);
             step = 5; showStep(5);
@@ -1733,7 +1878,10 @@
 
     function restartWizard() {
         step = 1; serviceType = ''; subProfile = '';
-        ['lead-name','lead-phone','lead-email','prop-price'].forEach(id => document.getElementById(id).value = '');
+        ['lead-name','lead-phone','lead-email','prop-price','corp-business-type'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
         showStep(1);
     }
 
@@ -1794,30 +1942,39 @@
         updateROI();
     }
 
-    // ─── PHONE MOCKUP INTERACTIVITY ────────────────────────────
+    // ─── PHONE MOCKUP INTERACTIVITY & AUTOMATION ────────────────
+    let autoDemoInterval = null;
+    let autoDemoState = 'login'; // 'login' or 'tabs'
+    let typewriterTimeout1 = null;
+    let typewriterTimeout2 = null;
+    let transitionTimeout = null;
+    
     function switchPhoneMode(mode) {
-        const videoView = document.getElementById('phone-video-view');
+        const loginView = document.getElementById('phone-login-view');
         const interactiveView = document.getElementById('phone-interactive-view');
         const btnVideo = document.getElementById('btn-phone-video');
         const btnInteractive = document.getElementById('btn-phone-interactive');
         
-        if (mode === 'video') {
-            videoView.classList.remove('hidden');
-            videoView.classList.add('block');
-            interactiveView.classList.remove('flex');
-            interactiveView.classList.add('hidden');
-            
+        // Stop current animation cycles
+        clearTimeout(typewriterTimeout1);
+        clearTimeout(typewriterTimeout2);
+        clearTimeout(transitionTimeout);
+        clearInterval(autoDemoInterval);
+        
+        if (mode === 'auto') {
             btnVideo.className = "px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300";
             btnInteractive.className = "px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300";
-        } else {
-            videoView.classList.remove('block');
-            videoView.classList.add('hidden');
-            interactiveView.classList.remove('hidden');
-            interactiveView.classList.add('flex');
             
+            runAutoDemo();
+        } else {
             btnVideo.className = "px-3 py-1 rounded-full text-gray-400 hover:text-white transition-all duration-300";
             btnInteractive.className = "px-3 py-1 rounded-full text-white bg-[#D62C5E] transition-all duration-300";
             
+            // Bypass login directly to interactive tab mode
+            loginView.style.opacity = '0';
+            setTimeout(() => { loginView.classList.add('hidden'); }, 300);
+            interactiveView.classList.remove('hidden');
+            interactiveView.classList.add('flex');
             selectPhoneTab('dashboard');
         }
     }
@@ -1837,18 +1994,131 @@
         
         Object.keys(screens).forEach(key => {
             if (key === tab) {
-                screens[key].classList.remove('hidden');
-                screens[key].classList.add('block');
-                tabs[key].classList.add('text-[#E2235E]');
-                tabs[key].classList.remove('text-gray-500');
+                if (screens[key]) {
+                    screens[key].classList.remove('hidden');
+                    screens[key].classList.add('block');
+                }
+                if (tabs[key]) {
+                    tabs[key].classList.add('text-[#E2235E]');
+                    tabs[key].classList.remove('text-gray-500');
+                }
             } else {
-                screens[key].classList.remove('block');
-                screens[key].classList.add('hidden');
-                tabs[key].classList.remove('text-[#E2235E]');
-                tabs[key].classList.add('text-gray-500');
+                if (screens[key]) {
+                    screens[key].classList.remove('block');
+                    screens[key].classList.add('hidden');
+                }
+                if (tabs[key]) {
+                    tabs[key].classList.remove('text-[#E2235E]');
+                    tabs[key].classList.add('text-gray-500');
+                }
             }
         });
     }
+
+    function typeWriter(elementId, text, speed, callback) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.textContent = '';
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                el.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else if (callback) {
+                callback();
+            }
+        }
+        type();
+    }
+
+    function runAutoDemo() {
+        const loginView = document.getElementById('phone-login-view');
+        const interactiveView = document.getElementById('phone-interactive-view');
+        const emailEl = document.getElementById('phone-login-email');
+        const passEl = document.getElementById('phone-login-password');
+        const btnText = document.getElementById('phone-login-btn-text');
+        const btn = document.getElementById('phone-login-btn');
+        
+        if (!loginView || !interactiveView) return;
+        
+        // Reset state
+        clearInterval(autoDemoInterval);
+        loginView.classList.remove('hidden');
+        loginView.style.opacity = '1';
+        emailEl.textContent = '';
+        passEl.textContent = '';
+        btnText.textContent = 'Iniciar Sesión';
+        btn.style.background = '#D62C5E';
+        
+        // 1. Type email
+        typewriterTimeout1 = setTimeout(() => {
+            typeWriter('phone-login-email', 'propietario@cgbi.app', 40, () => {
+                // 2. Type password
+                typewriterTimeout2 = setTimeout(() => {
+                    typeWriter('phone-login-password', '••••••••', 60, () => {
+                        // 3. Click login
+                        btnText.textContent = 'Autenticando...';
+                        btn.style.background = '#8c143c';
+                        
+                        transitionTimeout = setTimeout(() => {
+                            // 4. Fade to app
+                            loginView.style.opacity = '0';
+                            setTimeout(() => {
+                                loginView.classList.add('hidden');
+                            }, 500);
+                            
+                            interactiveView.classList.remove('hidden');
+                            interactiveView.classList.add('flex');
+                            selectPhoneTab('dashboard');
+                            
+                            // 5. Auto cycle tabs
+                            let cycleIndex = 0;
+                            const cycleTabs = ['dashboard', 'properties', 'documents'];
+                            autoDemoInterval = setInterval(() => {
+                                cycleIndex = (cycleIndex + 1) % cycleTabs.length;
+                                selectPhoneTab(cycleTabs[cycleIndex]);
+                                
+                                // Restart demo loop if cycled completely
+                                if (cycleIndex === 0) {
+                                    setTimeout(() => {
+                                        runAutoDemo();
+                                    }, 2000);
+                                }
+                            }, 2500);
+                            
+                        }, 1200);
+                    });
+                }, 500);
+            });
+        }, 500);
+    }
+    
+    // ─── 3D PARALLAX TILT EFFECT FOR IPHONE 17 ───────────────────
+    const phoneWrapper = document.getElementById('phone-mockup-wrapper');
+    const phoneInner = document.getElementById('phone-mockup-inner');
+    if (phoneWrapper && phoneInner) {
+        phoneWrapper.addEventListener('mousemove', e => {
+            const rect = phoneInner.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+            const rotateX = ((cy - y) / cy) * 12; // tilt vertically
+            const rotateY = ((x - cx) / cx) * 12; // tilt horizontally
+            
+            phoneInner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+        });
+        
+        phoneWrapper.addEventListener('mouseleave', () => {
+            phoneInner.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        });
+    }
+
+    // Start auto demo by default on load
+    document.addEventListener('DOMContentLoaded', () => {
+        runAutoDemo();
+    });
     </script>
 </body>
 </html>
