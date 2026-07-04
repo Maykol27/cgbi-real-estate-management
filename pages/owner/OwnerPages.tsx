@@ -683,7 +683,6 @@ export const OwnerRequests: React.FC = () => {
                                             </p>
                                             <a
                                                 href={requestToApprove.attachmentUrl || "#"}
-                                                download={requestToApprove.title}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="flex items-center gap-2 text-sm text-blue-600 font-medium cursor-pointer hover:underline"
