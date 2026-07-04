@@ -292,7 +292,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                                             Actually, User requested: "Internal ticket to collab -> response should show Name, not Admin CGBI"
                                         */}
                                     {msg?.role === 'Admin'
-                                        ? (ticket?.requesterRole === 'Colaborador' || ticket?.requesterRole === 'Admin' ? (msg?.sender || 'Admin') : 'Admin CGBI')
+                                        ? (msg?.sender || 'Admin CGBI')
                                         : (msg?.sender || 'Usuario')
                                     } • {msg?.time || ''}
                                 </span>

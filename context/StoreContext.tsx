@@ -36,9 +36,10 @@ interface StoreContextType {
     deleteDocument: (id: string | number) => void;
 
     properties: Property[];
-    addProperty: (p: Omit<Property, 'id'> & { imageFile?: File }) => void;
+    addProperty: (p: Omit<Property, 'id'> & { imageFile?: File, tenantId?: string | number }) => void;
     updatePropertyStatus: (id: string | number, status: Property['status']) => void;
-    updateProperty: (id: string | number, updates: Partial<Property> & { imageFile?: File }) => void;
+    updateProperty: (id: string | number, updates: Partial<Property> & { imageFile?: File, tenantId?: string | number }) => void;
+    deleteProperty: (id: string | number) => Promise<void>;
 
     visits: Visit[];
     addVisit: (v: Omit<Visit, 'id'>) => Promise<{ success: boolean; message: string }>;
@@ -46,11 +47,11 @@ interface StoreContextType {
     updateVisit: (id: string | number, updates: Partial<Visit>) => void; // Added for full updates
 
     financeRequests: FinanceRequest[];
-    addFinanceRequest: (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => void;
+    addFinanceRequest: (r: Omit<FinanceRequest, 'id' | 'date' | 'status'> & { file?: File }) => Promise<void>;
     updateFinanceRequestStatus: (id: string | number, status: string, reason?: string) => void;
 
     payments: Payment[];
-    addPayment: (p: Omit<Payment, 'id'> & { status?: number }) => Promise<{ success: boolean; message: string }>;
+    addPayment: (p: Omit<Payment, 'id'> & { status?: number; file?: File }) => Promise<{ success: boolean; message: string }>;
 
     // Users
     addUser: (u: Omit<User, 'id'>) => void;
@@ -948,7 +949,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         status: p.status,
                         date: p.date,
                         period: p.period,
-                        tenant_id: p.tenant_id
+                        tenant_id: p.tenant_id,
+                        fileUrl: p.file_url || null
                     })));
                 }
                 return loadedUser;
@@ -1318,32 +1320,28 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const addProperty = async (p: Omit<Property, 'id'> & { imageFile?: File }) => {
+    const addProperty = async (p: Omit<Property, 'id'> & { imageFile?: File, tenantId?: string | number }) => {
         try {
             showToast("Creando propiedad...", "info");
-            console.log("🏠 Creating property:", p.name);
-            console.log('🚀 Iniciando Carga Propiedad. Payload:', p);
-            let publicUrl = p.image; // Use blob URL or empty initially if no file
+            console.log("🏠 Creating new property:", p.name);
+            let publicUrl: string | undefined = undefined;
 
-            // 1. Upload logic (New)
+            // 1. Upload logic
             if (p.imageFile) {
                 const file = p.imageFile;
-                console.log('Iniciando subida para propiedad (nueva):', p.name);
-
                 const fileExt = file.name.split('.').pop();
                 const fileName = `properties/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
 
                 const { error: uploadError } = await supabase.storage
                     .from('project_files')
-                    .upload(fileName, file, { upsert: true });
+                    .upload(fileName, file);
 
                 if (uploadError) {
                     console.log('Error de subida:', uploadError);
                     notify("Error de Imagen", "La propiedad se creará, pero falló la subida de la imagen.");
                 } else {
                     const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
-                    publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // Cache Busting
-                    console.log('URL generada:', publicUrl);
+                    publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
                 }
             }
 
@@ -1364,6 +1362,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 bathrooms: p.bathrooms,
                 parking: p.parking,
                 owner_id: p.owner_id,
+                description: p.description,
                 image_url: publicUrl, // Fixed: Use correct DB column name
                 contract_end_date: p.contractEnd
             }).select().single();
@@ -1376,6 +1375,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
             if (data) {
                 console.log("✅ Property created successfully:", data.id);
+                
+                // Asignar Inquilino si se proporcionó
+                if (p.tenantId) {
+                    const { error: tenantError } = await supabase.from('profiles').update({ property_id: data.id }).eq('id', p.tenantId);
+                    if (tenantError) console.error("Error asigando inquilino:", tenantError);
+                }
+
                 const newProp: Property = { ...p, id: data.id, image: publicUrl };
                 setProperties(prev => [newProp, ...prev]);
                 // Refetch to ensure data appears for all users
@@ -1388,7 +1394,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     };
 
-    const updateProperty = async (id: string | number, updates: Partial<Property> & { imageFile?: File }) => {
+    const updateProperty = async (id: string | number, updates: Partial<Property> & { imageFile?: File, tenantId?: string | number | null }) => {
         try {
             showToast("Guardando cambios en propiedad...", "info");
             console.log('🏗️ Updating Property:', id, updates);
@@ -1410,23 +1416,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 if (uploadError) {
                     console.log('Error de subida:', uploadError);
                     notify("Error de Imagen", "No se pudo actualizar la imagen.");
-                    // We keep the old URL if upload fails? Or just don't update it.
-                    // The updates.image might contain a blob URL that is useless for DB.
-                    // If upload fails, we should NOT save the blob URL to DB.
-                    // So we revert `publicUrl` to undefined or keep it as matches current state?
-                    // Ideally we check if we have an old image.
                 } else {
                     const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
                     publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // Cache Busting
                     console.log('URL generada:', publicUrl);
                 }
             }
-
-            // Convert to DB Columns
-            // We need to map camelCase (frontend) to snake_case (DB) if necessary, 
-            // BUT looking at 'addProperty', it seems DB columns are:
-            // name, address, type, status, listing_type, rent, sq_meters, rooms, bathrooms, parking, description, owner_id, image
-            // We need to construct the update object carefully.
 
             const dbUpdates: any = {};
             if (updates.name !== undefined) dbUpdates.name = updates.name;
@@ -1443,8 +1438,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (updates.owner_id !== undefined) dbUpdates.owner_id = updates.owner_id;
             if (updates.contractEnd !== undefined) dbUpdates.contract_end_date = updates.contractEnd;
 
-            // Only update image if we have a valid publicUrl (from successful upload) OR if explicitly clearing it (passing null?)
-            // Usually we pass 'undefined' if NO change.
             if (publicUrl && publicUrl.startsWith('http')) {
                 dbUpdates.image_url = publicUrl; // Fixed: Use correct DB column name
             }
@@ -1463,6 +1456,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 return;
             }
 
+            // Actualizar Inquilino Asignado
+            if (updates.tenantId !== undefined) {
+                // Remove property_id from previous tenant
+                await supabase.from('profiles').update({ property_id: null }).eq('property_id', id);
+                
+                if (updates.tenantId !== null) {
+                    const { error: tenantError } = await supabase.from('profiles').update({ property_id: id }).eq('id', updates.tenantId);
+                    if (tenantError) console.error("Error re-asigando inquilino:", tenantError);
+                }
+                await fetchAllData();
+            }
+
             // Optimistic Update / State Update
             setProperties(prev => prev.map(p => {
                 if (p.id === id) {
@@ -1470,10 +1475,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         ...p,
                         ...updates,
                         image: (publicUrl && publicUrl.startsWith('http')) ? publicUrl : (p.image || publicUrl)
-                        // Fallback logic: If new URL is valid (http), use it. 
-                        // If not (e.g. upload failed), stick to old image. 
-                        // Note: updates.image might be a blob URL for optimistic preview, but here we want the REAL one for state if confirmed,
-                        // BUT `fetchAllData` will fix it eventually.
                     };
                 }
                 return p;
@@ -1484,6 +1485,23 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         } catch (err: any) {
             console.error("❌ Exception in updateProperty:", err);
             notify("Error", err.message || "Error inesperado al actualizar.");
+        }
+    };
+
+    const deleteProperty = async (id: string | number) => {
+        try {
+            showToast("Eliminando propiedad...", "info");
+            const { error } = await supabase.from('properties').delete().eq('id', id);
+            if (error) {
+                console.error("❌ Error deleting property:", error);
+                notify("Error", "No se pudo eliminar la propiedad.");
+                return;
+            }
+            setProperties(prev => prev.filter(p => p.id !== id));
+            showToast("Propiedad eliminada", "success");
+            notify("Éxito", "Propiedad eliminada correctamente.");
+        } catch (err) {
+            console.error("Exception deleting property:", err);
         }
     };
 
@@ -1661,10 +1679,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     // --- Financial Requests / Approvals ---
 
-    const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'>) => {
+    const addFinanceRequest = async (r: Omit<FinanceRequest, 'id' | 'date' | 'status'> & { file?: File }) => {
         try {
             showToast("Enviando solicitud financiera...", "info");
             console.log("💰 Creating finance request:", r.title);
+            let publicUrl = r.attachmentUrl || null;
+
+            if (r.file) {
+                const fileExt = r.file.name.split('.').pop();
+                const fileName = `finance/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('project_files')
+                    .upload(fileName, r.file);
+
+                if (uploadError) {
+                    console.error("Error uploading finance attachment:", uploadError);
+                } else {
+                    const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
+                    publicUrl = urlData.publicUrl;
+                }
+            }
 
             const { data, error } = await supabase.from('finance_requests').insert({
                 title: r.title,
@@ -1673,7 +1707,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 status: 'Pendiente',
                 requester_id: user?.id,
                 property_id: r.propertyId || null,
-                attachment_url: r.attachmentUrl || null // ✅ FIX: Guardar adjunto en DB
+                attachment_url: publicUrl
             }).select().single();
 
             if (error) {
@@ -1688,7 +1722,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     ...r,
                     id: data.id,
                     date: new Date(data.created_at).toLocaleDateString(),
-                    status: 'Pendiente'
+                    status: 'Pendiente',
+                    attachmentUrl: publicUrl
                 };
                 setFinanceRequests(prev => [newRequest, ...prev]);
                 // Refetch to ensure data appears for all users
@@ -1719,15 +1754,33 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         notify("Estado Actualizado", `La solicitud #${id} ha sido marcada como ${status}.`);
     };
 
-    const addPayment = async (p: Omit<Payment, 'id'> & { status?: number }): Promise<{ success: boolean; message: string }> => {
+    const addPayment = async (p: Omit<Payment, 'id'> & { status?: number; file?: File }): Promise<{ success: boolean; message: string }> => {
         try {
             const finalStatus = p.status !== undefined ? p.status : 1;
+            let publicUrl = null;
+
+            if (p.file) {
+                const fileExt = p.file.name.split('.').pop();
+                const fileName = `receipts/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('project_files')
+                    .upload(fileName, p.file);
+
+                if (uploadError) {
+                    console.error("Error uploading receipt:", uploadError);
+                } else {
+                    const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
+                    publicUrl = urlData.publicUrl;
+                }
+            }
+
             const { data, error } = await supabase.from('payments').insert({
                 amount: p.amount,
                 period: p.period,
                 date: p.date,
                 status: finalStatus,
-                tenant_id: p.tenant_id || user?.id
+                tenant_id: p.tenant_id || user?.id,
+                file_url: publicUrl
             }).select().single();
 
             if (error) {
@@ -1740,7 +1793,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     ...p,
                     id: data.id,
                     status: finalStatus,
-                    tenant_id: data.tenant_id
+                    tenant_id: data.tenant_id,
+                    fileUrl: data.file_url || null
                 };
                 setPayments(prev => [newPayment, ...prev]);
                 notify("Pago Registrado", `Pago de ${p.period} registrado exitosamente.`);
@@ -1944,7 +1998,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (permission === "granted") {
                 console.log("Notification permission granted.");
                 try {
-                    new Notification("Sikai CX", {
+                    new Notification("CGBI", {
                         body: "Notificaciones activadas correctamente.",
                         icon: "/sikai-icon.png"
                     });
@@ -1962,7 +2016,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             user, loading, login, logout, users, addUser, deleteUser,
             tickets, addTicket, updateTicketStatus, updateTicketPriority, assignTicket, addMessageToTicket,
             documents, addDocument, deleteDocument,
-            properties, addProperty, updatePropertyStatus, updateProperty,
+            properties, addProperty, updatePropertyStatus, updateProperty, deleteProperty,
             visits, addVisit, updateVisit, updateVisitFeedback, deleteVisit,
             financeRequests, addFinanceRequest, updateFinanceRequestStatus,
             payments, addPayment, updateUserStatus, updateProfile, uploadAvatar,

@@ -37,7 +37,8 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
         bathrooms: '',
         description: '',
         status: 'Disponible',
-        contractEnd: ''
+        contractEnd: '',
+        tenantId: ''
     });
 
     // Sync with initialData when modal opens
@@ -57,7 +58,8 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 bathrooms: initialData?.bathrooms || '',
                 description: initialData?.description || '',
                 status: initialData?.status || 'Disponible',
-                contractEnd: initialData?.contractEnd || ''
+                contractEnd: initialData?.contractEnd || '',
+                tenantId: initialData?.tenantId || ''
             });
         }
     }, [isOpen, initialData]);
@@ -194,6 +196,29 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                     </div>
                 </div>
 
+                {/* Tenant Assigned */}
+                {formListingType !== 'Venta' && (
+                    <div>
+                        <label htmlFor="tenantId" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+                            Arrendatario Asignado (Opcional)
+                        </label>
+                        <select
+                            id="tenantId"
+                            name="tenantId"
+                            value={formData?.tenantId || ''}
+                            onChange={handleChange}
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
+                        >
+                            <option value="">Sin arrendatario asignado</option>
+                            {users?.filter(u => u.role === 'Inquilino' || u.role === 'Arrendatario').map(u => (
+                                <option key={u.id} value={u.id}>
+                                    {u.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
                 {/* Square Meters & Parking */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -279,19 +304,21 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 </div>
 
                 {/* Contract End Date */}
-                <div>
-                    <label htmlFor="contractEnd" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
-                        Fin de Contrato
-                    </label>
-                    <input
-                        id="contractEnd"
-                        name="contractEnd"
-                        value={formData?.contractEnd || ''}
-                        onChange={handleChange}
-                        type="date"
-                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
-                    />
-                </div>
+                {formListingType !== 'Venta' && (
+                    <div>
+                        <label htmlFor="contractEnd" className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1.5">
+                            Fin de Contrato
+                        </label>
+                        <input
+                            id="contractEnd"
+                            name="contractEnd"
+                            value={formData?.contractEnd || ''}
+                            onChange={handleChange}
+                            type="date"
+                            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F172A] text-[#111827] dark:text-[#F9FAFB] text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#D62C5E] focus:border-transparent transition-all"
+                        />
+                    </div>
+                )}
 
                 {/* Image Upload */}
                 <div>

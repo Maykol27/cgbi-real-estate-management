@@ -4,8 +4,9 @@ import Login from './pages/Login';
 import { DebugConnection } from './pages/DebugConnection';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { AdminProperties, AdminTenants, AdminTickets, AdminDocuments, AdminSettings, AdminCalendar } from './pages/admin/AdminPages';
-import { TenantDashboard, TenantPayments, TenantContracts, TenantRequests, TenantProfile } from './pages/tenant/TenantPages';
+import { TenantDashboard, TenantPayments, TenantContracts, TenantRequests } from './pages/tenant/TenantPages';
 import { OwnerDashboard, OwnerProperties, OwnerRequests, OwnerCalendar } from './pages/owner/OwnerPages';
+import { UserProfile } from './pages/UserProfile';
 import { Layout } from './components/Layout';
 import { UserRole } from './types';
 import { StoreProvider } from './context/StoreContext';
@@ -35,6 +36,7 @@ const App: React.FC = () => {
                   <Route path="documents" element={<AdminDocuments />} />
                   <Route path="calendar" element={<AdminCalendar />} />
                   <Route path="settings" element={<AdminSettings />} />
+                  <Route path="profile" element={<UserProfile />} />
                 </Routes>
               </Layout>
             } />
@@ -48,7 +50,7 @@ const App: React.FC = () => {
                   <Route path="payments" element={<TenantPayments />} />
                   <Route path="contracts" element={<TenantContracts />} />
                   <Route path="requests" element={<TenantRequests />} />
-                  <Route path="profile" element={<TenantProfile />} />
+                  <Route path="profile" element={<UserProfile />} />
                 </Routes>
               </Layout>
             } />
@@ -62,6 +64,7 @@ const App: React.FC = () => {
                   <Route path="properties" element={<OwnerProperties />} />
                   <Route path="calendar" element={<OwnerCalendar />} />
                   <Route path="requests" element={<OwnerRequests />} />
+                  <Route path="profile" element={<UserProfile />} />
                 </Routes>
               </Layout>
             } />

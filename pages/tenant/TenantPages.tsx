@@ -8,7 +8,7 @@ import { formatCurrency } from '../../utils';
 
 // --- Shared Components ---
 const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
-    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 z-50 shadow-sm relative">
+    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 z-10 shadow-sm relative">
         <h1 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h1>
         <div className="flex items-center gap-2">
             <NotificationButton />
@@ -202,7 +202,11 @@ export const TenantPayments: React.FC = () => {
                                             <td className="px-6 py-4 text-sm font-bold text-right dark:text-white">{formatCurrency(pay.amount)}</td>
                                             <td className="px-6 py-4 text-right">
                                                 {(pay.status === 1 || pay.status === 'Pagado') && (
-                                                    <button onClick={() => handleDownload(`Recibo_${pay.period}.pdf`)} className="text-primary text-xs font-bold hover:underline">Recibo</button>
+                                                    pay.fileUrl ? (
+                                                        <a href={pay.fileUrl} target="_blank" rel="noreferrer" className="text-primary text-xs font-bold hover:underline">Recibo</a>
+                                                    ) : (
+                                                        <button onClick={() => showToast("Recibo no disponible para este pago (no adjuntado).", "info")} className="text-gray-400 text-xs font-bold cursor-not-allowed">Recibo</button>
+                                                    )
                                                 )}
                                                 {(pay.status === 0 || pay.status === 'Pendiente') && (
                                                     <button onClick={() => window.open('https://checkout.wompi.co/l/VPOS_jEk4cb', '_blank')} className="bg-primary text-white px-3 py-1 rounded text-xs font-bold hover:bg-primary-dark">Pagar</button>
@@ -249,19 +253,33 @@ export const TenantContracts: React.FC = () => {
         }
     };
 
+    const activeContract = myDocuments.find(d => d.type === 'Contrato');
+
     return (
         <>
             <TenantHeader title="Documentos y Contratos" />
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="grid gap-4 max-w-3xl mx-auto">
-                    {/* Active Contract Card (Mock for now, or fetch specific type) */}
+                    {/* Active Contract Card */}
                     <div className="bg-gradient-to-br from-primary to-slate-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <span className="material-icons-round text-9xl">gavel</span>
                         </div>
                         <div className="relative z-10">
                             <h2 className="text-2xl font-bold mb-1">Contrato de Arrendamiento</h2>
-                            <p className="text-slate-200 mb-6 text-sm">Documentos Generales</p>
+                            {activeContract ? (
+                                <>
+                                    <p className="text-slate-200 mb-6 text-sm">{activeContract.name}</p>
+                                    <button 
+                                        onClick={() => handleDownload(activeContract)}
+                                        className="px-4 py-2 bg-white text-primary hover:bg-slate-100 font-bold rounded-lg text-sm shadow-md transition-all flex items-center gap-2 w-fit"
+                                    >
+                                        <span className="material-icons-round text-sm">download</span> Ver Documento
+                                    </button>
+                                </>
+                            ) : (
+                                <p className="text-slate-200 mb-6 text-sm italic">No tienes un contrato registrado en el sistema.</p>
+                            )}
                         </div>
                     </div>
 
@@ -388,6 +406,12 @@ export const TenantRequests: React.FC = () => {
                                             onChange={(e) => setFile(e.target.files?.[0] || null)}
                                         />
                                     </div>
+                                    <div className="bg-amber-50 dark:bg-yellow-900/10 border border-amber-200 dark:border-yellow-900/30 p-4 rounded-xl text-xs text-amber-800 dark:text-yellow-500 leading-relaxed flex gap-2">
+                                        <span className="material-icons-round text-base shrink-0">info</span>
+                                        <p>
+                                            4. Los tiempos de respuesta dependerán de la naturaleza y prioridad de la solicitud y se atenderán dentro de los términos establecidos por la legislación colombiana vigente. En los casos que aplique, el tiempo de respuesta podrá ser de hasta 15 días hábiles, sin perjuicio de una atención más ágil cuando sea posible.
+                                        </p>
+                                    </div>
                                     <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-bold text-sm transition-colors">Enviar Solicitud</button>
                                 </div>
                             </form>
@@ -450,134 +474,4 @@ export const TenantRequests: React.FC = () => {
             </div>
         </>
     );
-};
-
-// --- Profile Page ---
-// --- Profile Page ---
-export const TenantProfile: React.FC = () => {
-    const { user, updateProfile, uploadAvatar } = useStore();
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const { showToast } = useToast();
-
-    // Local state for inputs
-    const [formData, setFormData] = useState({
-        name: user?.name || '',
-        phone: user?.phone || ''
-    });
-    const [loading, setLoading] = useState(false);
-
-    // Sync state with user data
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || '',
-                phone: user.phone || ''
-            });
-        }
-    }, [user]);
-
-    const handleAvatarClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0] && user) {
-            const file = e.target.files[0];
-            showToast("Subiendo foto de perfil...", "info");
-
-            const result = await uploadAvatar(String(user.id), file);
-
-            if (result.success) {
-                showToast("Foto de perfil actualizada exitosamente.", "success");
-            } else {
-                showToast("Error al subir la foto: " + result.message, "error");
-            }
-        }
-    };
-
-    const handleSave = async () => {
-        if (!user) return;
-        setLoading(true);
-        try {
-            await updateProfile(user.id, {
-                name: formData.name,
-                phone: formData.phone
-            });
-            // updateProfile already shows a notification, but we can add explicit success check via await if updateProfile returned persistence status
-            // StoreContext notify handles it.
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <>
-            <TenantHeader title="Mi Perfil" />
-            <div className="flex-1 overflow-y-auto p-6 md:p-8">
-                <div className="max-w-2xl mx-auto bg-card-light dark:bg-card-dark rounded-2xl shadow-soft border border-gray-100 dark:border-gray-700 p-8">
-                    <div className="flex flex-col items-center mb-8">
-                        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                            <img
-                                src={user?.photoUrl || "https://i.pravatar.cc/150?u=tenant"}
-                                className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-700 shadow-md object-cover"
-                                alt="Avatar"
-                            />
-                            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="material-icons-round text-white">camera_alt</span>
-                            </div>
-                            <button className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-sm hover:bg-primary-dark transition-colors z-10"><span className="material-icons-round text-sm">edit</span></button>
-                            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept="image/*" />
-                        </div>
-                        <h2 className="mt-4 text-xl font-bold dark:text-white">{user?.name || "Cargando..."}</h2>
-                        <p className="text-gray-500">{user?.role} • {user?.policyNumber ? 'Póliza: ' + user.policyNumber : 'Sin Asignar'}</p>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre Completo</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-primary dark:text-white"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono</label>
-                                <input
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 text-sm focus:ring-primary dark:text-white"
-                                    placeholder="+57 ..."
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Correo Electrónico</label>
-                            <input type="email" defaultValue={user?.email} className="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800 text-gray-500" disabled />
-                        </div>
-
-                        <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
-                            <h3 className="font-bold text-sm mb-4 dark:text-white">Seguridad</h3>
-                            <button onClick={() => showToast("Enviando correo de recuperación...", "info")} className="text-primary text-sm font-medium hover:underline">Cambiar Contraseña</button>
-                        </div>
-
-                        <div className="flex justify-end pt-4">
-                            <button
-                                onClick={handleSave}
-                                disabled={loading}
-                                className={`bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 ${loading ? 'opacity-70 cursor-wait' : ''}`}
-                            >
-                                {loading ? 'Guardando...' : 'Guardar Cambios'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
-};
+};

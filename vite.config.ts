@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       legacy({
-        targets: ['defaults', 'Safari >= 12', 'not IE 11']
+        targets: ['defaults', 'Safari >= 12', 'not IE 11'],
+        modernPolyfills: true
       })
     ],
     define: {
@@ -34,6 +35,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
+      target: 'es2015',
       outDir: 'dist',
       emptyOutDir: true,
       sourcemap: true

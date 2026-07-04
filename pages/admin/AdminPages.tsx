@@ -128,7 +128,8 @@ export const AdminDocuments: React.FC = () => {
                 cost: cost,
                 requester: "Admin CGBI",
                 attachmentUrl: fileUrl,
-                propertyId: selectedPropertyId // FIX: Link to property
+                propertyId: selectedPropertyId, // FIX: Link to property
+                file: selectedFile || undefined
             });
             showToast("Solicitud de aprobación enviada al propietario.", "success");
         }
@@ -570,7 +571,7 @@ export const AdminDocuments: React.FC = () => {
 
 // --- Properties Page (Admin) ---
 export const AdminProperties: React.FC = () => {
-    const { user, properties, updatePropertyStatus, updateProperty, addProperty, users } = useStore();
+    const { user, properties, addProperty, updateProperty, deleteProperty, users } = useStore();
     const { showToast } = useToast();
 
     // Permission Check
@@ -769,8 +770,10 @@ export const AdminProperties: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                {filteredProps.map(prop => (
-                                    <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-[#1E293B]/70 transition-colors">
+                                {filteredProps.map(prop => {
+                                    const tenant = users?.find(u => String(u.propertyId) === String(prop.id) && (u.role === 'Inquilino' || u.role === 'Arrendatario'));
+                                    return (
+                                        <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-[#1E293B]/70 transition-colors">
                                         <td className="p-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="h-12 w-12 rounded-lg bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 flex items-center justify-center text-[#D62C5E] shrink-0 overflow-hidden">
@@ -795,7 +798,10 @@ export const AdminProperties: React.FC = () => {
                                         </td>
                                         <td className="p-5">
                                             <p className="text-sm font-medium text-[#111827] dark:text-[#F9FAFB]">{prop.type}</p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">{prop.owner}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Propietario: {prop.owner}</p>
+                                            {tenant && (
+                                                <p className="text-xs text-[#D62C5E] font-semibold mt-1">Arrendatario: {tenant.name}</p>
+                                            )}
                                         </td>
                                         <td className="p-5 text-sm font-semibold text-[#111827] dark:text-[#F9FAFB]">{formatCurrency(Number(prop.rent))}</td>
                                         <td className="p-5">
@@ -826,7 +832,8 @@ export const AdminProperties: React.FC = () => {
                                             )}
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -973,6 +980,7 @@ export const AdminTenants: React.FC = () => {
                                     const amount = (form.elements.namedItem('amount') as HTMLInputElement).value;
                                     const period = (form.elements.namedItem('period') as HTMLInputElement).value;
                                     const statusVal = (form.elements.namedItem('status') as HTMLSelectElement).value;
+                                    const file = (form.elements.namedItem('receipt') as HTMLInputElement)?.files?.[0];
 
                                     if (amount && period && selectedTenantHistory) {
                                         const res = await addPayment({
@@ -980,7 +988,8 @@ export const AdminTenants: React.FC = () => {
                                             period,
                                             status: Number(statusVal),
                                             date: new Date().toISOString(),
-                                            tenant_id: selectedTenantHistory
+                                            tenant_id: selectedTenantHistory,
+                                            file: file || undefined
                                         });
                                         if (res.success) {
                                             form.reset();
@@ -989,17 +998,17 @@ export const AdminTenants: React.FC = () => {
                                         }
                                     }
                                 }}
-                                className="flex flex-col sm:flex-row gap-2 items-end"
+                                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end"
                             >
-                                <div className="flex-1 w-full">
+                                <div className="w-full">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">Periodo</label>
                                     <input name="period" required placeholder="Ej: Octubre 2026" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white" />
                                 </div>
-                                <div className="flex-1 w-full">
+                                <div className="w-full">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">Monto</label>
                                     <input name="amount" type="number" required placeholder="0" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white" />
                                 </div>
-                                <div className="flex-1 w-full">
+                                <div className="w-full">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">Estado</label>
                                     <select name="status" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-slate-700 text-sm py-1.5 focus:ring-primary dark:text-white">
                                         <option value="1">Pagado</option>
@@ -1007,9 +1016,15 @@ export const AdminTenants: React.FC = () => {
                                         <option value="2">En Mora</option>
                                     </select>
                                 </div>
-                                <button type="submit" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-1">
-                                    <span className="material-icons-round text-base">save</span> Registrar
-                                </button>
+                                <div className="w-full">
+                                    <label className="block text-xs font-bold text-gray-500 mb-1">Adjuntar Recibo (Opcional)</label>
+                                    <input name="receipt" type="file" accept="image/*,application/pdf" className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-primary file:text-white cursor-pointer" />
+                                </div>
+                                <div className="sm:col-span-2 md:col-span-4 flex justify-end">
+                                    <button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-1">
+                                        <span className="material-icons-round text-base">save</span> Registrar Pago
+                                    </button>
+                                </div>
                             </form>
                         </div>
 

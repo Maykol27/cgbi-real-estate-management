@@ -8,7 +8,7 @@ import { useToast } from '../../context/ToastContext';
 import { formatCurrency } from '../../utils';
 
 const OwnerHeader: React.FC<{ title: string }> = ({ title }) => (
-    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark shadow-sm flex items-center justify-between px-6 z-50 border-b border-gray-100 dark:border-gray-700 relative">
+    <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark shadow-sm flex items-center justify-between px-6 z-10 border-b border-gray-100 dark:border-gray-700 relative">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">{title}</h2>
         <div className="flex items-center gap-2">
             <NotificationButton />
@@ -234,7 +234,7 @@ export const OwnerProperties: React.FC = () => {
     const [selectedProp, setSelectedProp] = useState<any | null>(null);
     const [showHistory, setShowHistory] = useState(false);
     const { showToast } = useToast();
-    const { properties, payments } = useStore(); // Get properties and payments from store
+    const { properties, payments, users } = useStore(); // Get properties, payments, and users from store
 
     // Derived history for selected property
     const propertyHistory = selectedProp
@@ -245,6 +245,11 @@ export const OwnerProperties: React.FC = () => {
         setSelectedProp(null);
         setShowHistory(false);
     };
+
+    // Lookup tenant
+    const tenant = selectedProp
+        ? users?.find(u => String(u.propertyId) === String(selectedProp.id) && (u.role === 'Inquilino' || u.role === 'Arrendatario'))
+        : null;
 
     return (
         <>
@@ -261,8 +266,8 @@ export const OwnerProperties: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
-                                    <span className="block text-gray-400 text-xs uppercase">Inquilino Actual</span>
-                                    <span className="font-semibold dark:text-white">{selectedProp.status === 'Ocupado' ? 'Ocupado' : 'Sin Asignar'}</span>
+                                    <span className="block text-gray-400 text-xs uppercase">Arrendatario Actual</span>
+                                    <span className="font-semibold dark:text-white">{tenant ? tenant.name : 'Sin Asignar'}</span>
                                 </div>
                                 <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                     <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
@@ -618,6 +623,12 @@ export const OwnerRequests: React.FC = () => {
                                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
                                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                             />
+                        </div>
+                        <div className="bg-amber-50 dark:bg-yellow-900/10 border border-amber-200 dark:border-yellow-900/30 p-4 rounded-xl text-xs text-amber-800 dark:text-yellow-500 leading-relaxed flex gap-2">
+                            <span className="material-icons-round text-base shrink-0">info</span>
+                            <p>
+                                4. Los tiempos de respuesta dependerán de la naturaleza y prioridad de la solicitud y se atenderán dentro de los términos establecidos por la legislación colombiana vigente. En los casos que aplique, el tiempo de respuesta podrá ser de hasta 15 días hábiles, sin perjuicio de una atención más ágil cuando sea posible.
+                            </p>
                         </div>
                         <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-lg font-bold text-sm shadow-md transition-all">Enviar Solicitud</button>
                     </form>
