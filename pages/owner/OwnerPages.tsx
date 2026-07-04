@@ -264,21 +264,30 @@ export const OwnerProperties: React.FC = () => {
                                 <h4 className="font-bold text-lg dark:text-white">{selectedProp.name}</h4>
                                 <p className="text-sm text-gray-500">{selectedProp.address}</p>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
-                                    <span className="block text-gray-400 text-xs uppercase">Arrendatario Actual</span>
-                                    <span className="font-semibold dark:text-white">{tenant ? tenant.name : 'Sin Asignar'}</span>
+                            {selectedProp.listingType !== 'Venta' ? (
+                                <>
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                                            <span className="block text-gray-400 text-xs uppercase">Arrendatario Actual</span>
+                                            <span className="font-semibold dark:text-white">{tenant ? tenant.name : 'Sin Asignar'}</span>
+                                        </div>
+                                        <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                                            <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
+                                            <span className="font-semibold dark:text-white">
+                                                {selectedProp.contractEnd
+                                                    ? new Date(selectedProp.contractEnd).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
+                                                    : 'No Definido'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setShowHistory(true)} className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-bold text-sm mt-2 transition-colors">Ver Historial de Pagos</button>
+                                </>
+                            ) : (
+                                <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl text-sm text-center border border-gray-100 dark:border-gray-700">
+                                    <span className="block text-gray-400 text-xs uppercase mb-1">Estado de Operación</span>
+                                    <span className="font-bold text-emerald-600 dark:text-emerald-400 text-base">Propiedad en Venta</span>
                                 </div>
-                                <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
-                                    <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
-                                    <span className="font-semibold dark:text-white">
-                                        {selectedProp.contractEnd
-                                            ? new Date(selectedProp.contractEnd).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })
-                                            : 'No Definido'}
-                                    </span>
-                                </div>
-                            </div>
-                            <button onClick={() => setShowHistory(true)} className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-bold text-sm mt-2 transition-colors">Ver Historial de Pagos</button>
+                            )}
                         </div>
                     ) : (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
