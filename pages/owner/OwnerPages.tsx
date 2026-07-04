@@ -627,7 +627,7 @@ export const OwnerRequests: React.FC = () => {
                         <div className="bg-amber-50 dark:bg-yellow-900/10 border border-amber-200 dark:border-yellow-900/30 p-4 rounded-xl text-xs text-amber-800 dark:text-yellow-500 leading-relaxed flex gap-2">
                             <span className="material-icons-round text-base shrink-0">info</span>
                             <p>
-                                4. Los tiempos de respuesta dependerán de la naturaleza y prioridad de la solicitud y se atenderán dentro de los términos establecidos por la legislación colombiana vigente. En los casos que aplique, el tiempo de respuesta podrá ser de hasta 15 días hábiles, sin perjuicio de una atención más ágil cuando sea posible.
+                                Los tiempos de respuesta dependerán de la naturaleza y prioridad de la solicitud y se atenderán dentro de los términos establecidos por la legislación colombiana vigente. En los casos que aplique, el tiempo de respuesta podrá ser de hasta 15 días hábiles, sin perjuicio de una atención más ágil cuando sea posible.
                             </p>
                         </div>
                         <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-lg font-bold text-sm shadow-md transition-all">Enviar Solicitud</button>
