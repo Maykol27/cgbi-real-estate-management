@@ -1683,7 +1683,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
             showToast("Enviando solicitud financiera...", "info");
             console.log("💰 Creating finance request:", r.title);
-            let publicUrl = r.attachmentUrl || null;
+            let publicUrl = null;
 
             if (r.file) {
                 const fileExt = r.file.name.split('.').pop();
@@ -1694,10 +1694,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                 if (uploadError) {
                     console.error("Error uploading finance attachment:", uploadError);
+                    notify("Error de Carga", `No se pudo subir la cotización: ${uploadError.message}`);
+                    return; // Abort insertion
                 } else {
                     const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
                     publicUrl = urlData.publicUrl;
                 }
+            } else if (r.attachmentUrl && !r.attachmentUrl.startsWith('blob:')) {
+                publicUrl = r.attachmentUrl;
             }
 
             const { data, error } = await supabase.from('finance_requests').insert({
@@ -1768,6 +1772,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
                 if (uploadError) {
                     console.error("Error uploading receipt:", uploadError);
+                    notify("Error de Carga", `No se pudo subir el recibo: ${uploadError.message}`);
+                    return { success: false, message: `Error de subida: ${uploadError.message}` };
                 } else {
                     const { data: urlData } = supabase.storage.from('project_files').getPublicUrl(fileName);
                     publicUrl = urlData.publicUrl;
