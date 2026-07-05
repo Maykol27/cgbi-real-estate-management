@@ -1295,11 +1295,14 @@ export const AdminTickets: React.FC = () => {
         }
     };
 
-    // CRITICAL: Filter tickets for collaborators - they only see assigned tickets
+    // CRITICAL: Filter tickets for collaborators - they see tickets assigned to them or created by them
     let visibleTickets = tickets;
     if (user?.role === 'Colaborador') {
-        visibleTickets = tickets.filter(t => String(t.assigned_to) === String(user.id));
-        console.log(`🔍 [COLLABORATOR FILTER] User ${user.id} sees ${visibleTickets.length} assigned tickets`);
+        visibleTickets = tickets.filter(t => 
+            String(t.assigned_to) === String(user.id) || 
+            String(t.requester_id) === String(user.id)
+        );
+        console.log(`🔍 [COLLABORATOR FILTER] User ${user.id} sees ${visibleTickets.length} tickets (assigned or created)`);
     }
 
     const filteredTickets = (filterStatus === "Todos" ? visibleTickets : visibleTickets.filter(t => t.status === filterStatus))
@@ -1311,7 +1314,7 @@ export const AdminTickets: React.FC = () => {
                 title="Centro de Soporte"
                 subtitle="Gestión de incidencias y solicitudes"
                 action={
-                    user?.role !== 'Colaborador' && (
+                    (user?.role !== 'Colaborador' || user.permissions?.includes('tickets')) && (
                         <button onClick={() => setIsCreateModalOpen(true)} className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md flex items-center gap-2">
                             <span className="material-icons-round">add_task</span> Crear Ticket / Tarea
                         </button>
