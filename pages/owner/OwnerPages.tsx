@@ -465,6 +465,7 @@ export const OwnerRequests: React.FC = () => {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
     const [file, setFile] = useState<File | null>(null);
+    const [viewerUrl, setViewerUrl] = useState<string | null>(null);
 
     // Filter tickets created by this owner (by user.id to match DB)
     const ownRequests = tickets
@@ -677,20 +678,22 @@ export const OwnerRequests: React.FC = () => {
                                             <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
                                                 {requestToApprove.desc}
                                             </p>
-                                            <a
-                                                href={requestToApprove.attachmentUrl || "#"}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex items-center gap-2 text-sm text-blue-600 font-medium cursor-pointer hover:underline"
-                                                onClick={(e) => {
-                                                    if (!requestToApprove.attachmentUrl) {
-                                                        e.preventDefault();
-                                                        showToast("Descargando PDF simulado...", "info");
+                                            <button
+                                                onClick={() => {
+                                                    if (requestToApprove.attachmentUrl) {
+                                                        if (requestToApprove.attachmentUrl.startsWith('blob:')) {
+                                                            showToast("Este documento fue guardado en formato local antiguo y no se puede abrir.", "error");
+                                                        } else {
+                                                            setViewerUrl(requestToApprove.attachmentUrl);
+                                                        }
+                                                    } else {
+                                                        showToast("No hay cotización adjunta para esta solicitud.", "info");
                                                     }
                                                 }}
+                                                className="flex items-center gap-2 text-sm text-blue-600 font-medium cursor-pointer hover:underline"
                                             >
-                                                <span className="material-icons-round text-base">attach_file</span> Ver Cotización / Adjunto
-                                            </a>
+                                                <span className="material-icons-round text-base">visibility</span> Ver Cotización / Adjunto
+                                            </button>
                                         </div>
                                         <div className="bg-white dark:bg-card-dark p-4 rounded-xl border border-gray-200 dark:border-gray-600">
                                             <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Presupuesto Estimado</h4>
@@ -741,9 +744,19 @@ export const OwnerRequests: React.FC = () => {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {r.attachmentUrl && (
-                                                <a href={r.attachmentUrl} target="_blank" rel="noreferrer" className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg" title="Ver adjunto">
-                                                    <span className="material-icons-round text-lg">attach_file</span>
-                                                </a>
+                                                <button
+                                                    onClick={() => {
+                                                        if (r.attachmentUrl.startsWith('blob:')) {
+                                                            showToast("Este documento fue guardado en formato local antiguo.", "error");
+                                                        } else {
+                                                            setViewerUrl(r.attachmentUrl);
+                                                        }
+                                                    }}
+                                                    className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
+                                                    title="Ver adjunto"
+                                                >
+                                                    <span className="material-icons-round text-lg">visibility</span>
+                                                </button>
                                             )}
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                 r.status === 'Aprobado' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
@@ -807,6 +820,43 @@ export const OwnerRequests: React.FC = () => {
 
                 </div>
             </div>
+            {viewerUrl && (
+                <Modal title="Visualizador de Adjunto" onClose={() => setViewerUrl(null)}>
+                    <div className="w-full h-[70vh] flex flex-col">
+                        {viewerUrl.toLowerCase().endsWith('.pdf') || viewerUrl.includes('.pdf') ? (
+                            <iframe
+                                src={`${viewerUrl}#toolbar=0`}
+                                className="w-full flex-1 rounded-lg border border-gray-200 dark:border-gray-700"
+                                title="Visualizador PDF"
+                            />
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center overflow-auto bg-gray-50 dark:bg-slate-950 rounded-lg p-4">
+                                <img
+                                    src={viewerUrl}
+                                    className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                    alt="Visualizador Adjunto"
+                                />
+                            </div>
+                        )}
+                        <div className="mt-4 flex gap-3">
+                            <a
+                                href={viewerUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2.5 rounded-lg font-bold text-sm transition-colors"
+                            >
+                                Abrir en pestaña nueva
+                            </a>
+                            <button
+                                onClick={() => setViewerUrl(null)}
+                                className="px-5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-white py-2.5 rounded-lg font-bold text-sm transition-colors"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </>
     );
 };
