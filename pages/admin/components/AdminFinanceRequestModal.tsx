@@ -23,6 +23,7 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
         propertyId: request?.propertyId?.toString() || ""
     });
     const [attachmentFile, setAttachmentFile] = useState<File | null>(null); // ✅ FIX: Soporte adjunto
+    const [viewerUrl, setViewerUrl] = useState<string | null>(null);
 
     const isReadOnly = !!request;
 
@@ -50,7 +51,8 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
                 cost: formData.cost,
                 propertyId: formData.propertyId,
                 requester: "Administración",
-                attachmentUrl // ✅ FIX: Pasar adjunto a la función
+                attachmentUrl, // ✅ FIX: Pasar adjunto a la función
+                file: attachmentFile || undefined // ✅ FIX: Pasar archivo para subida real
             });
             showToast("Solicitud creada exitosamente", "success");
             onClose();
@@ -136,15 +138,20 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
                 {isReadOnly && request?.attachmentUrl && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cotización / Evidencia</label>
-                        <a
-                            href={request.attachmentUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (request.attachmentUrl.startsWith('blob:')) {
+                                    showToast("Este documento fue guardado en formato local antiguo.", "error");
+                                } else {
+                                    setViewerUrl(request.attachmentUrl);
+                                }
+                            }}
                             className="flex items-center gap-2 text-sm text-blue-600 font-medium hover:underline"
                         >
-                            <span className="material-icons-round text-base">attach_file</span>
+                            <span className="material-icons-round text-base">visibility</span>
                             Ver Cotización Adjunta
-                        </a>
+                        </button>
                     </div>
                 )}
 
@@ -169,6 +176,44 @@ export const AdminFinanceRequestModal: React.FC<AdminFinanceRequestModalProps> =
                     {!isReadOnly && <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">Crear Solicitud</button>}
                 </div>
             </form>
+            {viewerUrl && (
+                <Modal title="Visualizador de Adjunto" onClose={() => setViewerUrl(null)}>
+                    <div className="w-full h-[70vh] flex flex-col">
+                        {viewerUrl.toLowerCase().endsWith('.pdf') || viewerUrl.includes('.pdf') ? (
+                            <iframe
+                                src={`${viewerUrl}#toolbar=0`}
+                                className="w-full flex-1 rounded-lg border border-gray-200 dark:border-gray-700"
+                                title="Visualizador PDF"
+                            />
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center overflow-auto bg-gray-50 dark:bg-slate-950 rounded-lg p-4">
+                                <img
+                                    src={viewerUrl}
+                                    className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                    alt="Visualizador Adjunto"
+                                />
+                            </div>
+                        )}
+                        <div className="mt-4 flex gap-3">
+                            <a
+                                href={viewerUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 bg-primary hover:bg-primary-dark text-white text-center py-2.5 rounded-lg font-bold text-sm transition-colors"
+                            >
+                                Abrir en pestaña nueva
+                            </a>
+                            <button
+                                type="button"
+                                onClick={() => setViewerUrl(null)}
+                                className="px-5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-white py-2.5 rounded-lg font-bold text-sm transition-colors"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </Modal>
     );
 };
