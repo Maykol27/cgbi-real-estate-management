@@ -269,7 +269,9 @@ export const OwnerProperties: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-3 text-sm">
                                         <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                             <span className="block text-gray-400 text-xs uppercase">Arrendatario Actual</span>
-                                            <span className="font-semibold dark:text-white">{tenant ? tenant.name : 'Sin Asignar'}</span>
+                                            <span className="font-semibold dark:text-white">
+                                                {selectedProp.status === 'Ocupado' ? 'Ocupado' : 'Disponible'}
+                                            </span>
                                         </div>
                                         <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
                                             <span className="block text-gray-400 text-xs uppercase">Contrato Hasta</span>
