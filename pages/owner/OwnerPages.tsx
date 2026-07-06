@@ -48,8 +48,11 @@ export const OwnerDashboard: React.FC = () => {
     // Assuming 'properties' in store contains only my properties due to RLS or we filter by owner_id if available.
     // Given the context doesn't expose owner_id in property object locally without check, let's assume properties list is correct.
     const myPropertyIds = properties.map(p => p.id);
-    const myIncome = payments.filter(p => myPropertyIds.includes(p.property_id || -1) && p.status === 1)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const myIncome = payments.filter(p => {
+        const matchesProperty = myPropertyIds.includes(p.property_id || -1);
+        const matchesTenant = properties.some(prop => prop.tenant_id && String(prop.tenant_id) === String(p.tenant_id));
+        return (matchesProperty || matchesTenant) && p.status === 1;
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     // Derived Expenses (Approved Finance Requests + Factura / Recibo Documents)
     const myExpenses = financeRequests
