@@ -959,8 +959,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 localStorage.setItem('cgbi_user_profile', JSON.stringify(loadedUser)); // CACHE UPDATE
 
                 let paymentsQuery = supabase.from('payments').select('*');
-                // Ensure Admin (role 'Admin' or 'Administrador') and Colaborador see ALL payments
-                if (data.role !== 'Administrador' && data.role !== 'Admin' && data.role !== 'Colaborador') {
+                // Ensure Admin, Colaborador, and Propietario (Owner) see all payments visible to them
+                if (data.role !== 'Administrador' && data.role !== 'Admin' && data.role !== 'Colaborador' && data.role !== 'Propietario' && data.role !== 'Owner') {
                     paymentsQuery = paymentsQuery.eq('tenant_id', data.id);
                 }
                 const { data: paymentsData } = await paymentsQuery;
