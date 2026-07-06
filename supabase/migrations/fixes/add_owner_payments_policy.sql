@@ -32,9 +32,9 @@ USING (
     SELECT 1 FROM properties
     WHERE owner_id = auth.uid()
     AND (
-      tenant_id::text = target_user_id
+      tenant_id::text = target_user_id::text
       OR
-      tenant_id::text = ANY(target_user_ids)
+      tenant_id::text = ANY(target_user_ids::text[])
     )
   )
 );
