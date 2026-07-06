@@ -1650,7 +1650,7 @@ export const AdminCalendar: React.FC = () => {
         const startTime = visit.date.toISOString().replace(/-|:|\.\d\d\d/g, "");
         const endTime = new Date(new Date(visit.date).getTime() + 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, ""); // Assume 1 hour
         const details = `Inmueble: ${visit.propertyName}\nCliente: ${visit.visitorName}\nAsesor: ${visit.advisor || 'N/A'}`;
-        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Visita: ${visit.propertyName}`)}&dates=${startTime}/${endTime}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(visit.propertyName)}`;
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&add=comercial@cgbi.com.co&text=${encodeURIComponent(`Visita: ${visit.propertyName}`)}&dates=${startTime}/${endTime}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(visit.propertyName)}`;
         window.open(url, '_blank');
     };
 
