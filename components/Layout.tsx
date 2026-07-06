@@ -314,6 +314,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, isCollapsed, t
             <>
               <SidebarLink onClick={handleLinkClick} to="/owner/dashboard" icon="dashboard" label="Finanzas y Docs" isCollapsed={effectiveCollapsed} />
               <SidebarLink onClick={handleLinkClick} to="/owner/properties" icon="domain" label="Mis Propiedades" isCollapsed={effectiveCollapsed} />
+              <SidebarLink onClick={handleLinkClick} to="/owner/documents" icon="description" label="Mis Documentos" isCollapsed={effectiveCollapsed} />
               <SidebarLink onClick={handleLinkClick} to="/owner/calendar" icon="event" label="Calendario" isCollapsed={effectiveCollapsed} />
               <SidebarLink onClick={handleLinkClick} to="/owner/requests" icon="home_repair_service" label="Solicitudes" isCollapsed={effectiveCollapsed} />
               <SidebarLink onClick={handleLinkClick} to="/owner/profile" icon="person" label="Mi Perfil" isCollapsed={effectiveCollapsed} />

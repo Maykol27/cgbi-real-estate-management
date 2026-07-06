@@ -5,7 +5,7 @@ import { DebugConnection } from './pages/DebugConnection';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { AdminProperties, AdminTenants, AdminTickets, AdminDocuments, AdminSettings, AdminCalendar } from './pages/admin/AdminPages';
 import { TenantDashboard, TenantPayments, TenantContracts, TenantRequests } from './pages/tenant/TenantPages';
-import { OwnerDashboard, OwnerProperties, OwnerRequests, OwnerCalendar } from './pages/owner/OwnerPages';
+import { OwnerDashboard, OwnerProperties, OwnerRequests, OwnerCalendar, OwnerDocuments } from './pages/owner/OwnerPages';
 import { UserProfile } from './pages/UserProfile';
 import { Layout } from './components/Layout';
 import { UserRole } from './types';
@@ -63,6 +63,7 @@ const App: React.FC = () => {
                   <Route path="dashboard" element={<OwnerDashboard />} />
                   <Route path="properties" element={<OwnerProperties />} />
                   <Route path="calendar" element={<OwnerCalendar />} />
+                  <Route path="documents" element={<OwnerDocuments />} />
                   <Route path="requests" element={<OwnerRequests />} />
                   <Route path="profile" element={<UserProfile />} />
                 </Routes>

@@ -244,6 +244,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         rent: p.rent,
                         owner: ownerUser ? ownerUser.name : 'No Asignado',
                         owner_id: p.owner_id,
+                        tenant_id: p.tenant_id,
                         sqMeters: p.sq_meters,
                         rooms: p.rooms,
                         bathrooms: p.bathrooms,
@@ -262,6 +263,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             } else {
                 console.warn("⚠️ Failed to load properties");
             }
+
+            // Update propertyId for tenants based on properties table
+            allUsers = allUsers.map(u => {
+                const tenantProp = allProperties.find(prop => String(prop.tenant_id) === String(u.id));
+                return {
+                    ...u,
+                    propertyId: tenantProp ? tenantProp.id : undefined
+                };
+            });
+            setUsers(allUsers);
 
             // 3. Process Tickets
             if (ticketsResult.status === 'fulfilled' && ticketsResult.value.data) {
@@ -921,6 +932,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             console.log("StoreContext: fetchProfile DB Result", { data, error });
 
             if (data) {
+                let propertyId = undefined;
+                if (data.role === 'Inquilino') {
+                    const { data: propData } = await supabase
+                        .from('properties')
+                        .select('id')
+                        .eq('tenant_id', userId)
+                        .maybeSingle();
+                    if (propData) propertyId = propData.id;
+                }
+
                 const loadedUser: User = {
                     id: data.id,
                     name: data.full_name,
@@ -929,7 +950,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                     permissions: data.permissions,
                     financialStatus: data.financial_status || 'Al Día',
                     photoUrl: data.avatar_url,
-                    phone: data.phone
+                    phone: data.phone,
+                    propertyId: propertyId
                 };
 
                 console.log("StoreContext: Setting User State & Caching", loadedUser);
@@ -1362,6 +1384,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 bathrooms: p.bathrooms,
                 parking: p.parking,
                 owner_id: p.owner_id,
+                tenant_id: p.tenantId || null,
                 description: p.description,
                 image_url: publicUrl, // Fixed: Use correct DB column name
                 contract_end_date: p.contractEnd
@@ -1376,13 +1399,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (data) {
                 console.log("✅ Property created successfully:", data.id);
                 
-                // Asignar Inquilino si se proporcionó
-                if (p.tenantId) {
-                    const { error: tenantError } = await supabase.from('profiles').update({ property_id: data.id }).eq('id', p.tenantId);
-                    if (tenantError) console.error("Error asigando inquilino:", tenantError);
-                }
-
-                const newProp: Property = { ...p, id: data.id, image: publicUrl };
+                const newProp: Property = { ...p, id: data.id, image: publicUrl, tenant_id: data.tenant_id };
                 setProperties(prev => [newProp, ...prev]);
                 // Refetch to ensure data appears for all users
                 await fetchAllData();
@@ -1437,6 +1454,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             if (updates.description !== undefined) dbUpdates.description = updates.description;
             if (updates.owner_id !== undefined) dbUpdates.owner_id = updates.owner_id;
             if (updates.contractEnd !== undefined) dbUpdates.contract_end_date = updates.contractEnd;
+            if (updates.tenantId !== undefined) dbUpdates.tenant_id = updates.tenantId;
 
             if (publicUrl && publicUrl.startsWith('http')) {
                 dbUpdates.image_url = publicUrl; // Fixed: Use correct DB column name
@@ -1456,15 +1474,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 return;
             }
 
-            // Actualizar Inquilino Asignado
             if (updates.tenantId !== undefined) {
-                // Remove property_id from previous tenant
-                await supabase.from('profiles').update({ property_id: null }).eq('property_id', id);
-                
-                if (updates.tenantId !== null) {
-                    const { error: tenantError } = await supabase.from('profiles').update({ property_id: id }).eq('id', updates.tenantId);
-                    if (tenantError) console.error("Error re-asigando inquilino:", tenantError);
-                }
                 await fetchAllData();
             }
 
@@ -1867,25 +1877,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 };
                 setUsers(prev => [...prev, newUser]); // ✅ FIX: Solo una llamada (eliminado duplicado)
 
-                // If Property ID is provided (Tenant Check-in), update Profile and Property Record
+                // If Property ID is provided (Tenant Check-in), update Property Record
                 if (u.propertyId) {
                     console.log(`🏠 Linking Property #${u.propertyId} to new Tenant ${data.user.id}`);
                     
-                    // 1. Guardar explícitamente el property_id en el perfil del inquilino (Fallback robusto por si la Edge Function falla en el upsert)
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .update({ property_id: u.propertyId })
-                        .eq('id', data.user.id);
-                        
-                    if (profileError) {
-                        console.error("⚠️ Error guardando property_id en profiles:", profileError);
-                    }
-
-                    // 2. Actualizar el estado de la propiedad a 'Occupied' (Alquilado) SIN cambiar el owner_id (el owner es el Propietario, no el Inquilino)
+                    // Actualizar el estado de la propiedad a 'Occupied' (Alquilado) y asociar tenant_id
                     const { error: propError } = await supabase
                         .from('properties')
                         .update({
-                            status: 'Occupied'
+                            status: 'Occupied',
+                            tenant_id: data.user.id
                             // IMPORTANTE: NO se debe reescribir el owner_id aquí porque le quitaría la propiedad al verdadero dueño.
                         })
                         .eq('id', u.propertyId);

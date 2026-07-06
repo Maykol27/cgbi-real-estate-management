@@ -54,6 +54,7 @@ export interface Property {
     rent: string;
     owner: string;
     owner_id?: string;
+    tenant_id?: string | null;
     sqMeters: number;
     rooms: number;
     bathrooms: number;

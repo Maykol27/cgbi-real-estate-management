@@ -21,12 +21,14 @@ const TenantHeader: React.FC<{ title: string }> = ({ title }) => (
 
 // --- Dashboard ---
 export const TenantDashboard: React.FC = () => {
-    const { user, payments, documents } = useStore();
+    const { user, payments, documents, properties } = useStore();
     const { showToast } = useToast();
     const navigate = useNavigate();
 
     // Get first name for greeting
     const firstName = user?.name ? user.name.split(' ')[0] : 'Usuario';
+
+    const myProperty = properties.find(p => String(p.tenant_id) === String(user?.id));
 
     // RLS already filters documents - show all that the user is allowed to see
     // Store logic: Filter last 7 days and limit to 3
@@ -88,6 +90,55 @@ export const TenantDashboard: React.FC = () => {
                         </p>
                         <h1 className="text-2xl sm:text-3xl font-bold dark:text-white">Bienvenido, {firstName}</h1>
                     </div>
+
+                    {/* Mi Inmueble en Arriendo Card */}
+                    {myProperty ? (
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col sm:flex-row gap-5 p-5 animate-in fade-in slide-in-from-top-4">
+                            {myProperty.image ? (
+                                <img src={myProperty.image} alt={myProperty.name} className="w-full sm:w-44 h-32 object-cover rounded-xl shrink-0 shadow-sm" />
+                            ) : (
+                                <div className="w-full sm:w-44 h-32 bg-[#D62C5E]/10 dark:bg-[#D62C5E]/20 rounded-xl flex items-center justify-center text-[#D62C5E] shrink-0 shadow-inner">
+                                    <span className="material-icons-round text-5xl">
+                                        {myProperty.type === 'Apartamento' ? 'apartment' : myProperty.type === 'Casa' ? 'house' : 'storefront'}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="flex-1 flex flex-col justify-between py-1">
+                                <div>
+                                    <div className="flex justify-between items-start gap-2">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-[#D62C5E] uppercase tracking-wider">Mi Inmueble en Arriendo</p>
+                                            <h3 className="font-bold text-lg text-slate-800 dark:text-white leading-tight mt-0.5">{myProperty.name}</h3>
+                                        </div>
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D62C5E]/10 text-[#D62C5E] border border-[#D62C5E]/20">
+                                            {myProperty.type}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                                        <span className="material-icons-round text-sm">place</span>
+                                        {myProperty.address}
+                                    </p>
+                                </div>
+                                <div className="mt-4 sm:mt-0 pt-3 border-t sm:border-t-0 border-gray-100 dark:border-gray-700 flex flex-wrap justify-between items-center gap-2">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Canon Mensual</p>
+                                        <p className="text-lg font-black text-[#D62C5E]">{formatCurrency(Number(myProperty.rent))}</p>
+                                    </div>
+                                    {myProperty.contractEnd && (
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase">Vencimiento Contrato</p>
+                                            <p className="text-sm font-semibold text-slate-700 dark:text-gray-300">{new Date(myProperty.contractEnd).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 p-6 text-center shadow-sm animate-in fade-in">
+                            <span className="material-icons-round text-gray-300 dark:text-gray-600 text-4xl mb-2">home</span>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No tienes un inmueble asignado actualmente.</p>
+                        </div>
+                    )}
 
                     {/* News Feed / Documents */}
                     <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl p-6">

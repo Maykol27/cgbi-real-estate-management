@@ -51,10 +51,33 @@ export const OwnerDashboard: React.FC = () => {
     const myIncome = payments.filter(p => myPropertyIds.includes(p.property_id || -1) && p.status === 1)
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Derived Expenses (Approved Finance Requests)
-    // Filter by my properties
-    const myExpenses = financeRequests.filter(r => r.status === 'Aprobado' && r.propertyId && myPropertyIds.includes(r.propertyId))
-        .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
+    // Derived Expenses (Approved Finance Requests + Factura / Recibo Documents)
+    const myExpenses = financeRequests
+        .filter(r => r.status === 'Aprobado' && r.propertyId && myPropertyIds.includes(r.propertyId))
+        .map(r => ({
+            id: `req-${r.id}`,
+            title: r.title,
+            description: r.desc || '',
+            cost: Number(r.cost) || 0,
+            date: new Date(r.created_at || ""),
+            fileUrl: r.attachmentUrl,
+            isDoc: false
+        }));
+
+    const myExpenseDocs = myDocs
+        .filter(d => d.type === 'Factura / Recibo')
+        .map(d => ({
+            id: `doc-${d.id}`,
+            title: d.name,
+            description: d.type,
+            cost: 0,
+            date: d.timestamp ? new Date(d.timestamp) : new Date(d.date),
+            fileUrl: d.fileUrl,
+            isDoc: true
+        }));
+
+    const allExpenses = [...myExpenses, ...myExpenseDocs]
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
 
     const recentCommunication = myDocs.find(d => {
         if (d.type !== 'Comunicación') return false;
@@ -160,7 +183,7 @@ export const OwnerDashboard: React.FC = () => {
                                 <table className="w-full text-left">
                                     <thead className="bg-gray-50 dark:bg-slate-800 sticky top-0">
                                         <tr>
-                                            <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
+                                            <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha / Detalle</th>
                                             <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase text-right">Monto</th>
                                         </tr>
                                     </thead>
@@ -173,8 +196,17 @@ export const OwnerDashboard: React.FC = () => {
                                             myIncome.map((payment) => (
                                                 <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-5 py-3 text-sm dark:text-white">
-                                                        <p className="font-bold">{new Date(payment.date).toLocaleDateString()}</p>
-                                                        <p className="text-xs text-gray-400">{payment.period}</p>
+                                                        <div className="flex justify-between items-center gap-2">
+                                                            <div>
+                                                                <p className="font-bold">{new Date(payment.date).toLocaleDateString()}</p>
+                                                                <p className="text-xs text-gray-400">{payment.period}</p>
+                                                            </div>
+                                                            {payment.fileUrl && (
+                                                                <a href={payment.fileUrl} target="_blank" rel="noreferrer" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors" title="Ver Recibo de Consignación">
+                                                                    <span className="material-icons-round text-xs">download</span> Recibo
+                                                                </a>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-5 py-3 text-sm font-bold text-right text-emerald-600">+{formatCurrency(payment.amount)}</td>
                                                 </tr>
@@ -192,29 +224,56 @@ export const OwnerDashboard: React.FC = () => {
                                     <span className="material-icons-round text-accent">receipt_long</span>
                                     Facturas y Egresos
                                 </h3>
-                                <button className="text-xs font-bold text-primary hover:underline">Ver Todo</button>
                             </div>
                             <div className="flex-1 overflow-auto p-0">
                                 <table className="w-full text-left">
                                     <thead className="bg-gray-50 dark:bg-slate-800 sticky top-0">
                                         <tr>
                                             <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Concepto</th>
-                                            <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase text-right">Monto</th>
+                                            <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase text-right">Acción / Monto</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                        {myExpenses.length === 0 ? (
+                                        {allExpenses.length === 0 ? (
                                             <tr>
                                                 <td colSpan={2} className="px-5 py-8 text-center text-gray-500 text-sm">No hay egresos registrados.</td>
                                             </tr>
                                         ) : (
-                                            myExpenses.map((exp) => (
+                                            allExpenses.map((exp) => (
                                                 <tr key={exp.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                                     <td className="px-5 py-3 text-sm dark:text-white">
-                                                        <p className="font-bold">{exp.title}</p>
-                                                        <p className="text-xs text-gray-500">{exp.description?.substring(0, 20)}...</p>
+                                                        <p className="font-bold flex items-center gap-1.5">
+                                                            {exp.isDoc ? (
+                                                                <span className="material-icons-round text-xs text-amber-500" title="Factura Subida">receipt</span>
+                                                            ) : (
+                                                                <span className="material-icons-round text-xs text-red-500" title="Solicitud Aprobada">check_circle</span>
+                                                            )}
+                                                            {exp.title}
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 mt-0.5">
+                                                            {exp.date.toLocaleDateString()} • {exp.description?.substring(0, 30)}
+                                                        </p>
                                                     </td>
-                                                    <td className="px-5 py-3 text-sm font-bold text-right text-gray-600 dark:text-gray-300">-{formatCurrency(exp.cost || 0)}</td>
+                                                    <td className="px-5 py-3 text-sm font-bold text-right text-gray-600 dark:text-gray-300">
+                                                        {exp.isDoc ? (
+                                                            exp.fileUrl ? (
+                                                                <a href={exp.fileUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline inline-flex items-center gap-0.5 text-xs font-bold bg-primary/5 hover:bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                                                                    Ver <span className="material-icons-round text-xs">download</span>
+                                                                </a>
+                                                            ) : (
+                                                                <span className="text-gray-400 text-xs">Sin archivo</span>
+                                                            )
+                                                        ) : (
+                                                            <div className="flex flex-col items-end">
+                                                                <span>-{formatCurrency(Number(exp.cost || 0))}</span>
+                                                                {exp.fileUrl && (
+                                                                    <a href={exp.fileUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold mt-0.5" title="Ver Soporte">
+                                                                        Soporte
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </td>
                                                 </tr>
                                             ))
                                         )}
@@ -857,6 +916,146 @@ export const OwnerRequests: React.FC = () => {
                     </div>
                 </Modal>
             )}
+        </>
+    );
+};
+
+// --- Owner Documents Page ---
+export const OwnerDocuments: React.FC = () => {
+    const { documents, user } = useStore();
+    const { showToast } = useToast();
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [activeTab, setActiveTab] = React.useState<string>("Todos");
+
+    // Filter documents for this owner: general + specifically assigned to them
+    const myDocuments = React.useMemo(() => {
+        return [...documents]
+            .filter(d => 
+                d.target === 'Todos' ||
+                d.target === 'General (Todos)' ||
+                d.target === 'Propietarios' ||
+                d.target === 'All' ||
+                d.target === 'Owner' ||
+                d.sharedWith === 'Todos' ||
+                d.sharedWith === user?.name ||
+                d.owner === user?.name ||
+                d.targetId === user?.id ||
+                d.sharedWithId === user?.id
+            )
+            .sort((a, b) => {
+                if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+                return (b.id as number) - (a.id as number);
+            });
+    }, [documents, user]);
+
+    const filteredDocs = React.useMemo(() => {
+        return myDocuments.filter(doc => {
+            const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
+            if (activeTab === "Todos") return matchesSearch;
+            if (activeTab === "Contratos") return matchesSearch && (doc.type === "Contrato" || doc.type === "Contrato de Administración");
+            if (activeTab === "Facturas") return matchesSearch && doc.type === "Factura / Recibo";
+            if (activeTab === "Comunicaciones") return matchesSearch && doc.type === "Comunicación";
+            // "Otros"
+            return matchesSearch && !["Contrato", "Contrato de Administración", "Factura / Recibo", "Comunicación"].includes(doc.type);
+        });
+    }, [myDocuments, searchTerm, activeTab]);
+
+    const handleDownload = (doc: any) => {
+        if (doc.fileUrl) {
+            window.open(doc.fileUrl, '_blank');
+        } else {
+            showToast("Documento no disponible", "error");
+        }
+    };
+
+    return (
+        <>
+            <OwnerHeader title="Mis Documentos" />
+            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+                <div className="max-w-4xl mx-auto space-y-6">
+                    {/* Header Info */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 className="text-xl font-bold dark:text-white">Buzón de Documentos</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                Consulta, filtra y descarga los documentos compartidos por la administración.
+                            </p>
+                        </div>
+                        <div className="relative w-full md:w-72">
+                            <span className="absolute left-3 top-2.5 material-icons-round text-gray-400 text-sm">search</span>
+                            <input
+                                type="text"
+                                placeholder="Buscar documento..."
+                                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-sm focus:ring-2 focus:ring-primary/50 dark:text-white transition-all focus:outline-none"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Navigation Tabs */}
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                        {["Todos", "Contratos", "Facturas", "Comunicaciones", "Otros"].map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+                                    activeTab === tab
+                                        ? "bg-primary text-white shadow-md shadow-primary/20"
+                                        : "bg-white dark:bg-card-dark text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800"
+                                }`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Documents List */}
+                    <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {filteredDocs.length > 0 ? (
+                                filteredDocs.map(doc => {
+                                    const icon = doc.type === 'Contrato' || doc.type === 'Contrato de Administración'
+                                        ? 'gavel'
+                                        : doc.type === 'Factura / Recibo'
+                                            ? 'receipt_long'
+                                            : doc.type === 'Comunicación'
+                                                ? 'campaign'
+                                                : 'description';
+                                    return (
+                                        <div key={doc.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-slate-800/40 transition-colors">
+                                            <div className="flex items-start gap-3">
+                                                <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                                    <span className="material-icons-round text-xl">{icon}</span>
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-800 dark:text-white text-sm break-all leading-tight">{doc.name}</p>
+                                                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                                        {doc.date} • <span className="font-semibold text-primary">{doc.type}</span> {doc.size ? `• ${doc.size}` : ''}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 sm:self-center shrink-0 self-end">
+                                                <button
+                                                    onClick={() => handleDownload(doc)}
+                                                    className="px-4 py-2 bg-[#D62C5E] hover:bg-[#A01B44] text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1"
+                                                >
+                                                    <span className="material-icons-round text-sm">download</span> Descargar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="p-12 text-center">
+                                    <span className="material-icons-round text-gray-300 dark:text-gray-700 text-5xl">folder_open</span>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium">No se encontraron documentos en esta categoría.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>
     );
 };

@@ -59,7 +59,7 @@ export const PropertyModal: React.FC<PropertyModalProps> = ({
                 description: initialData?.description || '',
                 status: initialData?.status || 'Disponible',
                 contractEnd: initialData?.contractEnd || '',
-                tenantId: initialData?.tenantId || ''
+                tenantId: initialData?.tenant_id || initialData?.tenantId || ''
             });
         }
     }, [isOpen, initialData]);

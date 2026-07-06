@@ -266,6 +266,12 @@ export const AdminDocuments: React.FC = () => {
                                 <option value="Solicitud">Solicitud</option>
                                 <option value="Documento Personal">Documento Personal</option>
                             </select>
+                            {docType === 'Factura / Recibo' && (
+                                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1.5 font-semibold flex items-center gap-1">
+                                    <span className="material-icons-round text-xs">info</span>
+                                    Las Facturas y Recibos subidos aquí se visualizarán en la sección "Facturas y Egresos" del panel del Propietario.
+                                </p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">Destinatario</label>
@@ -614,6 +620,7 @@ export const AdminProperties: React.FC = () => {
             rent: (form.elements.namedItem('rent') as HTMLInputElement).value.replace(/,/g, ''),
             owner: ownerName,
             owner_id: ownerId, // Pass the ID
+            tenantId: (form.elements.namedItem('tenantId') as HTMLSelectElement)?.value || null, // Extract tenant ID
             status: (form.elements.namedItem('status') as HTMLSelectElement)?.value as any, // 'Disponible' | 'Vendido' | ...
             listingType: formListingType, // Use controlled state value
             sqMeters: parseNumber((form.elements.namedItem('sqMeters') as HTMLInputElement).value),
@@ -771,7 +778,7 @@ export const AdminProperties: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                 {filteredProps.map(prop => {
-                                    const tenant = users?.find(u => String(u.propertyId) === String(prop.id) && (u.role === 'Inquilino' || u.role === 'Arrendatario'));
+                                    const tenant = users?.find(u => String(u.id) === String(prop.tenant_id));
                                     return (
                                         <tr key={prop.id} className="group hover:bg-gray-50 dark:hover:bg-[#1E293B]/70 transition-colors">
                                         <td className="p-5">
@@ -1019,6 +1026,9 @@ export const AdminTenants: React.FC = () => {
                                 <div className="w-full">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">Adjuntar Recibo (Opcional)</label>
                                     <input name="receipt" type="file" accept="image/*,application/pdf" className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-primary file:text-white cursor-pointer" />
+                                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold leading-tight">
+                                        💡 Este recibo se mostrará en la sección "Consignaciones CGBI" (Ingresos) del Propietario.
+                                    </p>
                                 </div>
                                 <div className="sm:col-span-2 md:col-span-4 flex justify-end">
                                     <button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-1">
