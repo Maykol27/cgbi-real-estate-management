@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotMsg, setShowForgotMsg] = useState(false);
 
   // Auto-redirect if user is already logged in
   React.useEffect(() => {
@@ -96,6 +97,16 @@ const Login: React.FC = () => {
             </div>
           )}
 
+          {showForgotMsg && (
+            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl flex items-start gap-3 text-blue-600 dark:text-blue-400 text-sm animate-in fade-in slide-in-from-top-2">
+              <span className="material-icons-round mt-0.5">info</span>
+              <div>
+                <p className="font-semibold text-blue-800 dark:text-blue-300">Recuperación de Acceso</p>
+                <p className="mt-0.5 text-blue-700 dark:text-blue-400">Por favor contacte al administrador de CGBI para restablecer su contraseña de forma manual.</p>
+              </div>
+            </div>
+          )}
+
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
             <div className="relative">
@@ -125,9 +136,13 @@ const Login: React.FC = () => {
               />
             </div>
             <div className="mt-2 text-right">
-              <a href="#" className="text-sm font-medium text-primary hover:text-secondary transition-colors">
+              <button
+                type="button"
+                onClick={() => setShowForgotMsg(prev => !prev)}
+                className="text-sm font-medium text-primary hover:text-secondary transition-colors cursor-pointer outline-none border-none bg-transparent"
+              >
                 ¿Olvidó su contraseña? <span className="font-bold">Recuperar acceso</span>
-              </a>
+              </button>
             </div>
           </div>
 
