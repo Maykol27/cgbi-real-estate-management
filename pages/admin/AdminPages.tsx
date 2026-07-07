@@ -2163,7 +2163,7 @@ const UserManagementTable: React.FC<{ users: any[] }> = ({ users }) => {
                 });
 
                 if (error) throw error;
-                showToast("Contraseña restablecida a CGBI2026!", "success");
+                showToast("Contraseña restablecida a CGBI2026! El cambio es inmediato y manual (no se enviará correo).", "success");
             } catch (err: any) {
                 showToast("Error al resetear clave: " + err.message, "error");
             } finally {

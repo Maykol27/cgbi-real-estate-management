@@ -33,7 +33,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
 
             if (error) throw error;
 
-            setMessage({ type: 'success', text: 'Contraseña actualizada correctamente' });
+            setMessage({ type: 'success', text: 'Contraseña actualizada con éxito. El cambio es inmediato y no recibirás ningún correo de confirmación.' });
             setTimeout(() => {
                 onClose();
                 setNewPassword('');
