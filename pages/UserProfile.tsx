@@ -3,6 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
 import { ThemeToggle, NotificationButton } from '../components/Layout';
 import { HeaderProfile } from '../components/HeaderProfile';
+import { ChangePasswordModal } from '../components/ChangePasswordModal';
 
 const ProfileHeader: React.FC<{ title: string }> = ({ title }) => (
     <header className="h-16 shrink-0 bg-card-light dark:bg-card-dark border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 z-10 shadow-sm relative">
@@ -26,6 +27,7 @@ export const UserProfile: React.FC = () => {
         phone: user?.phone || ''
     });
     const [loading, setLoading] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
     // Sync state with user data
     useEffect(() => {
@@ -127,7 +129,7 @@ export const UserProfile: React.FC = () => {
 
                         <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
                             <h3 className="font-bold text-sm mb-4 dark:text-white">Seguridad</h3>
-                            <button onClick={() => showToast("Enviando correo de recuperación...", "info")} className="text-primary text-sm font-medium hover:underline">Cambiar Contraseña</button>
+                            <button onClick={() => setIsPasswordModalOpen(true)} className="text-primary text-sm font-medium hover:underline">Cambiar Contraseña</button>
                         </div>
 
                         <div className="flex justify-end pt-4">
@@ -142,6 +144,7 @@ export const UserProfile: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <ChangePasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} />
         </div>
     );
 };
